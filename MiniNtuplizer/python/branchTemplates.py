@@ -71,9 +71,23 @@ electronBranches = commonCandidates.clone(
     scE2x5Max                      = cms.vstring('scE2x5Max','F'),
     scE5x5                         = cms.vstring('scE5x5','F'),
     # charge id
-    isGsfCtfScPixChargeConsistent = cms.vstring('isGsfCtfScPixChargeConsistent','I'),
-    isGsfScPixChargeConsistent    = cms.vstring('isGsfScPixChargeConsistent','I'),
-    isGsfCtfChargeConsistent      = cms.vstring('isGsfCtfChargeConsistent','I'),
+    isGsfCtfScPixChargeConsistent  = cms.vstring('isGsfCtfScPixChargeConsistent','I'),
+    isGsfScPixChargeConsistent     = cms.vstring('isGsfScPixChargeConsistent','I'),
+    isGsfCtfChargeConsistent       = cms.vstring('isGsfCtfChargeConsistent','I'),
+    # ID
+    cutBasedVeto                   = cms.vstring('userInt("cutBasedElectronID-Spring15-25ns-V1-standalone-veto")','I'),
+    cutBasedLoose                  = cms.vstring('userInt("cutBasedElectronID-Spring15-25ns-V1-standalone-loose")','I'),
+    cutBasedMedium                 = cms.vstring('userInt("cutBasedElectronID-Spring15-25ns-V1-standalone-medium")','I'),
+    cutBasedTight                  = cms.vstring('userInt("cutBasedElectronID-Spring15-25ns-V1-standalone-tight")','I'),
+    #heepV60                        = cms.vstring('userInt("heepElectronID-HEEPV60")','I'),
+    #mvaNonTrigWP90                 = cms.vstring('userInt("mvaEleID-Spring15-25ns-nonTrig-V1-wp90")','I'),
+    #mvaNonTrigWP80                 = cms.vstring('userInt("mvaEleID-Spring15-25ns-nonTrig-V1-wp80")','I'),
+    #mvaTrigWP90                    = cms.vstring('userInt("mvaEleID-Spring15-25ns-Trig-V1-wp90")','I'),
+    #mvaTrigWP80                    = cms.vstring('userInt("mvaEleID-Spring15-25ns-Trig-V1-wp80")','I'),
+    #mvaNonTrigValues               = cms.vstring('userFloat("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Values")','F'),
+    #mvaTrigValues                  = cms.vstring('userFloat("ElectronMVAEstimatorRun2Spring15Trig25nsV1Values")','F'),
+    #mvaNonTrigCategories           = cms.vstring('userInt("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Categories")','I'),
+    #mvaTrigCategories              = cms.vstring('userInt("ElectronMVAEstimatorRun2Spring15Trig25nsV1Categories")','I'),
 )
 
 # muons

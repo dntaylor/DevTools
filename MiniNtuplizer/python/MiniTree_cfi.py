@@ -2,9 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 miniTreePath = cms.Path()
 
-# first create collections to analyze
 
 
+# load branches
 from AnalysisTools.MiniNtuplizer.branchTemplates import *
 
 miniTree = cms.EDAnalyzer("MiniTree",
