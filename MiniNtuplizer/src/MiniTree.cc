@@ -8,12 +8,14 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     tausToken_(consumes<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
     photonsToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
     jetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
+    metsToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
     genParticleBranches_(iConfig.getParameter<edm::ParameterSet>("genParticleBranches")),
     electronBranches_(iConfig.getParameter<edm::ParameterSet>("electronBranches")),
     muonBranches_(iConfig.getParameter<edm::ParameterSet>("muonBranches")),
     tauBranches_(iConfig.getParameter<edm::ParameterSet>("tauBranches")),
     photonBranches_(iConfig.getParameter<edm::ParameterSet>("photonBranches")),
-    jetBranches_(iConfig.getParameter<edm::ParameterSet>("jetBranches"))
+    jetBranches_(iConfig.getParameter<edm::ParameterSet>("jetBranches")),
+    metBranches_(iConfig.getParameter<edm::ParameterSet>("metBranches"))
 {
     // Declare use of TFileService
     usesResource("TFileService");
@@ -24,12 +26,14 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("taus",tauBranches_.getParameterNames()));
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("photons",photonBranches_.getParameterNames()));
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("jets",jetBranches_.getParameterNames()));
+    collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("mets",metBranches_.getParameterNames()));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("genParticles",genParticleBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("electrons",electronBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("muons",muonBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("taus",tauBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("photons",photonBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("jets",jetBranches_));
+    collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("mets",metBranches_));
     // order for tree
     collectionOrder_.push_back("genParticles");
     collectionOrder_.push_back("electrons");
@@ -37,6 +41,7 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     collectionOrder_.push_back("taus");
     collectionOrder_.push_back("photons");
     collectionOrder_.push_back("jets");
+    collectionOrder_.push_back("mets");
     // Check for duplicate entries
     std::set<std::string> allBranches;
     for (auto coll : collectionOrder_) {
@@ -271,12 +276,16 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     edm::Handle<pat::JetCollection> jets;
     iEvent.getByToken(jetsToken_, jets);
 
+    edm::Handle<pat::METCollection> mets;
+    iEvent.getByToken(metsToken_, mets);
+
     MiniTree::AnalyzeCollection<reco::GenParticle>(genParticles,"genParticles");
     MiniTree::AnalyzeCollection<pat::Electron>(electrons,"electrons");
     MiniTree::AnalyzeCollection<pat::Muon>(muons,"muons");
     MiniTree::AnalyzeCollection<pat::Tau>(taus,"taus");
     MiniTree::AnalyzeCollection<pat::Photon>(photons,"photons");
     MiniTree::AnalyzeCollection<pat::Jet>(jets,"jets");
+    MiniTree::AnalyzeCollection<pat::MET>(mets,"mets");
 
     tree->Fill();
 }

@@ -30,7 +30,6 @@ commonGenJetCandidates = commonGenCandidates.clone(
     
 )
 
-
 # allGenParticles
 allGenParticleBranches = commonGenCandidates.clone(
     px = cms.vstring('px()','F'),

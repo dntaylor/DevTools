@@ -27,6 +27,7 @@
 #include "DataFormats/PatCandidates/interface/Tau.h"
 #include "DataFormats/PatCandidates/interface/Photon.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 
 class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchLuminosityBlocks> {
   public:
@@ -58,6 +59,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     edm::EDGetTokenT<pat::TauCollection> tausToken_;
     edm::EDGetTokenT<pat::PhotonCollection> photonsToken_;
     edm::EDGetTokenT<pat::JetCollection> jetsToken_;
+    edm::EDGetTokenT<pat::METCollection> metsToken_;
 
     // branch parameters
     edm::ParameterSet genParticleBranches_;
@@ -66,6 +68,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     edm::ParameterSet tauBranches_;
     edm::ParameterSet photonBranches_;
     edm::ParameterSet jetBranches_;
+    edm::ParameterSet metBranches_;
 
     // tree
     TTree *tree;

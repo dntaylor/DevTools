@@ -51,5 +51,12 @@ miniTree = cms.EDAnalyzer("MiniTree",
             branches = jetBranches,
         ),
     ),
+    mets = cms.InputTag("slimmedMETs"),
+    metBranches = cms.PSet(
+        pfmet = cms.PSet(
+            maxCount = cms.uint32(1),
+            branches = metBranches,
+        ),
+    ),
 )
 miniTreePath += miniTree
