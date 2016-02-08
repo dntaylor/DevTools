@@ -10,11 +10,11 @@ higgsPruned = cms.EDProducer(
     src = cms.InputTag("prunedGenParticles"),
     select = cms.vstring(
     'drop *',
-    'keep abs(pdgId)==9900041 && isLastCopy', # H++
-    'keep abs(pdgId)==25 && isLastCopy',      # h0
-    'keep abs(pdgId)==35 && isLastCopy',      # H0
-    'keep abs(pdgId)==36 && isLastCopy',      # A0
-    'keep abs(pdgId)==37 && isLastCopy',      # H+
+    'keep++ abs(pdgId)==9900041 && isLastCopy', # H++
+    'keep++ abs(pdgId)==25 && isLastCopy',      # h0
+    'keep++ abs(pdgId)==35 && isLastCopy',      # H0
+    'keep++ abs(pdgId)==36 && isLastCopy',      # A0
+    'keep++ abs(pdgId)==37 && isLastCopy',      # H+
     )
 )
 genTreePath += higgsPruned
@@ -24,7 +24,7 @@ muonsPruned = cms.EDProducer(
     "GenParticlePruner",
     src = cms.InputTag("prunedGenParticles"),
     select = cms.vstring(
-    'keep status==1 && abs(pdgId)==13 && pt>4'
+    'keep++ status==1 && abs(pdgId)==13 && pt>4'
     )
 )
 genTreePath += muonsPruned
@@ -34,7 +34,7 @@ electronsPruned = cms.EDProducer(
     "GenParticlePruner",
     src = cms.InputTag("prunedGenParticles"),
     select = cms.vstring(
-    'keep status==1 && abs(pdgId)==11 && pt>4'
+    'keep++ status==1 && abs(pdgId)==11 && pt>4'
     )
 )
 genTreePath += electronsPruned
@@ -44,7 +44,7 @@ photonsPruned = cms.EDProducer(
     "GenParticlePruner",
     src = cms.InputTag("prunedGenParticles"),
     select = cms.vstring(
-    'keep status==1 && pdgId==22 && pt>4'
+    'keep++ status==1 && pdgId==22 && pt>4'
     )
 )
 genTreePath += photonsPruned
@@ -68,6 +68,7 @@ genTree = cms.EDAnalyzer("GenTree",
     higgsBranches = cms.PSet(
         higgs = cms.PSet(
             maxCount = cms.uint32(100),
+            selection = cms.string("(abs(pdgId)==9900041 ||  pdgId==25 ||  (35<=abs(pdgId)<=37)) && isLastCopy"),
             branches = higgsBranches,
         ),
     ),
@@ -75,6 +76,7 @@ genTree = cms.EDAnalyzer("GenTree",
     muonBranches = cms.PSet(
         muons = cms.PSet(
             maxCount = cms.uint32(100),
+            selection = cms.string("status==1 && abs(pdgId)==13 && pt>4"),
             branches = muonBranches,
         ),
     ),
@@ -82,6 +84,7 @@ genTree = cms.EDAnalyzer("GenTree",
     electronBranches = cms.PSet(
         electrons = cms.PSet(
             maxCount = cms.uint32(100),
+            selection = cms.string("status==1 && abs(pdgId)==11 && pt>4"),
             branches = electronBranches,
         ),
     ),
@@ -89,6 +92,7 @@ genTree = cms.EDAnalyzer("GenTree",
     photonBranches = cms.PSet(
         photons = cms.PSet(
             maxCount = cms.uint32(100),
+            selection = cms.string("status==1 && pdgId==22 && pt>4"),
             branches = photonBranches,
         ),
     ),

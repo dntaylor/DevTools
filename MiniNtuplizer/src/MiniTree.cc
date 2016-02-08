@@ -1,41 +1,42 @@
-#include "AnalysisTools/GenNtuplizer/interface/GenTree.h"
+#include "AnalysisTools/MiniNtuplizer/interface/MiniTree.h"
 
-GenTree::GenTree(const edm::ParameterSet &iConfig) :
+MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
+    genEventInfoToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genEventInfo"))),
     genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
-    higgsToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("higgs"))),
-    muonsToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
-    electronsToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
-    photonsToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
-    tausToken_(consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
+    electronsToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
+    muonsToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
+    tausToken_(consumes<pat::TauCollection>(iConfig.getParameter<edm::InputTag>("taus"))),
+    photonsToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
+    jetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
     genParticleBranches_(iConfig.getParameter<edm::ParameterSet>("genParticleBranches")),
-    higgsBranches_(iConfig.getParameter<edm::ParameterSet>("higgsBranches")),
-    muonBranches_(iConfig.getParameter<edm::ParameterSet>("muonBranches")),
     electronBranches_(iConfig.getParameter<edm::ParameterSet>("electronBranches")),
+    muonBranches_(iConfig.getParameter<edm::ParameterSet>("muonBranches")),
+    tauBranches_(iConfig.getParameter<edm::ParameterSet>("tauBranches")),
     photonBranches_(iConfig.getParameter<edm::ParameterSet>("photonBranches")),
-    tauBranches_(iConfig.getParameter<edm::ParameterSet>("tauBranches"))
+    jetBranches_(iConfig.getParameter<edm::ParameterSet>("jetBranches"))
 {
     // Declare use of TFileService
     usesResource("TFileService");
     // retrieve parameters
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("genParticles",genParticleBranches_.getParameterNames()));
-    collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("higgs",higgsBranches_.getParameterNames()));
-    collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("muons",muonBranches_.getParameterNames()));
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("electrons",electronBranches_.getParameterNames()));
-    collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("photons",photonBranches_.getParameterNames()));
+    collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("muons",muonBranches_.getParameterNames()));
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("taus",tauBranches_.getParameterNames()));
+    collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("photons",photonBranches_.getParameterNames()));
+    collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("jets",jetBranches_.getParameterNames()));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("genParticles",genParticleBranches_));
-    collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("higgs",higgsBranches_));
-    collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("muons",muonBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("electrons",electronBranches_));
-    collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("photons",photonBranches_));
+    collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("muons",muonBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("taus",tauBranches_));
+    collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("photons",photonBranches_));
+    collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("jets",jetBranches_));
     // order for tree
     collectionOrder_.push_back("genParticles");
-    collectionOrder_.push_back("higgs");
     collectionOrder_.push_back("electrons");
     collectionOrder_.push_back("muons");
-    collectionOrder_.push_back("photons");
     collectionOrder_.push_back("taus");
+    collectionOrder_.push_back("photons");
+    collectionOrder_.push_back("jets");
     // Check for duplicate entries
     std::set<std::string> allBranches;
     for (auto coll : collectionOrder_) {
@@ -63,9 +64,9 @@ GenTree::GenTree(const edm::ParameterSet &iConfig) :
     }
 }
 
-GenTree::~GenTree() { }
+MiniTree::~MiniTree() { }
 
-void GenTree::AddCollectionToTree(std::string name, edm::ParameterSet pset) {
+void MiniTree::AddCollectionToTree(std::string name, edm::ParameterSet pset) {
     // Add the count
     std::string countName = name + "_count";
     countMap_.insert(std::pair<std::string, UInt_t>(name, 0));
@@ -104,24 +105,53 @@ void GenTree::AddCollectionToTree(std::string name, edm::ParameterSet pset) {
     collectionBranches_.insert(std::pair<std::string, std::vector<std::string> >(name, treeBranchNames));
 }
 
-void GenTree::beginJob() {
+void MiniTree::beginJob() {
     edm::Service<TFileService> FS;
-    tree = FS->make<TTree>("GenTree", "GenTree");
 
-    // create branches
+    // create lumitree
+    lumitree = FS->make<TTree>("LumiTree", "LumiTree");
+
+    lumitree->Branch("run", &runBranch_, "run/I");
+    lumitree->Branch("lumi", &lumiBranch_, "lumi/I");
+    lumitree->Branch("nevents", &neventsBranch_, "nevents/I");
+    lumitree->Branch("summedWeights", &summedWeightsBranch_, "summedWeights/F");
+
+    // create tree
+    tree = FS->make<TTree>("MiniTree", "MiniTree");
+
+    // one off branches
+    tree->Branch("run", &runBranch_, "run/I");
+    tree->Branch("lumi", &lumiBranch_, "lumi/I");
+    tree->Branch("event", &eventBranch_, "event/l");
+    tree->Branch("genWeight", &genWeightBranch_, "genWeight/F");
+
+    // add collections
     for (auto coll : collectionOrder_) {
         for (auto collectionName : collectionNamesMap_[coll]) {
             edm::ParameterSet collectionPSet = collectionPSetMap_[coll].getParameter<edm::ParameterSet>(collectionName);
-            GenTree::AddCollectionToTree(collectionName,collectionPSet);
+            MiniTree::AddCollectionToTree(collectionName,collectionPSet);
         }
     }
 
 }
 
-void GenTree::endJob() { }
+void MiniTree::beginLuminosityBlock(edm::LuminosityBlock const& iEvent, edm::EventSetup const& iSetup) {
+    // clear the counters
+    runBranch_ = iEvent.run();
+    lumiBranch_ = iEvent.luminosityBlock();
+    neventsBranch_ = 0;
+    summedWeightsBranch_ = 0;
+}
+
+void MiniTree::endLuminosityBlock(edm::LuminosityBlock const& iEvent, edm::EventSetup const& iSetup) {
+    // fill the lumi tree
+    lumitree->Fill();
+}
+
+void MiniTree::endJob() { }
 
 template<typename T, typename ObjType>
-T GenTree::Evaluate(std::string branchName, std::string function, ObjType obj) {
+T MiniTree::Evaluate(std::string branchName, std::string function, ObjType obj) {
     StringObjectFunction<ObjType> func_(function,true);
     T val;
     try{
@@ -135,7 +165,7 @@ T GenTree::Evaluate(std::string branchName, std::string function, ObjType obj) {
 }
 
 template<typename ObjType>
-void GenTree::AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std::string name) {
+void MiniTree::AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std::string name) {
 
     // cleanup from before
     for (auto collectionName: collectionNamesMap_[name]) {
@@ -191,10 +221,10 @@ void GenTree::AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std:
                 std::string function = branchFunctions_[branchName];
                 std::string branchType = branchTypes_[branchName];
                 if (branchType=="F") { // Float_t
-                    floatMap_[branchName].push_back(GenTree::Evaluate<Float_t,ObjType>(branchName,function,object));
+                    floatMap_[branchName].push_back(MiniTree::Evaluate<Float_t,ObjType>(branchName,function,object));
                 }
                 else if (branchType=="I") { // Int_t
-                    intMap_[branchName].push_back(GenTree::Evaluate<Int_t,ObjType>(branchName,function,object));
+                    intMap_[branchName].push_back(MiniTree::Evaluate<Int_t,ObjType>(branchName,function,object));
                 }
                 else {
                     throw cms::Exception("UnrecognizedType")
@@ -208,32 +238,45 @@ void GenTree::AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std:
 }
 
 
-void GenTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
+    // first, the lumitree
+    edm::Handle<GenEventInfoProduct> genEventInfo;
+    iEvent.getByToken(genEventInfoToken_, genEventInfo);
+   
+    neventsBranch_++;
+    genWeightBranch_ = 0.;
+    if (genEventInfo.isValid()) {
+        genWeightBranch_ = genEventInfo->weight();
+    }
+    summedWeightsBranch_ += genWeightBranch_;
 
+    eventBranch_ = iEvent.id().event();
+
+    // now the actual tree
     edm::Handle<reco::GenParticleCollection> genParticles;
     iEvent.getByToken(genParticlesToken_, genParticles);
 
-    edm::Handle<reco::GenParticleCollection> higgs;
-    iEvent.getByToken(higgsToken_, higgs);
-
-    edm::Handle<reco::GenParticleCollection> muons;
-    iEvent.getByToken(muonsToken_, muons);
-
-    edm::Handle<reco::GenParticleCollection> electrons;
+    edm::Handle<pat::ElectronCollection> electrons;
     iEvent.getByToken(electronsToken_, electrons);
 
-    edm::Handle<reco::GenParticleCollection> photons;
-    iEvent.getByToken(photonsToken_, photons);
+    edm::Handle<pat::MuonCollection> muons;
+    iEvent.getByToken(muonsToken_, muons);
 
-    edm::Handle<reco::GenJetCollection> taus;
+    edm::Handle<pat::TauCollection> taus;
     iEvent.getByToken(tausToken_, taus);
 
-    GenTree::AnalyzeCollection<reco::GenParticle>(genParticles,"genParticles");
-    GenTree::AnalyzeCollection<reco::GenParticle>(higgs,"higgs");
-    GenTree::AnalyzeCollection<reco::GenParticle>(muons,"muons");
-    GenTree::AnalyzeCollection<reco::GenParticle>(electrons,"electrons");
-    GenTree::AnalyzeCollection<reco::GenParticle>(photons,"photons");
-    GenTree::AnalyzeCollection<reco::GenJet>(taus,"taus");
+    edm::Handle<pat::PhotonCollection> photons;
+    iEvent.getByToken(photonsToken_, photons);
+
+    edm::Handle<pat::JetCollection> jets;
+    iEvent.getByToken(jetsToken_, jets);
+
+    MiniTree::AnalyzeCollection<reco::GenParticle>(genParticles,"genParticles");
+    MiniTree::AnalyzeCollection<pat::Electron>(electrons,"electrons");
+    MiniTree::AnalyzeCollection<pat::Muon>(muons,"muons");
+    MiniTree::AnalyzeCollection<pat::Tau>(taus,"taus");
+    MiniTree::AnalyzeCollection<pat::Photon>(photons,"photons");
+    MiniTree::AnalyzeCollection<pat::Jet>(jets,"jets");
 
     tree->Fill();
 }

@@ -31,31 +31,30 @@ commonGenJetCandidates = commonGenCandidates.clone(
 )
 
 
-# allGenParticles
-allGenParticleBranches = commonGenCandidates.clone(
-    px = cms.vstring('px()','F'),
-    py = cms.vstring('py()','F'),
-    pz = cms.vstring('pz()','F'),
-    vx = cms.vstring('vx()','F'),
-    vy = cms.vstring('vy()','F'),
-    vz = cms.vstring('vz()','F'),
-)
+# genParticles
+genParticleBranches = commonGenCandidates.clone()
 
-# higgs
-higgsBranches = commonGenCandidates.clone(
-    numberOfDaughters = cms.vstring('numberOfDaughters()','I'),
-    daughter_1        = cms.vstring('? numberOfDaughters()>0 ? daughter(0).pdgId() : 0','I'),
-    daughter_2        = cms.vstring('? numberOfDaughters()>1 ? daughter(1).pdgId() : 0','I'),
+# electrons
+electronBranches = commonCandidates.clone(
+
 )
 
 # muons
-muonBranches = statusOneCandidates.clone()
+muonBranches = commonCandidates.clone(
 
-# electrons
-electronBranches = statusOneCandidates.clone()
-
-# photons
-photonBranches = statusOneCandidates.clone()
+)
 
 # taus
-tauBranches = commonGenJetCandidates.clone()
+tauBranches = commonCandidates.clone(
+
+)
+
+# photons
+photonBranches = commonCandidates.clone(
+
+)
+
+# jets
+jetBranches = commonCandidates.clone(
+
+)
