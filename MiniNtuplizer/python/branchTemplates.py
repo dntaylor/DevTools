@@ -233,7 +233,29 @@ photonBranches = commonCandidates.clone(
 
 # jets
 jetBranches = commonCandidates.clone(
-
+    # btagging
+    pfJetProbabilityBJetTags                     = cms.vstring('bDiscriminator("pfJetProbabilityBJetTags")','F'),
+    pfCombinedInclusiveSecondaryVertexV2BJetTags = cms.vstring('bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")','F'),
+    pfCombinedMVAV2BJetTags                      = cms.vstring('bDiscriminator("pfCombinedMVAV2BJetTags")','F'),
+    passJPL                                      = cms.vstring('? bDiscriminator("pfJetProbabilityBJetTags")>0.245 ? 1 : 0','I'),
+    passJPM                                      = cms.vstring('? bDiscriminator("pfJetProbabilityBJetTags")>0.515 ? 1 : 0','I'),
+    passJPT                                      = cms.vstring('? bDiscriminator("pfJetProbabilityBJetTags")>0.760 ? 1 : 0','I'),
+    passCSVv2L                                   = cms.vstring('? bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")>0.460 ? 1 : 0','I'),
+    passCSVv2M                                   = cms.vstring('? bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")>0.800 ? 1 : 0','I'),
+    passCSVv2T                                   = cms.vstring('? bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")>0.935 ? 1 : 0','I'),
+    passCMVAv2L                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>-0.715 ? 1 : 0','I'),
+    passCMVAv2M                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>0.185 ? 1 : 0','I'),
+    passCMVAv2T                                  = cms.vstring('? bDiscriminator("pfCombinedMVAV2BJetTags")>0.875 ? 1 : 0','I'),
+    # flavor
+    partonFlavour                                = cms.vstring('partonFlavour','I'),
+    # id variables
+    neutralHadronEnergyFraction                  = cms.vstring('neutralHadronEnergyFraction','F'),
+    neutralEmEnergyFraction                      = cms.vstring('neutralEmEnergyFraction','F'),
+    chargedHadronEnergyFraction                  = cms.vstring('chargedHadronEnergyFraction','F'),
+    muonEnergyFraction                           = cms.vstring('muonEnergyFraction','F'),
+    chargedEmEnergyFraction                      = cms.vstring('chargedEmEnergyFraction','F'),
+    chargedMultiplicity                          = cms.vstring('chargedMultiplicity','I'),
+    neutralMultiplicity                          = cms.vstring('neutralMultiplicity','I'),
 )
 
 # mets
