@@ -4,7 +4,7 @@ from FWCore.ParameterSet.VarParsing import VarParsing
 options = VarParsing('analysis')
 
 options.outputFile = 'genTree.root'
-options.inputFiles= 'file:/hdfs/store/user/dntaylor/DBLH_M-500_13TeV_MINIAODSIM_v1-dblh_m500_13tev_4_cfg/dblh_m500_13tev_4_cfg-dblh_m500_13tev_3_cfg-dblh_m500_13tev_2_cfg-DBLH_M-500_13TeV_GEN-SIM_v4-0000.root'
+options.inputFiles= '/store/user/dntaylor/HPlusPlusHMinusMinusHTo4L_M-500_13TeV-pythia8/RunIIFall15DR76_MINIAODSIM/160209_075744/0000/dblh_m500_13tev_step3_1.root'
 options.maxEvents = -1
 
 options.parseArguments()
