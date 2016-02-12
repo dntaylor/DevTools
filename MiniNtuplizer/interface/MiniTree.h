@@ -53,6 +53,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
 
     // tokens
     edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
+    edm::EDGetTokenT<double> rhoToken_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
     edm::EDGetTokenT<pat::ElectronCollection> electronsToken_;
     edm::EDGetTokenT<pat::MuonCollection> muonsToken_;
@@ -83,6 +84,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     // one off tree branches
     Float_t   genWeightBranch_;
     ULong64_t eventBranch_;
+    Float_t   rhoBranch_;
 
     // maps for branches
     std::map<std::string, UInt_t>                countMap_;

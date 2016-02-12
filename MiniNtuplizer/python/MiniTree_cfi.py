@@ -9,6 +9,7 @@ from AnalysisTools.MiniNtuplizer.branchTemplates import *
 
 miniTree = cms.EDAnalyzer("MiniTree",
     genEventInfo = cms.InputTag("generator"),
+    rho = cms.InputTag("fixedGridRhoFastjetAll"),
     genParticles = cms.InputTag("prunedGenParticles"),
     genParticleBranches = cms.PSet(
         genParticles = cms.PSet(

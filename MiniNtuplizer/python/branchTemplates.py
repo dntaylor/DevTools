@@ -65,6 +65,14 @@ electronBranches = commonCandidates.clone(
         '/pt()',
         'F'
     ),
+    relPFIsoRhoR03                 = cms.vstring(
+        '(chargedHadronIso()'
+        '+max(0.0,neutralHadronIso()'
+        '+photonIso()'
+        '-userFloat("rho")*userFloat("EffectiveArea")))'
+        '/pt()',
+        'F'
+    ),
     # shower shape / ID variables
     passConversionVeto             = cms.vstring('passConversionVeto()','I'),
     hcalOverEcal                   = cms.vstring('hcalOverEcal','F'),

@@ -2,9 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 def customizeElectrons(process,eSrc,**kwargs):
     '''Customize electrons'''
-
+    rhoSrc = kwargs.pop('rhoSrc','')
+    # customization path
     process.electronCustomization = cms.Path()
 
+    #################
+    ### embed VID ###
+    #################
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, setupAllVIDIdsInModule, DataFormat, setupVIDElectronSelection
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
     
@@ -79,8 +83,10 @@ def customizeElectrons(process,eSrc,**kwargs):
     process.electronCustomization *= process.egmGsfElectronIDSequence
     process.electronCustomization *= process.eidEmbedder
 
+    #############################
+    ### embed effective areas ###
+    #############################
     eaFile = 'RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt'
-    modName = 'miniAODElectronEAEmbedding'
     process.eEffArea = cms.EDProducer(
         "ElectronEffectiveAreaEmbedder",
         src = cms.InputTag(eSrc),
@@ -91,6 +97,20 @@ def customizeElectrons(process,eSrc,**kwargs):
 
     process.electronCustomization *= process.eEffArea
 
+    #################
+    ### embed rho ###
+    #################
+    process.eRho = cms.EDProducer(
+        "ElectronRhoEmbedder",
+        src = cms.InputTag(eSrc),
+        rhoSrc = cms.InputTag(rhoSrc),
+        label = cms.string("rho"),
+    )
+    eSrc = 'eRho'
+
+    process.electronCustomization *= process.eRho
+
+    # add to schedule
     process.schedule.append(process.electronCustomization)
 
     return eSrc

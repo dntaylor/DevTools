@@ -2,6 +2,7 @@
 
 MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     genEventInfoToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genEventInfo"))),
+    rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
     genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
     electronsToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
     muonsToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
@@ -129,6 +130,7 @@ void MiniTree::beginJob() {
     tree->Branch("lumi", &lumiBranch_, "lumi/I");
     tree->Branch("event", &eventBranch_, "event/l");
     tree->Branch("genWeight", &genWeightBranch_, "genWeight/F");
+    tree->Branch("rho", &rhoBranch_, "rho/F");
 
     // add collections
     for (auto coll : collectionOrder_) {
@@ -255,9 +257,16 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     }
     summedWeightsBranch_ += genWeightBranch_;
 
+    // now the actual tree
     eventBranch_ = iEvent.id().event();
 
-    // now the actual tree
+    // one off stuff
+    edm::Handle<double> rho;
+    iEvent.getByToken(rhoToken_,rho);
+
+    rhoBranch_ = *rho;
+
+    // collection branches
     edm::Handle<reco::GenParticleCollection> genParticles;
     iEvent.getByToken(genParticlesToken_, genParticles);
 

@@ -2,4 +2,25 @@ import FWCore.ParameterSet.Config as cms
 
 def customizeMuons(process,mSrc,**kwargs):
     '''Customize muons'''
+    rhoSrc = kwargs.pop('rhoSrc','')
+
+    # customization path
+    process.muonCustomization = cms.Path()
+
+    #################
+    ### embed rho ###
+    #################
+    process.mRho = cms.EDProducer(
+        "MuonRhoEmbedder",
+        src = cms.InputTag(mSrc),
+        rhoSrc = cms.InputTag(rhoSrc),
+        label = cms.string("rho"),
+    )
+    mSrc = 'mRho'
+
+    process.muonCustomization *= process.mRho
+
+    # add to schedule
+    process.schedule.append(process.muonCustomization)
+
     return mSrc

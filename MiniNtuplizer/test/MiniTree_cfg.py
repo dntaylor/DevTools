@@ -49,6 +49,7 @@ collections = {
     'photons'      : 'slimmedPhotons',
     'jets'         : 'slimmedJets',
     'pfmet'        : 'slimmedMETs',
+    'rho'          : 'fixedGridRhoFastjetAll',
 }
 
 # the selections for each object (to be included in ntuple)
@@ -84,30 +85,35 @@ from AnalysisTools.MiniNtuplizer.customizeElectrons import customizeElectrons
 collections['electrons'] = customizeElectrons(
     process,
     collections['electrons'],
+    rhoSrc=collections['rho'],
 )
 
 from AnalysisTools.MiniNtuplizer.customizeMuons import customizeMuons
 collections['muons'] = customizeMuons(
     process,
     collections['muons'],
+    rhoSrc=collections['rho'],
 )
 
 from AnalysisTools.MiniNtuplizer.customizeTaus import customizeTaus
 collections['taus'] = customizeTaus(
     process,
     collections['taus'],
+    rhoSrc=collections['rho'],
 )
 
 from AnalysisTools.MiniNtuplizer.customizePhotons import customizePhotons
 collections['photons'] = customizePhotons(
     process,
     collections['photons'],
+    rhoSrc=collections['rho'],
 )
 
 from AnalysisTools.MiniNtuplizer.customizeJets import customizeJets
 collections['jets'] = customizeJets(
     process,
     collections['jets'],
+    rhoSrc=collections['rho'],
 )
 
 from AnalysisTools.MiniNtuplizer.customizeMets import customizeMets
@@ -133,5 +139,6 @@ process.miniTree.taus = collections['taus']
 process.miniTree.photons = collections['photons']
 process.miniTree.jets = collections['jets']
 process.miniTree.mets = collections['pfmet']
+process.miniTree.rho = collections['rho']
 
 process.schedule.append(process.miniTreePath)
