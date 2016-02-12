@@ -53,9 +53,18 @@ electronBranches = commonCandidates.clone(
     pfNeutralHadronIso             = cms.vstring('userIsolation("PfNeutralHadronIso")','F'),
     pfGammaIso                     = cms.vstring('userIsolation("PfGammaIso")','F'),
     pfPUChargedHadronIso           = cms.vstring('userIsolation("PfPUChargedHadronIso")','F'),
-    dr03TkSumPt                    = cms.vstring("dr03TkSumPt()",'F'),
-    dr03EcalRecHitSumEt            = cms.vstring("dr03EcalRecHitSumEt()",'F'),
-    dr03HcalTowerSumEt             = cms.vstring("dr03HcalTowerSumEt()",'F'),
+    dr03TkSumPt                    = cms.vstring('dr03TkSumPt()','F'),
+    dr03EcalRecHitSumEt            = cms.vstring('dr03EcalRecHitSumEt()','F'),
+    dr03HcalTowerSumEt             = cms.vstring('dr03HcalTowerSumEt()','F'),
+    effectiveArea                  = cms.vstring('userFloat("EffectiveArea")','F'),
+    relPFIsoDeltaBetaR03           = cms.vstring(
+        '(userIsolation("PfChargedHadronIso")'
+        '+max(userIsolation("PfNeutralHadronIso")'
+        '+userIsolation("PfGammaIso")'
+        '-0.5*userIsolation("PfPUChargedHadronIso"),0.0))'
+        '/pt()',
+        'F'
+    ),
     # shower shape / ID variables
     passConversionVeto             = cms.vstring('passConversionVeto()','I'),
     hcalOverEcal                   = cms.vstring('hcalOverEcal','F'),

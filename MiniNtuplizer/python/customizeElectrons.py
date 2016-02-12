@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 def customizeElectrons(process,eSrc,**kwargs):
     '''Customize electrons'''
 
+    process.electronCustomization = cms.Path()
+
     from PhysicsTools.SelectorUtils.tools.vid_id_tools import switchOnVIDElectronIdProducer, setupAllVIDIdsInModule, DataFormat, setupVIDElectronSelection
     switchOnVIDElectronIdProducer(process, DataFormat.MiniAOD)
     
@@ -74,7 +76,21 @@ def customizeElectrons(process,eSrc,**kwargs):
     )
     eSrc = 'eidEmbedder'
 
-    process.egmGsfElectronIDPath = cms.Path(process.egmGsfElectronIDSequence*process.eidEmbedder)
-    process.schedule.append(process.egmGsfElectronIDPath)
+    process.electronCustomization *= process.egmGsfElectronIDSequence
+    process.electronCustomization *= process.eidEmbedder
+
+    eaFile = 'RecoEgamma/ElectronIdentification/data/Spring15/effAreaElectrons_cone03_pfNeuHadronsAndPhotons_25ns.txt'
+    modName = 'miniAODElectronEAEmbedding'
+    process.eEffArea = cms.EDProducer(
+        "ElectronEffectiveAreaEmbedder",
+        src = cms.InputTag(eSrc),
+        label = cms.string("EffectiveArea"), # embeds a user float with this name
+        configFile = cms.FileInPath(eaFile), # the effective areas file
+    )
+    eSrc = 'eEffArea'
+
+    process.electronCustomization *= process.eEffArea
+
+    process.schedule.append(process.electronCustomization)
 
     return eSrc
