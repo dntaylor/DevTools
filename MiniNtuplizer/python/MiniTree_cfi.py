@@ -10,6 +10,7 @@ from AnalysisTools.MiniNtuplizer.branchTemplates import *
 miniTree = cms.EDAnalyzer("MiniTree",
     genEventInfo = cms.InputTag("generator"),
     rho = cms.InputTag("fixedGridRhoFastjetAll"),
+    pileupSummaryInfo = cms.InputTag("slimmedAddPileupInfo"),
     vertices = cms.InputTag("slimmedOfflinePrimaryVertices"),
     vertexBranches = cms.PSet(
         vertices = cms.PSet(

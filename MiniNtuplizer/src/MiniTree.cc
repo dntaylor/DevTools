@@ -2,6 +2,7 @@
 
 MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     genEventInfoToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genEventInfo"))),
+    pileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupSummaryInfo"))),
     rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
     verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
     genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
@@ -137,6 +138,7 @@ void MiniTree::beginJob() {
     tree->Branch("event", &eventBranch_, "event/l");
     tree->Branch("genWeight", &genWeightBranch_, "genWeight/F");
     tree->Branch("rho", &rhoBranch_, "rho/F");
+    tree->Branch("nTrueVertices", &nTrueVerticesBranch_, "nTrueVertices/F");
 
     // add collections
     for (auto coll : collectionOrder_) {
@@ -270,7 +272,14 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     edm::Handle<double> rho;
     iEvent.getByToken(rhoToken_,rho);
 
+    edm::Handle<std::vector<PileupSummaryInfo> > pileupSummaryInfo;
+    iEvent.getByToken(pileupSummaryInfoToken_, pileupSummaryInfo);
+
     rhoBranch_ = *rho;
+    nTrueVerticesBranch_ = 0;
+    if (pileupSummaryInfo.isValid() && pileupSummaryInfo->size()>0) {
+        nTrueVerticesBranch_ = pileupSummaryInfo->at(1).getTrueNumInteractions();
+    }
 
     // collection branches
     edm::Handle<reco::VertexCollection> vertices;

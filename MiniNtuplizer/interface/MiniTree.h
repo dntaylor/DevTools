@@ -19,6 +19,7 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
@@ -55,6 +56,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
 
     // tokens
     edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
+    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryInfoToken_;
     edm::EDGetTokenT<double> rhoToken_;
     edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
@@ -89,6 +91,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     Float_t   genWeightBranch_;
     ULong64_t eventBranch_;
     Float_t   rhoBranch_;
+    Float_t   nTrueVerticesBranch_;
 
     // maps for branches
     std::map<std::string, UInt_t>                countMap_;
