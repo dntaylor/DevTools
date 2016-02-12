@@ -35,6 +35,24 @@ commonMet = cms.PSet(
     phi = cms.vstring('phi()','F'),
 )
 
+commonVertex = cms.PSet(
+    x              = cms.vstring('x','F'),
+    y              = cms.vstring('y','F'),
+    z              = cms.vstring('z','F'),
+    xError         = cms.vstring('xError','F'),
+    yError         = cms.vstring('yError','F'),
+    zError         = cms.vstring('zError','F'),
+    chi2           = cms.vstring('chi2','F'),
+    ndof           = cms.vstring('ndof','F'),
+    normalizedChi2 = cms.vstring('normalizedChi2','F'),
+    isValid        = cms.vstring('isValid', 'I'),
+    isFake         = cms.vstring('isFake', 'I'),
+    rho            = cms.vstring('position.Rho','F'),
+)
+
+# vertices
+vertexBranches = commonVertex.clone()
+
 # genParticles
 genParticleBranches = commonGenCandidates.clone()
 
@@ -153,12 +171,12 @@ muonBranches = commonCandidates.clone(
     isMediumMuon          = cms.vstring('isMediumMuon','I'),
     isLooseMuon           = cms.vstring('isLooseMuon','I'),
     # pv
-    dz                             = cms.vstring('userFloat("dz")','F'),
-    dxy                            = cms.vstring('userFloat("dxy")','F'),
-    dB2D                           = cms.vstring('userFloat("dB2D")','F'),
-    dB3D                           = cms.vstring('userFloat("dB3D")','F'),
-    edB2D                          = cms.vstring('userFloat("edB2D")','F'),
-    edB3D                          = cms.vstring('userFloat("edB3D")','F'),
+    dz                    = cms.vstring('userFloat("dz")','F'),
+    dxy                   = cms.vstring('userFloat("dxy")','F'),
+    dB2D                  = cms.vstring('userFloat("dB2D")','F'),
+    dB3D                  = cms.vstring('userFloat("dB3D")','F'),
+    edB2D                 = cms.vstring('userFloat("edB2D")','F'),
+    edB3D                 = cms.vstring('userFloat("edB3D")','F'),
 )
 
 # taus
@@ -256,8 +274,8 @@ tauBranches = commonCandidates.clone(
     decayModeFinding                                = cms.vstring('tauID("decayModeFinding")','I'),
     decayModeFindingNewDMs                          = cms.vstring('tauID("decayModeFindingNewDMs")','I'),
     # pv
-    dz                             = cms.vstring('userFloat("dz")','F'),
-    dxy                            = cms.vstring('userFloat("dxy")','F'),
+    dz                                              = cms.vstring('userFloat("dz")','F'),
+    dxy                                             = cms.vstring('userFloat("dxy")','F'),
 )
 
 # photons

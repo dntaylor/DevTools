@@ -144,5 +144,6 @@ process.miniTree.photons = collections['photons']
 process.miniTree.jets = collections['jets']
 process.miniTree.mets = collections['pfmet']
 process.miniTree.rho = collections['rho']
+process.miniTree.vertices = collections['vertices']
 
 process.schedule.append(process.miniTreePath)

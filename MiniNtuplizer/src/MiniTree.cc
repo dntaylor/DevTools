@@ -3,6 +3,7 @@
 MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     genEventInfoToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genEventInfo"))),
     rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
+    verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
     genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
     electronsToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
     muonsToken_(consumes<pat::MuonCollection>(iConfig.getParameter<edm::InputTag>("muons"))),
@@ -10,6 +11,7 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     photonsToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
     jetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
     metsToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
+    vertexBranches_(iConfig.getParameter<edm::ParameterSet>("vertexBranches")),
     genParticleBranches_(iConfig.getParameter<edm::ParameterSet>("genParticleBranches")),
     electronBranches_(iConfig.getParameter<edm::ParameterSet>("electronBranches")),
     muonBranches_(iConfig.getParameter<edm::ParameterSet>("muonBranches")),
@@ -20,7 +22,8 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
 {
     // Declare use of TFileService
     usesResource("TFileService");
-    // retrieve parameters
+    // store names
+    collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("vertices",vertexBranches_.getParameterNames()));
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("genParticles",genParticleBranches_.getParameterNames()));
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("electrons",electronBranches_.getParameterNames()));
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("muons",muonBranches_.getParameterNames()));
@@ -28,6 +31,8 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("photons",photonBranches_.getParameterNames()));
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("jets",jetBranches_.getParameterNames()));
     collectionNamesMap_.insert(std::pair<std::string, std::vector<std::string> >("mets",metBranches_.getParameterNames()));
+    // store parameters
+    collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("vertices",vertexBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("genParticles",genParticleBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("electrons",electronBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("muons",muonBranches_));
@@ -36,6 +41,7 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("jets",jetBranches_));
     collectionPSetMap_.insert(std::pair<std::string, edm::ParameterSet>("mets",metBranches_));
     // order for tree
+    collectionOrder_.push_back("vertices");
     collectionOrder_.push_back("genParticles");
     collectionOrder_.push_back("electrons");
     collectionOrder_.push_back("muons");
@@ -267,6 +273,9 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     rhoBranch_ = *rho;
 
     // collection branches
+    edm::Handle<reco::VertexCollection> vertices;
+    iEvent.getByToken(verticesToken_, vertices);
+
     edm::Handle<reco::GenParticleCollection> genParticles;
     iEvent.getByToken(genParticlesToken_, genParticles);
 
@@ -288,6 +297,7 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     edm::Handle<pat::METCollection> mets;
     iEvent.getByToken(metsToken_, mets);
 
+    MiniTree::AnalyzeCollection<reco::Vertex>(vertices,"vertices");
     MiniTree::AnalyzeCollection<reco::GenParticle>(genParticles,"genParticles");
     MiniTree::AnalyzeCollection<pat::Electron>(electrons,"electrons");
     MiniTree::AnalyzeCollection<pat::Muon>(muons,"muons");

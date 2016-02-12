@@ -19,6 +19,8 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -54,6 +56,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     // tokens
     edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
     edm::EDGetTokenT<double> rhoToken_;
+    edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
     edm::EDGetTokenT<pat::ElectronCollection> electronsToken_;
     edm::EDGetTokenT<pat::MuonCollection> muonsToken_;
@@ -63,6 +66,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     edm::EDGetTokenT<pat::METCollection> metsToken_;
 
     // branch parameters
+    edm::ParameterSet vertexBranches_;
     edm::ParameterSet genParticleBranches_;
     edm::ParameterSet electronBranches_;
     edm::ParameterSet muonBranches_;

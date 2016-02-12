@@ -10,6 +10,13 @@ from AnalysisTools.MiniNtuplizer.branchTemplates import *
 miniTree = cms.EDAnalyzer("MiniTree",
     genEventInfo = cms.InputTag("generator"),
     rho = cms.InputTag("fixedGridRhoFastjetAll"),
+    vertices = cms.InputTag("slimmedOfflinePrimaryVertices"),
+    vertexBranches = cms.PSet(
+        vertices = cms.PSet(
+            maxCount = cms.uint32(100),
+            branches = vertexBranches,
+        ),
+    ),
     genParticles = cms.InputTag("prunedGenParticles"),
     genParticleBranches = cms.PSet(
         genParticles = cms.PSet(
