@@ -16,7 +16,7 @@
 
 // CMS includes
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,7 +26,7 @@
 #include "RecoEgamma/EgammaTools/interface/EffectiveAreas.h"
 
 template<typename T>
-class EffectiveAreaEmbedder : public edm::EDProducer
+class EffectiveAreaEmbedder : public edm::stream::EDProducer<>
 {
 public:
   explicit EffectiveAreaEmbedder(const edm::ParameterSet&);

@@ -5,7 +5,7 @@
 
 // CMS includes
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/ValueMap.h"
@@ -13,7 +13,7 @@
 #include "DataFormats/PatCandidates/interface/VIDCutFlowResult.h"
 
 template<typename T>
-class VIDEmbedder : public edm::EDProducer
+class VIDEmbedder : public edm::stream::EDProducer<>
 {
   public:
     explicit VIDEmbedder(const edm::ParameterSet&);
