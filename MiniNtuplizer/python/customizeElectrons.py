@@ -3,6 +3,8 @@ import FWCore.ParameterSet.Config as cms
 def customizeElectrons(process,eSrc,**kwargs):
     '''Customize electrons'''
     rhoSrc = kwargs.pop('rhoSrc','')
+    pvSrc = kwargs.pop('pvSrc','')
+
     # customization path
     process.electronCustomization = cms.Path()
 
@@ -109,6 +111,18 @@ def customizeElectrons(process,eSrc,**kwargs):
     eSrc = 'eRho'
 
     process.electronCustomization *= process.eRho
+
+    ################
+    ### embed pv ###
+    ################
+    process.ePV = cms.EDProducer(
+        "ElectronIpEmbedder",
+        src = cms.InputTag(eSrc),
+        vertexSrc = cms.InputTag(pvSrc),
+    )
+    eSrc = 'ePV'
+
+    process.electronCustomization *= process.ePV
 
     # add to schedule
     process.schedule.append(process.electronCustomization)

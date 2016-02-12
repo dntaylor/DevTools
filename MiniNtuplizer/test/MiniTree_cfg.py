@@ -50,6 +50,7 @@ collections = {
     'jets'         : 'slimmedJets',
     'pfmet'        : 'slimmedMETs',
     'rho'          : 'fixedGridRhoFastjetAll',
+    'vertices'     : 'offlineSlimmedPrimaryVertices',
 }
 
 # the selections for each object (to be included in ntuple)
@@ -86,6 +87,7 @@ collections['electrons'] = customizeElectrons(
     process,
     collections['electrons'],
     rhoSrc=collections['rho'],
+    pvSrc=collections['vertices'],
 )
 
 from AnalysisTools.MiniNtuplizer.customizeMuons import customizeMuons
@@ -93,6 +95,7 @@ collections['muons'] = customizeMuons(
     process,
     collections['muons'],
     rhoSrc=collections['rho'],
+    pvSrc=collections['vertices'],
 )
 
 from AnalysisTools.MiniNtuplizer.customizeTaus import customizeTaus
@@ -100,6 +103,7 @@ collections['taus'] = customizeTaus(
     process,
     collections['taus'],
     rhoSrc=collections['rho'],
+    pvSrc=collections['vertices'],
 )
 
 from AnalysisTools.MiniNtuplizer.customizePhotons import customizePhotons

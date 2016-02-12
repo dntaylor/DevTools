@@ -105,6 +105,13 @@ electronBranches = commonCandidates.clone(
     mvaTrigValues                  = cms.vstring('userFloat("ElectronMVAEstimatorRun2Spring15Trig25nsV1Values")','F'),
     mvaNonTrigCategories           = cms.vstring('userInt("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Categories")','I'),
     mvaTrigCategories              = cms.vstring('userInt("ElectronMVAEstimatorRun2Spring15Trig25nsV1Categories")','I'),
+    # pv
+    dz                             = cms.vstring('userFloat("dz")','F'),
+    dxy                            = cms.vstring('userFloat("dxy")','F'),
+    dB2D                           = cms.vstring('userFloat("dB2D")','F'),
+    dB3D                           = cms.vstring('userFloat("dB3D")','F'),
+    edB2D                          = cms.vstring('userFloat("edB2D")','F'),
+    edB3D                          = cms.vstring('userFloat("edB3D")','F'),
 )
 
 # muons
@@ -145,6 +152,13 @@ muonBranches = commonCandidates.clone(
     # ID
     isMediumMuon          = cms.vstring('isMediumMuon','I'),
     isLooseMuon           = cms.vstring('isLooseMuon','I'),
+    # pv
+    dz                             = cms.vstring('userFloat("dz")','F'),
+    dxy                            = cms.vstring('userFloat("dxy")','F'),
+    dB2D                           = cms.vstring('userFloat("dB2D")','F'),
+    dB3D                           = cms.vstring('userFloat("dB3D")','F'),
+    edB2D                          = cms.vstring('userFloat("edB2D")','F'),
+    edB3D                          = cms.vstring('userFloat("edB3D")','F'),
 )
 
 # taus
@@ -241,6 +255,9 @@ tauBranches = commonCandidates.clone(
     # DecayModeFinding
     decayModeFinding                                = cms.vstring('tauID("decayModeFinding")','I'),
     decayModeFindingNewDMs                          = cms.vstring('tauID("decayModeFindingNewDMs")','I'),
+    # pv
+    dz                             = cms.vstring('userFloat("dz")','F'),
+    dxy                            = cms.vstring('userFloat("dxy")','F'),
 )
 
 # photons
