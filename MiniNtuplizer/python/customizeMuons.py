@@ -8,6 +8,18 @@ def customizeMuons(process,mSrc,**kwargs):
     # customization path
     process.muonCustomization = cms.Path()
 
+    #####################
+    ### embed muon id ###
+    #####################
+    process.mID = cms.EDProducer(
+        "MuonIdEmbedder",
+        src = cms.InputTag(mSrc),
+        vertexSrc = cms.InputTag(pvSrc),
+    )
+    mSrc = 'mID'
+
+    process.muonCustomization *= process.mID
+
     #################
     ### embed rho ###
     #################

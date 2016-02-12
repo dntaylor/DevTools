@@ -168,6 +168,9 @@ muonBranches = commonCandidates.clone(
         'F'
     ),
     # ID
+    isTightMuon           = cms.vstring('userInt("isTightMuon")','I'),
+    isHighPtMuon          = cms.vstring('userInt("isHighPtMuon")','I'),
+    isSoftMuon            = cms.vstring('userInt("isSoftMuon")','I'),
     isMediumMuon          = cms.vstring('isMediumMuon','I'),
     isLooseMuon           = cms.vstring('isLooseMuon','I'),
     # pv
