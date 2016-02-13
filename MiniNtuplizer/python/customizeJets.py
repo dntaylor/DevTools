@@ -7,6 +7,28 @@ def customizeJets(process,jSrc,**kwargs):
     # customization path
     process.jetCustomization = cms.Path()
 
+    ######################
+    ### recorrect jets ###
+    ######################
+    from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetCorrFactorsUpdated
+    process.patJetCorrFactorsReapplyJEC = patJetCorrFactorsUpdated.clone(
+        src = cms.InputTag(jSrc),
+        levels = ['L1FastJet', 
+                  'L2Relative', 
+                  'L3Absolute'],
+        payload = 'AK4PFchs' 
+    )
+
+    from PhysicsTools.PatAlgos.producersLayer1.jetUpdater_cff import patJetsUpdated
+    process.patJetsReapplyJEC = patJetsUpdated.clone(
+        jetSource = cms.InputTag(jSrc),
+        jetCorrFactorsSource = cms.VInputTag(cms.InputTag("patJetCorrFactorsReapplyJEC"))
+    )
+
+    process.jetCustomization *= process.patJetCorrFactorsReapplyJEC
+    process.jetCustomization *= process.patJetsReapplyJEC
+    jSrc = "patJetsReapplyJEC"
+
     #################
     ### embed ids ###
     #################
