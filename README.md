@@ -15,4 +15,5 @@ cd WorkingArea/src
 cmsenv
 git cms-init
 git clone git@github.com:dntaylor/AnalysisTools.git
+./AnalysisTools/recipe/recipe.sh
 ``` 

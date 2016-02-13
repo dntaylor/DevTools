@@ -8,6 +8,16 @@ def customizeJets(process,jSrc,**kwargs):
     process.jetCustomization = cms.Path()
 
     #################
+    ### embed ids ###
+    #################
+    process.jID = cms.EDProducer(
+        "JetIdEmbedder",
+        src = cms.InputTag(jSrc),
+    )
+    process.jetCustomization *= process.jID
+    jSrc = "jID"
+
+    #################
     ### embed rho ###
     #################
     process.jRho = cms.EDProducer(

@@ -467,6 +467,11 @@ jetBranches = commonPatCandidates.clone(
     chargedEmEnergyFraction                      = cms.vstring('chargedEmEnergyFraction','F'),
     chargedMultiplicity                          = cms.vstring('chargedMultiplicity','I'),
     neutralMultiplicity                          = cms.vstring('neutralMultiplicity','I'),
+    # ids
+    isLoose                                      = cms.vstring('userInt("idLoose")','I'),
+    isTight                                      = cms.vstring('userInt("idTight")','I'),
+    isTightLepVeto                               = cms.vstring('userInt("idTightLepVeto")','I'),
+    puID                                         = cms.vstring('userInt("puID")','I'),
 )
 
 # mets
