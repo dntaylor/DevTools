@@ -3,9 +3,19 @@ import FWCore.ParameterSet.Config as cms
 def customizePhotons(process,pSrc,**kwargs):
     '''Customize photons'''
     rhoSrc = kwargs.pop('rhoSrc','')
+    isMC = kwargs.pop('isMC',False)
 
     # customization path
     process.photonCustomization = cms.Path()
+
+    ###################################
+    ### scale and smear corrections ###
+    ###################################
+    #process.load('EgammaAnalysis.ElectronTools.calibratedPhotonsRun2_cfi')
+    #process.calibratedPatPhotons.photons = pSrc
+    #process.calibratedPatPhotons.isMC = isMC
+    #process.photonCustomization *= process.calibratedPatPhotons
+    #pSrc = 'calibratedPatPhotons'
 
     #################
     ### embed rho ###

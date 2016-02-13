@@ -4,9 +4,19 @@ def customizeElectrons(process,eSrc,**kwargs):
     '''Customize electrons'''
     rhoSrc = kwargs.pop('rhoSrc','')
     pvSrc = kwargs.pop('pvSrc','')
+    isMC = kwargs.pop('isMC',False)
 
     # customization path
     process.electronCustomization = cms.Path()
+
+    ###################################
+    ### scale and smear corrections ###
+    ###################################
+    #process.load('EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi')
+    #process.calibratedPatElectrons.electrons = eSrc
+    #process.calibratedPatElectrons.isMC = isMC
+    #process.electronCustomization *= process.calibratedPatElectrons
+    #eSrc = 'calibratedPatElectrons'
 
     #################
     ### embed VID ###

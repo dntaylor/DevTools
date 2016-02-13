@@ -18,6 +18,14 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load('Configuration.StandardSequences.Services_cff')
 
+process.RandomNumberGeneratorService = cms.Service(
+    "RandomNumberGeneratorService",
+    calibratedPatElectrons = cms.PSet(
+        initialSeed = cms.untracked.uint32(1),
+        engineName = cms.untracked.string('TRandom3')
+    ),
+)
+
 envvar = 'mcgt' if options.isMC else 'datagt'
 
 from Configuration.AlCa.GlobalTag import GlobalTag
@@ -88,6 +96,7 @@ collections['electrons'] = customizeElectrons(
     collections['electrons'],
     rhoSrc=collections['rho'],
     pvSrc=collections['vertices'],
+    isMC=bool(options.isMC),
 )
 
 from AnalysisTools.MiniNtuplizer.customizeMuons import customizeMuons
@@ -96,6 +105,7 @@ collections['muons'] = customizeMuons(
     collections['muons'],
     rhoSrc=collections['rho'],
     pvSrc=collections['vertices'],
+    isMC=bool(options.isMC),
 )
 
 from AnalysisTools.MiniNtuplizer.customizeTaus import customizeTaus
@@ -104,6 +114,7 @@ collections['taus'] = customizeTaus(
     collections['taus'],
     rhoSrc=collections['rho'],
     pvSrc=collections['vertices'],
+    isMC=bool(options.isMC),
 )
 
 from AnalysisTools.MiniNtuplizer.customizePhotons import customizePhotons
@@ -111,6 +122,7 @@ collections['photons'] = customizePhotons(
     process,
     collections['photons'],
     rhoSrc=collections['rho'],
+    isMC=bool(options.isMC),
 )
 
 from AnalysisTools.MiniNtuplizer.customizeJets import customizeJets
@@ -118,12 +130,14 @@ collections['jets'] = customizeJets(
     process,
     collections['jets'],
     rhoSrc=collections['rho'],
+    isMC=bool(options.isMC),
 )
 
 from AnalysisTools.MiniNtuplizer.customizeMets import customizeMets
 collections['pfmet'] = customizeMets(
     process,
     collections['pfmet'],
+    isMC=bool(options.isMC),
 )
 
 # select desired objects
