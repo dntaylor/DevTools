@@ -4,9 +4,22 @@ def customizeMuons(process,mSrc,**kwargs):
     '''Customize muons'''
     rhoSrc = kwargs.pop('rhoSrc','')
     pvSrc = kwargs.pop('pvSrc','')
+    isMC = kwargs.pop('isMC',False)
 
     # customization path
     process.muonCustomization = cms.Path()
+
+    ###################################
+    ### embed rochester corrections ###
+    ###################################
+    process.mRoch = cms.EDProducer(
+        "RochesterCorrectionEmbedder",
+        src = cms.InputTag(mSrc),
+        isData = cms.bool(not isMC),
+    )
+    mSrc = 'mRoch'
+
+    process.muonCustomization *= process.mRoch
 
     #####################
     ### embed muon id ###

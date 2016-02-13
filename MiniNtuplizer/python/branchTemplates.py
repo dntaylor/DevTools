@@ -336,6 +336,12 @@ muonBranches = commonPatCandidates.clone(
     dB3D                  = cms.vstring('userFloat("dB3D")','F'),
     edB2D                 = cms.vstring('userFloat("edB2D")','F'),
     edB3D                 = cms.vstring('userFloat("edB3D")','F'),
+    # corrections
+    rochesterPt           = cms.vstring('userFloat("rochesterPt")','F'),
+    rochesterEta          = cms.vstring('userFloat("rochesterEta")','F'),
+    rochesterPhi          = cms.vstring('userFloat("rochesterPhi")','F'),
+    rochesterEnergy       = cms.vstring('userFloat("rochesterEnergy")','F'),
+    rochesterError        = cms.vstring('userFloat("rochesterError")','F'),
 )
 
 # taus
