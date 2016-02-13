@@ -4,9 +4,9 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     genEventInfoToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genEventInfo"))),
     rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
     pileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupSummaryInfo"))),
-    triggerBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
-    triggerObjects_(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("triggerObjects"))),
-    triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("triggerPrescales"))),
+    triggerBitsToken_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
+    triggerObjectsToken_(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("triggerObjects"))),
+    triggerPrescalesToken_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("triggerPrescales"))),
     verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
     genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
     electronsToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
@@ -56,36 +56,16 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     collectionOrder_.push_back("mets");
     // Check for duplicate entries
     std::set<std::string> allBranches;
-    for (auto coll : collectionOrder_) {
-        for (auto collectionName : collectionNamesMap_[coll]) {
-            // first the counter
-            std::string countName = collectionName + "_count";
-            if (allBranches.count(countName)) {
-                throw cms::Exception("DuplicatedBranch")
-                    << "Branch name \"" << countName <<"\" already added to ntuple." << std::endl;
-            }
-            allBranches.insert(countName);
-            // now all branches
-            edm::ParameterSet collection = collectionPSetMap_[coll].getParameter<edm::ParameterSet>(collectionName);
-            edm::ParameterSet collectionBranches = collection.getParameter<edm::ParameterSet>("branches");
-            std::vector<std::string> branchNames = collectionBranches.getParameterNames();
-            for (auto branchName : branchNames) {
-                std::string name = collectionName + '_' + branchName;
-                if (allBranches.count(name)) {
-                    throw cms::Exception("DuplicatedBranch")
-                        << "Branch name \"" << name <<"\" already added to ntuple." << std::endl;
-                }
-                allBranches.insert(name);
-            }
-        }
-    }
     // get trigger parameters
     triggerBranchStrings_.push_back("Pass");
     triggerBranchStrings_.push_back("Prescale");
     triggerNames_ = triggerBranches_.getParameterNames();
     for (auto trig : triggerNames_) {
-        std::string trigString = triggerBranches_.getParameter<std::string>(trig);
+        edm::ParameterSet trigPSet = triggerBranches_.getParameter<edm::ParameterSet>(trig);
+        std::string trigString = trigPSet.getParameter<std::string>("path");
+        std::vector<int> trigMatchPdgids = trigPSet.getParameter<std::vector<int> >("pdgid");
         triggerNamingMap_.insert(std::pair<std::string, std::string>(trig,trigString));
+        triggerMatchMap_.insert(std::pair<std::string, std::vector<int> >(trig,trigMatchPdgids));
         for (auto branch : triggerBranchStrings_) {
             std::string branchName = trig + branch;
             if (allBranches.count(branchName)) {
@@ -95,22 +75,77 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
             allBranches.insert(branchName);
         }
     }
+    // collection parameters
+    for (auto coll : collectionOrder_) {
+        for (auto collectionName : collectionNamesMap_[coll]) {
+            // first the counter
+            std::string countName = collectionName + "_count";
+            if (allBranches.count(countName)) {
+                throw cms::Exception("DuplicatedBranch")
+                    << "Branch name \"" << countName <<"\" already added to ntuple." << std::endl;
+            }
+            allBranches.insert(countName);
+            // trigger matching branches
+            for (auto trig : triggerNames_) {
+                for (auto pdgid : triggerMatchMap_[trig]) {
+                    if ((pdgid==11 && coll=="electrons") ||
+                        (pdgid==13 && coll=="muons") ||
+                        (pdgid==15 && coll=="taus") ||
+                        (pdgid==22 && coll=="photons")) {
+                        std::string matchBranchName = collectionName + "_matches" + trig;
+                        if (allBranches.count(matchBranchName)) {
+                            throw cms::Exception("DuplicatedBranch")
+                                << "Branch name \"" << matchBranchName <<"\" already added to ntuple." << std::endl;
+                        }
+                        allBranches.insert(matchBranchName);
+                    }
+                }
+            }
+            // now collection specific branches
+            edm::ParameterSet collection = collectionPSetMap_[coll].getParameter<edm::ParameterSet>(collectionName);
+            edm::ParameterSet collectionBranches = collection.getParameter<edm::ParameterSet>("branches");
+            std::vector<std::string> branchNames = collectionBranches.getParameterNames();
+            for (auto branchName : branchNames) {
+                std::string name = collectionName + "_" + branchName;
+                if (allBranches.count(name)) {
+                    throw cms::Exception("DuplicatedBranch")
+                        << "Branch name \"" << name <<"\" already added to ntuple." << std::endl;
+                }
+                allBranches.insert(name);
+            }
+        }
+    }
 }
 
 MiniTree::~MiniTree() { }
 
-void MiniTree::AddCollectionToTree(std::string name, edm::ParameterSet pset) {
+void MiniTree::AddCollectionToTree(std::string coll, std::string name, edm::ParameterSet pset) {
     // Add the count
     std::string countName = name + "_count";
     countMap_.insert(std::pair<std::string, UInt_t>(name, 0));
     std::string leafString = countName + "/i";
     tree->Branch(countName.c_str(),&countMap_[name],leafString.c_str());
-    // Add the rest of the branches
+    // get branch params
     edm::ParameterSet collectionBranches = pset.getParameter<edm::ParameterSet>("branches");
     unsigned int maxCount = pset.getParameter<unsigned int>("maxCount");
     collectionMaxCounts_.insert(std::pair<std::string, unsigned int>(name, maxCount));
     std::string selection = pset.exists("selection") ? pset.getParameter<std::string>("selection") : "";
     collectionSelections_.insert(std::pair<std::string, std::string>(name, selection));
+    // trigger matching
+    for (std::string trig : triggerNames_) {
+        for (int pdgid : triggerMatchMap_[trig]) {
+            if ((pdgid==11 && coll=="electrons") ||
+                (pdgid==13 && coll=="muons") ||
+                (pdgid==15 && coll=="taus") ||
+                (pdgid==22 && coll=="photons")) {
+                std::string matchBranchName = name + "_matches_" + trig;
+                std::vector<Int_t> branch(maxCount);
+                intMap_.insert(std::pair<std::string, std::vector<Int_t> >(matchBranchName,branch));
+                tree->Branch(matchBranchName.c_str(), &intMap_[matchBranchName]);
+            }
+        }
+    }
+    // Add the rest of the branches
     std::vector<std::string> branchNames = collectionBranches.getParameterNames();
     std::vector<std::string> treeBranchNames;
     for (auto branchName : branchNames) {
@@ -174,7 +209,7 @@ void MiniTree::beginJob() {
     for (auto coll : collectionOrder_) {
         for (auto collectionName : collectionNamesMap_[coll]) {
             edm::ParameterSet collectionPSet = collectionPSetMap_[coll].getParameter<edm::ParameterSet>(collectionName);
-            MiniTree::AddCollectionToTree(collectionName,collectionPSet);
+            MiniTree::AddCollectionToTree(coll,collectionName,collectionPSet);
         }
     }
 
@@ -210,11 +245,24 @@ T MiniTree::Evaluate(std::string branchName, std::string function, ObjType obj) 
 }
 
 template<typename ObjType>
-void MiniTree::AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std::string name) {
+void MiniTree::AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std::string name, const edm::TriggerNames& names) {
 
     // cleanup from before
     for (auto collectionName: collectionNamesMap_[name]) {
         countMap_[collectionName] = 0;
+        // trigger matching
+        for (auto trig : triggerNames_) {
+            for (auto pdgid : triggerMatchMap_[trig]) {
+                if ((pdgid==11 && name=="electrons") ||
+                    (pdgid==13 && name=="muons") ||
+                    (pdgid==15 && name=="taus") ||
+                    (pdgid==22 && name=="photons")) {
+                    std::string matchBranchName = name + "_matches_" + trig;
+                    intMap_[matchBranchName].clear();
+                }
+            }
+        }
+        // branches
         for (auto branchName : collectionBranches_[collectionName]) {
             std::string branchType = branchTypes_[branchName];
             if (branchType=="F") { // Float_t
@@ -261,6 +309,19 @@ void MiniTree::AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std
                 countMap_[collectionName]++;
                 continue;
             }
+            // iterate through each trigger to match
+            for (std::string trig : triggerNames_) {
+                for (int pdgid : triggerMatchMap_[trig]) {
+                    if ((pdgid==11 && name=="electrons") ||
+                        (pdgid==13 && name=="muons") ||
+                        (pdgid==15 && name=="taus") ||
+                        (pdgid==22 && name=="photons")) {
+                        std::string matchBranchName = name + "_matches_" + trig;
+                        Int_t match = MiniTree::MatchedToTriggerObject<ObjType>(object,trig,names);
+                        intMap_[matchBranchName].push_back(match);
+                    }
+                }
+            }
             // iterate through each branch
             for (auto branchName : collectionBranches_[collectionName]) {
                 std::string function = branchFunctions_[branchName];
@@ -282,6 +343,52 @@ void MiniTree::AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std
 
 }
 
+template<>
+bool MiniTree::MatchedToTriggerObject<reco::Vertex>(reco::Vertex obj, std::string trigName, const edm::TriggerNames& names) {
+    return false;
+}
+
+template<typename ObjType>
+bool MiniTree::MatchedToTriggerObject(ObjType obj, std::string trigName, const edm::TriggerNames& names) {
+    bool matched = false;
+    size_t trigBit = MiniTree::GetTriggerBit(trigName,names);
+    std::string pathToMatch = names.triggerName(trigBit);
+    for (auto trigObj : *triggerObjects_) {
+       if (abs(trigObj.pdgId()) != abs(obj.pdgId())) continue;
+       if (reco::deltaR(trigObj, obj) > 0.5) continue;
+       trigObj.unpackPathNames(names);
+       std::vector<std::string> allPathNames = trigObj.pathNames(false);
+       for (auto pathName : allPathNames) {
+           if (pathName.compare(pathToMatch)==0) {
+               matched = true;
+               return matched;
+           }
+       }
+    }
+    return matched;
+}
+
+size_t MiniTree::GetTriggerBit(std::string trigName, const edm::TriggerNames& names) {
+    std::string trigPathString = triggerNamingMap_[trigName];
+    std::regex regexp(trigPathString);
+    size_t trigBit = names.size();
+    for (size_t i=0; i<names.size(); i++) {
+        if (std::regex_match(names.triggerName(i), regexp)) {
+            if (trigBit != names.size()) { // if we match more than one
+                throw cms::Exception("DuplicateTrigger")
+                    << "Second trigger matched for \"" << trigPathString 
+                    << "\". First: \"" << names.triggerName(trigBit)
+                    << "\"; second: \"" << names.triggerName(i) << "\"." << std::endl;
+            }
+            trigBit = i;
+        }
+    }
+    if (trigBit == names.size()) {
+        throw cms::Exception("UnrecognizedTrigger")
+            << "No trigger matched for \"" << trigPathString << "\"." << std::endl;
+    }
+    return trigBit;
+}
 
 void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     // first, the lumitree
@@ -312,44 +419,21 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     }
 
     // triggers
-    edm::Handle<edm::TriggerResults> triggerBits;
-    iEvent.getByToken(triggerBits_, triggerBits);
+    iEvent.getByToken(triggerBitsToken_, triggerBits_);
+    iEvent.getByToken(triggerObjectsToken_, triggerObjects_);
+    iEvent.getByToken(triggerPrescalesToken_, triggerPrescales_);
 
-    edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
-    iEvent.getByToken(triggerObjects_, triggerObjects);
-
-    edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
-    iEvent.getByToken(triggerPrescales_, triggerPrescales);
-
-    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
+    const edm::TriggerNames& names = iEvent.triggerNames(*triggerBits_);
 
     for (auto trigName : triggerNames_) {
-        std::string trigPathString = triggerNamingMap_[trigName];
-        std::regex regexp(trigPathString);
-        size_t trigBit = names.size();
-        for (size_t i=0; i<names.size(); i++) {
-            if (std::regex_match(names.triggerName(i), regexp)) {
-                if (trigBit != names.size()) { // if we match more than one
-                    throw cms::Exception("DuplicateTrigger")
-                        << "Second trigger matched for \"" << trigPathString 
-                        << "\". First: \"" << names.triggerName(trigBit)
-                        << "\"; second: \"" << names.triggerName(i) << "\"." << std::endl;
-                }
-                trigBit = i;
-            }
-        }
-        if (trigBit == names.size()) {
-            throw cms::Exception("UnrecognizedTrigger")
-                << "No trigger matched for \"" << trigPathString << "\"." << std::endl;
-        }
+        size_t trigBit = MiniTree::GetTriggerBit(trigName,names);
         std::string passString = trigName + "Pass";
         std::string prescaleString = trigName + "Prescale";
-        triggerIntMap_[passString] = triggerBits->accept(trigBit);
-        triggerIntMap_[prescaleString] = triggerPrescales->getPrescaleForIndex(trigBit);
+        triggerIntMap_[passString] = triggerBits_->accept(trigBit);
+        triggerIntMap_[prescaleString] = triggerPrescales_->getPrescaleForIndex(trigBit);
     }
 
     // add collections
-    
 
     // collection branches
     edm::Handle<reco::VertexCollection> vertices;
@@ -376,14 +460,14 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     edm::Handle<pat::METCollection> mets;
     iEvent.getByToken(metsToken_, mets);
 
-    MiniTree::AnalyzeCollection<reco::Vertex>(vertices,"vertices");
-    MiniTree::AnalyzeCollection<reco::GenParticle>(genParticles,"genParticles");
-    MiniTree::AnalyzeCollection<pat::Electron>(electrons,"electrons");
-    MiniTree::AnalyzeCollection<pat::Muon>(muons,"muons");
-    MiniTree::AnalyzeCollection<pat::Tau>(taus,"taus");
-    MiniTree::AnalyzeCollection<pat::Photon>(photons,"photons");
-    MiniTree::AnalyzeCollection<pat::Jet>(jets,"jets");
-    MiniTree::AnalyzeCollection<pat::MET>(mets,"mets");
+    MiniTree::AnalyzeCollection<reco::Vertex>(vertices,"vertices",names);
+    MiniTree::AnalyzeCollection<reco::GenParticle>(genParticles,"genParticles",names);
+    MiniTree::AnalyzeCollection<pat::Electron>(electrons,"electrons",names);
+    MiniTree::AnalyzeCollection<pat::Muon>(muons,"muons",names);
+    MiniTree::AnalyzeCollection<pat::Tau>(taus,"taus",names);
+    MiniTree::AnalyzeCollection<pat::Photon>(photons,"photons",names);
+    MiniTree::AnalyzeCollection<pat::Jet>(jets,"jets",names);
+    MiniTree::AnalyzeCollection<pat::MET>(mets,"mets",names);
 
     tree->Fill();
 }

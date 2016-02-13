@@ -38,6 +38,8 @@
 #include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/PatCandidates/interface/MET.h"
 
+#include "DataFormats/Math/interface/deltaR.h"
+
 class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchLuminosityBlocks> {
   public:
     explicit MiniTree(const edm::ParameterSet&);
@@ -52,21 +54,25 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     virtual void endLuminosityBlock(edm::LuminosityBlock const& iEvent, edm::EventSetup const&) override;
     virtual void endJob() override;
 
-    void AddCollectionToTree(std::string name, edm::ParameterSet pset);
+    void AddCollectionToTree(std::string coll, std::string name, edm::ParameterSet pset);
+    size_t GetTriggerBit(std::string trigName, const edm::TriggerNames& names);
+
+    template<typename ObjType>
+    bool MatchedToTriggerObject(ObjType obj, std::string trigName, const edm::TriggerNames& names);
 
     template<typename T, typename ObjType>
     T Evaluate(std::string branchName, std::string function, ObjType obj);
 
     template<typename ObjType>
-    void AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std::string name);
+    void AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std::string name, const edm::TriggerNames& names);
 
     // tokens
     edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
     edm::EDGetTokenT<double> rhoToken_;
     edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryInfoToken_;
-    edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
-    edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
-    edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerBitsToken_;
+    edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken_;
+    edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescalesToken_;
     edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
     edm::EDGetTokenT<pat::ElectronCollection> electronsToken_;
@@ -75,6 +81,11 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     edm::EDGetTokenT<pat::PhotonCollection> photonsToken_;
     edm::EDGetTokenT<pat::JetCollection> jetsToken_;
     edm::EDGetTokenT<pat::METCollection> metsToken_;
+
+    // handles
+    edm::Handle<edm::TriggerResults> triggerBits_;
+    edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+    edm::Handle<pat::PackedTriggerPrescales> triggerPrescales_;
 
     // branch parameters
     edm::ParameterSet triggerBranches_;
@@ -109,10 +120,11 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     std::map<std::string, std::vector<Int_t> >   intMap_;
 
     // trigger
-    std::vector<std::string>           triggerNames_;
-    std::vector<std::string>           triggerBranchStrings_;
-    std::map<std::string, std::string> triggerNamingMap_;
-    std::map<std::string, Int_t>       triggerIntMap_;
+    std::vector<std::string>                 triggerNames_;
+    std::vector<std::string>                 triggerBranchStrings_;
+    std::map<std::string, std::string>       triggerNamingMap_;
+    std::map<std::string, std::vector<int> > triggerMatchMap_;
+    std::map<std::string, Int_t>             triggerIntMap_;
 
     // collections
     std::vector<std::string> collectionOrder_;
