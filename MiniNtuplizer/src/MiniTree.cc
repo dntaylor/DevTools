@@ -2,8 +2,11 @@
 
 MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     genEventInfoToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genEventInfo"))),
-    pileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupSummaryInfo"))),
     rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
+    pileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupSummaryInfo"))),
+    triggerBits_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("triggerResults"))),
+    triggerObjects_(consumes<pat::TriggerObjectStandAloneCollection>(iConfig.getParameter<edm::InputTag>("triggerObjects"))),
+    triggerPrescales_(consumes<pat::PackedTriggerPrescales>(iConfig.getParameter<edm::InputTag>("triggerPrescales"))),
     verticesToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"))),
     genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),
     electronsToken_(consumes<pat::ElectronCollection>(iConfig.getParameter<edm::InputTag>("electrons"))),
@@ -12,6 +15,7 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     photonsToken_(consumes<pat::PhotonCollection>(iConfig.getParameter<edm::InputTag>("photons"))),
     jetsToken_(consumes<pat::JetCollection>(iConfig.getParameter<edm::InputTag>("jets"))),
     metsToken_(consumes<pat::METCollection>(iConfig.getParameter<edm::InputTag>("mets"))),
+    triggerBranches_(iConfig.getParameter<edm::ParameterSet>("triggerBranches")),
     vertexBranches_(iConfig.getParameter<edm::ParameterSet>("vertexBranches")),
     genParticleBranches_(iConfig.getParameter<edm::ParameterSet>("genParticleBranches")),
     electronBranches_(iConfig.getParameter<edm::ParameterSet>("electronBranches")),
@@ -75,6 +79,22 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
             }
         }
     }
+    // get trigger parameters
+    triggerBranchStrings_.push_back("Pass");
+    triggerBranchStrings_.push_back("Prescale");
+    triggerNames_ = triggerBranches_.getParameterNames();
+    for (auto trig : triggerNames_) {
+        std::string trigString = triggerBranches_.getParameter<std::string>(trig);
+        triggerNamingMap_.insert(std::pair<std::string, std::string>(trig,trigString));
+        for (auto branch : triggerBranchStrings_) {
+            std::string branchName = trig + branch;
+            if (allBranches.count(branchName)) {
+                throw cms::Exception("DuplicatedBranch")
+                    << "Branch name \"" << branchName <<"\" already added to ntuple." << std::endl;
+            }
+            allBranches.insert(branchName);
+        }
+    }
 }
 
 MiniTree::~MiniTree() { }
@@ -99,7 +119,6 @@ void MiniTree::AddCollectionToTree(std::string name, edm::ParameterSet pset) {
         std::vector<std::string> branchParams = collectionBranches.getParameter<std::vector<std::string>>(branchName);
         branchTypes_.insert(std::pair<std::string, std::string>(treeBranchName, branchParams[1]));
         branchFunctions_.insert(std::pair<std::string, std::string>(treeBranchName, branchParams[0]));
-        std::string branchLeafString = treeBranchName + "[" + countName + "]/" + branchParams[1];
         if (branchParams[1]=="F") { // Float_t
             std::vector<Float_t> branch(maxCount);
             floatMap_.insert(std::pair<std::string, std::vector<Float_t> >(treeBranchName,branch));
@@ -139,6 +158,17 @@ void MiniTree::beginJob() {
     tree->Branch("genWeight", &genWeightBranch_, "genWeight/F");
     tree->Branch("rho", &rhoBranch_, "rho/F");
     tree->Branch("nTrueVertices", &nTrueVerticesBranch_, "nTrueVertices/F");
+
+    // add triggers
+    for (auto trigName : triggerNames_) {
+        for (auto branch : triggerBranchStrings_) {
+            std::string branchName = trigName + branch;
+            Int_t branchVal;
+            triggerIntMap_.insert(std::pair<std::string, Int_t>(branchName,branchVal));
+            std::string branchLeaf = branchName + "/I";
+            tree->Branch(branchName.c_str(), &triggerIntMap_[branchName], branchLeaf.c_str());
+        }
+    }
 
     // add collections
     for (auto coll : collectionOrder_) {
@@ -280,6 +310,46 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     if (pileupSummaryInfo.isValid() && pileupSummaryInfo->size()>0) {
         nTrueVerticesBranch_ = pileupSummaryInfo->at(1).getTrueNumInteractions();
     }
+
+    // triggers
+    edm::Handle<edm::TriggerResults> triggerBits;
+    iEvent.getByToken(triggerBits_, triggerBits);
+
+    edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects;
+    iEvent.getByToken(triggerObjects_, triggerObjects);
+
+    edm::Handle<pat::PackedTriggerPrescales> triggerPrescales;
+    iEvent.getByToken(triggerPrescales_, triggerPrescales);
+
+    const edm::TriggerNames &names = iEvent.triggerNames(*triggerBits);
+
+    for (auto trigName : triggerNames_) {
+        std::string trigPathString = triggerNamingMap_[trigName];
+        std::regex regexp(trigPathString);
+        size_t trigBit = names.size();
+        for (size_t i=0; i<names.size(); i++) {
+            if (std::regex_match(names.triggerName(i), regexp)) {
+                if (trigBit != names.size()) { // if we match more than one
+                    throw cms::Exception("DuplicateTrigger")
+                        << "Second trigger matched for \"" << trigPathString 
+                        << "\". First: \"" << names.triggerName(trigBit)
+                        << "\"; second: \"" << names.triggerName(i) << "\"." << std::endl;
+                }
+                trigBit = i;
+            }
+        }
+        if (trigBit == names.size()) {
+            throw cms::Exception("UnrecognizedTrigger")
+                << "No trigger matched for \"" << trigPathString << "\"." << std::endl;
+        }
+        std::string passString = trigName + "Pass";
+        std::string prescaleString = trigName + "Prescale";
+        triggerIntMap_[passString] = triggerBits->accept(trigBit);
+        triggerIntMap_[prescaleString] = triggerPrescales->getPrescaleForIndex(trigBit);
+    }
+
+    // add collections
+    
 
     // collection branches
     edm::Handle<reco::VertexCollection> vertices;

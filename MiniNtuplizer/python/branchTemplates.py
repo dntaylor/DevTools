@@ -50,6 +50,50 @@ commonVertex = cms.PSet(
     rho            = cms.vstring('position.Rho','F'),
 )
 
+# trigger
+triggerBranches = cms.PSet(
+    # single muon
+    Mu8_TrkIsoVVL                               = cms.string('HLT_Mu8_TrkIsoVVL_v\\[0-9]+'),
+    Mu17_TrkIsoVVL                              = cms.string('HLT_Mu17_TrkIsoVVL_v\\[0-9]+'),
+    IsoMu18                                     = cms.string('HLT_IsoMu18_v\\[0-9]+'),
+    IsoTkMu18                                   = cms.string('HLT_IsoTkMu18_v\\[0-9]+'),
+    IsoMu20                                     = cms.string('HLT_IsoMu20_v\\[0-9]+'),
+    IsoTkMu20                                   = cms.string('HLT_IsoTkMu20_v\\[0-9]+'),
+    IsoMu22                                     = cms.string('HLT_IsoMu22_v\\[0-9]+'),
+    IsoTkMu22                                   = cms.string('HLT_IsoTkMu22_v\\[0-9]+'),
+    IsoMu27                                     = cms.string('HLT_IsoMu27_v\\[0-9]+'),
+    IsoTkMu27                                   = cms.string('HLT_IsoTkMu27_v\\[0-9]+'),
+    Mu45_eta2p1                                 = cms.string('HLT_Mu45_eta2p1_v\\[0-9]+'),
+    Mu50                                        = cms.string('HLT_Mu50_v\\[0-9]+'),
+    # single electron
+    Ele12_CaloIdL_TrackIdL_IsoVL                = cms.string('HLT_Ele12_CaloIdL_TrackIdL_IsoVL_v\\[0-9]+'),
+    Ele17_CaloIdL_TrackIdL_IsoVL                = cms.string('HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v\\[0-9]+'),
+    Ele22_eta2p1_WPLoose_Gsf                    = cms.string('HLT_Ele22_eta2p1_WPLoose_Gsf_v\\[0-9]+'),
+    Ele23_WPLoose_Gsf                           = cms.string('HLT_Ele23_WPLoose_Gsf_v\\[0-9]+'),
+    Ele27_WPLoose_Gsf                           = cms.string('HLT_Ele27_WPLoose_Gsf_v\\[0-9]+'),
+    # double muon
+    Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ             = cms.string('HLT_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ_v\\[0-9]+'),
+    Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ           = cms.string('HLT_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ_v\\[0-9]+'),
+    # double electron
+    Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ       = cms.string('HLT_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v\\[0-9]+'),
+    # electron muon
+    Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL  = cms.string('HLT_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL_v\\[0-9]+'),
+    # double tau
+    DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg      = cms.string('HLT_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg_v\\[0-9]+'),
+    DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg      = cms.string('HLT_DoubleMediumIsoPFTau40_Trk1_eta2p1_Reg_v\\[0-9]+'),
+    # muon tau
+    IsoMu17_eta2p1_LooseIsoPFTau20              = cms.string('HLT_IsoMu17_eta2p1_LooseIsoPFTau20_v\\[0-9]+'),
+    IsoMu20_eta2p1_LooseIsoPFTau20              = cms.string('HLT_IsoMu20_eta2p1_LooseIsoPFTau20_v\\[0-9]+'),
+    # electron tau
+    Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20    = cms.string('HLT_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v\\[0-9]+'),
+    Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20    = cms.string('HLT_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20_v\\[0-9]+'),
+    # triple lepton
+    Ele16_Ele12_Ele8_CaloIdL_TrackIdL           = cms.string('HLT_Ele16_Ele12_Ele8_CaloIdL_TrackIdL_v\\[0-9]+'),
+    Mu8_DiEle12_CaloIdL_TrackIdL                = cms.string('HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v\\[0-9]+'),
+    DiMu9_Ele9_CaloIdL_TrackIdL                 = cms.string('HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v\\[0-9]+'),
+    TripleMu_12_10_5                            = cms.string('HLT_TripleMu_12_10_5_v\\[0-9]+'),
+)
+
 # vertices
 vertexBranches = commonVertex.clone()
 

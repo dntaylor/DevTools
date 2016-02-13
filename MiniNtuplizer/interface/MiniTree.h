@@ -1,6 +1,8 @@
 #ifndef MiniTree_h
 #define MiniTree_h
 
+#include <regex>
+
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
@@ -19,6 +21,10 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include "FWCore/Common/interface/TriggerNames.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
+#include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -56,8 +62,11 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
 
     // tokens
     edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
-    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryInfoToken_;
     edm::EDGetTokenT<double> rhoToken_;
+    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryInfoToken_;
+    edm::EDGetTokenT<edm::TriggerResults> triggerBits_;
+    edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjects_;
+    edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescales_;
     edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
     edm::EDGetTokenT<pat::ElectronCollection> electronsToken_;
@@ -68,6 +77,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     edm::EDGetTokenT<pat::METCollection> metsToken_;
 
     // branch parameters
+    edm::ParameterSet triggerBranches_;
     edm::ParameterSet vertexBranches_;
     edm::ParameterSet genParticleBranches_;
     edm::ParameterSet electronBranches_;
@@ -97,6 +107,12 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     std::map<std::string, UInt_t>                countMap_;
     std::map<std::string, std::vector<Float_t> > floatMap_;
     std::map<std::string, std::vector<Int_t> >   intMap_;
+
+    // trigger
+    std::vector<std::string>           triggerNames_;
+    std::vector<std::string>           triggerBranchStrings_;
+    std::map<std::string, std::string> triggerNamingMap_;
+    std::map<std::string, Int_t>       triggerIntMap_;
 
     // collections
     std::vector<std::string> collectionOrder_;
