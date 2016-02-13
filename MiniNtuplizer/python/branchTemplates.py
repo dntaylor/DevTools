@@ -7,11 +7,30 @@ commonCandidates = cms.PSet(
     energy = cms.vstring('energy()','F'),
     charge = cms.vstring('charge()','F'),
     mass   = cms.vstring('mass()','F'),
+    vz     = cms.vstring('vz()','F'),
+    pdgId  = cms.vstring('pdgId()','I'),
 )
 
 commonGenCandidates = commonCandidates.clone(
-    pdgId             = cms.vstring('pdgId()','I'),
     status            = cms.vstring('status()','I'),
+)
+
+commonPatCandidates = commonCandidates.clone(
+    genMatch                  = cms.vstring('genParticleRef.isNonnull()','I'),
+    genPdgId                  = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().pdgId() : 0', 'I'),
+    genPt                     = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().pt() : 0', 'F'),
+    genEta                    = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().eta() : 0', 'F'),
+    genPhi                    = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().phi() : 0', 'F'),
+    genMass                   = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().mass() : 0', 'F'),
+    genEnergy                 = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().energy() : 0', 'F'),
+    genCharge                 = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().charge() : 0', 'F'),
+    genVZ                     = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().vz() : 0', 'F'),
+    genStatus                 = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().status() : 0', 'I'),
+    genIsPrompt               = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().isPromptFinalState() : 0', 'I'),
+    genIsFromTau              = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().isDirectPromptTauDecayProductFinalState() : 0', 'I'),
+    genFromHardProcess        = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().fromHardProcessFinalState() : 0', 'I'),
+    genFromHardProcessDecayed = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().fromHardProcessDecayed() : 0', 'I'),
+    genFromHardProcessTau     = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().isDirectHardProcessTauDecayProductFinalState() : 0', 'I'),
 )
 
 statusOneCandidates = commonGenCandidates.clone(
@@ -194,7 +213,7 @@ vertexBranches = commonVertex.clone()
 genParticleBranches = commonGenCandidates.clone()
 
 # electrons
-electronBranches = commonCandidates.clone(
+electronBranches = commonPatCandidates.clone(
     # supercluster
     superClusterEta                = cms.vstring('superCluster().eta','F'),
     superClusterPhi                = cms.vstring('superCluster().phi','F'),
@@ -270,7 +289,7 @@ electronBranches = commonCandidates.clone(
 )
 
 # muons
-muonBranches = commonCandidates.clone(
+muonBranches = commonPatCandidates.clone(
     # type
     isPFMuon              = cms.vstring('isPFMuon','I'),
     isGlobalMuon          = cms.vstring('isGlobalMuon','I'),
@@ -320,7 +339,7 @@ muonBranches = commonCandidates.clone(
 )
 
 # taus
-tauBranches = commonCandidates.clone(
+tauBranches = commonPatCandidates.clone(
     # Against Electron
     # mva5
     againstElectronVLooseMVA5                       = cms.vstring('tauID("againstElectronVLooseMVA5")','I'), 
@@ -419,12 +438,12 @@ tauBranches = commonCandidates.clone(
 )
 
 # photons
-photonBranches = commonCandidates.clone(
+photonBranches = commonPatCandidates.clone(
 
 )
 
 # jets
-jetBranches = commonCandidates.clone(
+jetBranches = commonPatCandidates.clone(
     # btagging
     pfJetProbabilityBJetTags                     = cms.vstring('bDiscriminator("pfJetProbabilityBJetTags")','F'),
     pfCombinedInclusiveSecondaryVertexV2BJetTags = cms.vstring('bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")','F'),
