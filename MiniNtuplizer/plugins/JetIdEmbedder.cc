@@ -2,11 +2,11 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
-class JetIdEmbedder : public edm::EDProducer {
+class JetIdEmbedder : public edm::stream::EDProducer<> {
   public:
     JetIdEmbedder(const edm::ParameterSet& pset);
     virtual ~JetIdEmbedder(){}
