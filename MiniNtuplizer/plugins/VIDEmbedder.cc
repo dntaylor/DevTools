@@ -86,8 +86,9 @@ void VIDEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   
   for (size_t c = 0; c < collection->size(); ++c) {
+    const auto obj = collection->at(c);
     const auto ptr = collection->ptrAt(c);
-    T newObj = *ptr;
+    T newObj = obj;
     
     for(unsigned int i = 0; i < ids.size(); ++i) {
       bool result = (*(ids.at(i)))[ptr];

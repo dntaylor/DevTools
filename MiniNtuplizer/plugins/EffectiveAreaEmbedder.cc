@@ -40,7 +40,7 @@ private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
   void endJob() {}
 
-  float getEA(const edm::Ptr<T>& obj) const;
+  float getEA(const T obj) const;
 
   // Data
   edm::EDGetTokenT<edm::View<T> > collectionToken_; // input collection
@@ -70,10 +70,10 @@ void EffectiveAreaEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup
   iEvent.getByToken(collectionToken_, collection);
 
   for (size_t c = 0; c < collection->size(); ++c) {
-    const auto ptr = collection->ptrAt(c);
-    T newObj = *ptr;
+    const auto obj = collection->at(c);
+    T newObj = obj;
 
-    float ea = getEA(ptr);
+    float ea = getEA(obj);
 	
     newObj.addUserFloat(label_, ea);
     out->push_back(newObj);
@@ -83,9 +83,9 @@ void EffectiveAreaEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup
 }
 
 template<typename T>
-float EffectiveAreaEmbedder<T>::getEA(const edm::Ptr<T>& obj) const
+float EffectiveAreaEmbedder<T>::getEA(const T obj) const
 {
-  float abseta = fabs(obj->eta());
+  float abseta = fabs(obj.eta());
   return effectiveAreas_.getEffectiveArea(abseta);
 }
 

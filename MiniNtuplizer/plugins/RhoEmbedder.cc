@@ -52,8 +52,8 @@ void RhoEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.getByToken(rhoToken_, rho);
 
   for (size_t c = 0; c < collection->size(); ++c) {
-    const auto ptr = collection->ptrAt(c);
-    T newObj = *ptr;
+    const auto obj = collection->at(c);
+    T newObj = obj;
 
     newObj.addUserFloat(label_, *rho);
     out->push_back(newObj);

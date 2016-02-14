@@ -53,12 +53,12 @@ void MuonIdEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const reco::Vertex& pv = *vertices->begin();
 
   for (size_t c = 0; c < collection->size(); ++c) {
-    const auto ptr = collection->ptrAt(c);
-    pat::Muon newObj = *ptr;
+    const auto obj = collection->at(c);
+    pat::Muon newObj = obj;
 
-    newObj.addUserInt("isTightMuon", ptr->isTightMuon(pv));
-    newObj.addUserInt("isSoftMuon", ptr->isSoftMuon(pv));
-    newObj.addUserInt("isHighPtMuon", ptr->isHighPtMuon(pv));
+    newObj.addUserInt("isTightMuon", obj.isTightMuon(pv));
+    newObj.addUserInt("isSoftMuon", obj.isSoftMuon(pv));
+    newObj.addUserInt("isHighPtMuon", obj.isHighPtMuon(pv));
     out->push_back(newObj);
   }
 

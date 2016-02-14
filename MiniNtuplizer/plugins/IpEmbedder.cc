@@ -30,12 +30,12 @@ private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
   void endJob() {}
 
-  double dz(edm::Ptr<T> obj, const reco::Vertex&) { return 0.; }
-  double dxy(edm::Ptr<T> obj, const reco::Vertex&) { return 0.; }
-  double dB2D(edm::Ptr<T> obj) { return 0.; }
-  double dB3D(edm::Ptr<T> obj) { return 0.; }
-  double edB2D(edm::Ptr<T> obj) { return 0.; }
-  double edB3D(edm::Ptr<T> obj) { return 0.; }
+  double dz(T obj, const reco::Vertex&) { return 0.; }
+  double dxy(T obj, const reco::Vertex&) { return 0.; }
+  double dB2D(T obj) { return 0.; }
+  double dB3D(T obj) { return 0.; }
+  double edB2D(T obj) { return 0.; }
+  double edB3D(T obj) { return 0.; }
 
   // Data
   edm::EDGetTokenT<edm::View<T> > collectionToken_;      // input collection
@@ -66,15 +66,15 @@ void IpEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   const reco::Vertex& pv = *vertices->begin();
 
   for (size_t c = 0; c < collection->size(); ++c) {
-    const auto ptr = collection->ptrAt(c);
-    T newObj = *ptr;
+    const auto obj = collection->at(c);
+    T newObj = obj;
 
-    newObj.addUserFloat("dz", dz(ptr, pv));
-    newObj.addUserFloat("dxy", dxy(ptr, pv));
-    newObj.addUserFloat("dB2D", dB2D(ptr));
-    newObj.addUserFloat("dB3D", dB3D(ptr));
-    newObj.addUserFloat("edB2D", edB2D(ptr));
-    newObj.addUserFloat("edB3D", edB3D(ptr));
+    newObj.addUserFloat("dz", dz(obj, pv));
+    newObj.addUserFloat("dxy", dxy(obj, pv));
+    newObj.addUserFloat("dB2D", dB2D(obj));
+    newObj.addUserFloat("dB3D", dB3D(obj));
+    newObj.addUserFloat("edB2D", edB2D(obj));
+    newObj.addUserFloat("edB3D", edB3D(obj));
     out->push_back(newObj);
   }
 
@@ -82,75 +82,75 @@ void IpEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 template<>
-double IpEmbedder<pat::Electron>::dz(edm::Ptr<pat::Electron> ptr, const reco::Vertex& pv) {
-  return ptr->gsfTrack()->dz(pv.position());
+double IpEmbedder<pat::Electron>::dz(pat::Electron obj, const reco::Vertex& pv) {
+  return obj.gsfTrack()->dz(pv.position());
 }
 
 template<>
-double IpEmbedder<pat::Muon>::dz(edm::Ptr<pat::Muon> ptr, const reco::Vertex& pv) {
-  return ptr->muonBestTrack()->dz(pv.position());
+double IpEmbedder<pat::Muon>::dz(pat::Muon obj, const reco::Vertex& pv) {
+  return obj.muonBestTrack()->dz(pv.position());
 }
 
 template<>
-double IpEmbedder<pat::Tau>::dz(edm::Ptr<pat::Tau> ptr, const reco::Vertex& pv) {
-    pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(ptr->leadChargedHadrCand().get());
+double IpEmbedder<pat::Tau>::dz(pat::Tau obj, const reco::Vertex& pv) {
+    pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(obj.leadChargedHadrCand().get());
     return packedLeadTauCand->dz();
 }
 
 template<>
-double IpEmbedder<pat::Electron>::dxy(edm::Ptr<pat::Electron> ptr, const reco::Vertex& pv) {
-  return ptr->gsfTrack()->dxy(pv.position());
+double IpEmbedder<pat::Electron>::dxy(pat::Electron obj, const reco::Vertex& pv) {
+  return obj.gsfTrack()->dxy(pv.position());
 }
 
 template<>
-double IpEmbedder<pat::Muon>::dxy(edm::Ptr<pat::Muon> ptr, const reco::Vertex& pv) {
-  return ptr->muonBestTrack()->dxy(pv.position());
+double IpEmbedder<pat::Muon>::dxy(pat::Muon obj, const reco::Vertex& pv) {
+  return obj.muonBestTrack()->dxy(pv.position());
 }
 
 template<>
-double IpEmbedder<pat::Tau>::dxy(edm::Ptr<pat::Tau> ptr, const reco::Vertex& pv) {
-    pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(ptr->leadChargedHadrCand().get());
+double IpEmbedder<pat::Tau>::dxy(pat::Tau obj, const reco::Vertex& pv) {
+    pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(obj.leadChargedHadrCand().get());
     return packedLeadTauCand->dxy();
 }
 
 template<>
-double IpEmbedder<pat::Electron>::dB2D(edm::Ptr<pat::Electron> ptr) {
-    return ptr->dB(pat::Electron::PV2D);
+double IpEmbedder<pat::Electron>::dB2D(pat::Electron obj) {
+    return obj.dB(pat::Electron::PV2D);
 }
 
 template<>
-double IpEmbedder<pat::Muon>::dB2D(edm::Ptr<pat::Muon> ptr) {
-    return ptr->dB(pat::Muon::PV2D);
+double IpEmbedder<pat::Muon>::dB2D(pat::Muon obj) {
+    return obj.dB(pat::Muon::PV2D);
 }
 
 template<>
-double IpEmbedder<pat::Electron>::dB3D(edm::Ptr<pat::Electron> ptr) {
-    return ptr->dB(pat::Electron::PV3D);
+double IpEmbedder<pat::Electron>::dB3D(pat::Electron obj) {
+    return obj.dB(pat::Electron::PV3D);
 }
 
 template<>
-double IpEmbedder<pat::Muon>::dB3D(edm::Ptr<pat::Muon> ptr) {
-    return ptr->dB(pat::Muon::PV3D);
+double IpEmbedder<pat::Muon>::dB3D(pat::Muon obj) {
+    return obj.dB(pat::Muon::PV3D);
 }
 
 template<>
-double IpEmbedder<pat::Electron>::edB2D(edm::Ptr<pat::Electron> ptr) {
-    return ptr->edB(pat::Electron::PV2D);
+double IpEmbedder<pat::Electron>::edB2D(pat::Electron obj) {
+    return obj.edB(pat::Electron::PV2D);
 }
 
 template<>
-double IpEmbedder<pat::Muon>::edB2D(edm::Ptr<pat::Muon> ptr) {
-    return ptr->edB(pat::Muon::PV2D);
+double IpEmbedder<pat::Muon>::edB2D(pat::Muon obj) {
+    return obj.edB(pat::Muon::PV2D);
 }
 
 template<>
-double IpEmbedder<pat::Electron>::edB3D(edm::Ptr<pat::Electron> ptr) {
-    return ptr->edB(pat::Electron::PV3D);
+double IpEmbedder<pat::Electron>::edB3D(pat::Electron obj) {
+    return obj.edB(pat::Electron::PV3D);
 }
 
 template<>
-double IpEmbedder<pat::Muon>::edB3D(edm::Ptr<pat::Muon> ptr) {
-    return ptr->edB(pat::Muon::PV3D);
+double IpEmbedder<pat::Muon>::edB3D(pat::Muon obj) {
+    return obj.edB(pat::Muon::PV3D);
 }
 
 template<typename T>

@@ -30,6 +30,7 @@ private:
   edm::EDGetTokenT<edm::View<pat::Muon> > collectionToken_; // input collection
   bool isData_;
   std::auto_ptr<std::vector<pat::Muon> > out;             // Collection we'll output at the end
+  std::auto_ptr<rochcor2015> rmcor;
 };
 
 // Constructors and destructors
@@ -37,6 +38,7 @@ RochesterCorrectionEmbedder::RochesterCorrectionEmbedder(const edm::ParameterSet
   collectionToken_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("src"))),
   isData_(iConfig.getParameter<bool>("isData"))
 {
+  rmcor = std::auto_ptr<rochcor2015>(new rochcor2015());
   produces<std::vector<pat::Muon> >();
 }
 
@@ -47,15 +49,14 @@ void RochesterCorrectionEmbedder::produce(edm::Event& iEvent, const edm::EventSe
   edm::Handle<edm::View<pat::Muon> > collection;
   iEvent.getByToken(collectionToken_, collection);
 
-  std::auto_ptr<rochcor2015> rmcor(new rochcor2015());
 
   for (size_t c = 0; c < collection->size(); ++c) {
-    const auto ptr = collection->ptrAt(c);
-    pat::Muon newObj = *ptr;
+    const auto obj = collection->at(c);
+    pat::Muon newObj = obj;
 
     TLorentzVector p4;
-    p4.SetPtEtaPhiM(ptr->pt(),ptr->eta(),ptr->phi(),ptr->mass());
-    int charge = ptr->charge();
+    p4.SetPtEtaPhiM(obj.pt(),obj.eta(),obj.phi(),obj.mass());
+    int charge = obj.charge();
     float qter = 1.0; 
     int runopt = 0;
     int ntrk = 0;
