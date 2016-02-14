@@ -454,7 +454,8 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     iEvent.getByToken(verticesToken_, vertices);
 
     edm::Handle<reco::GenParticleCollection> genParticles;
-    iEvent.getByToken(genParticlesToken_, genParticles);
+    if (!isData_)
+        iEvent.getByToken(genParticlesToken_, genParticles);
 
     edm::Handle<pat::ElectronCollection> electrons;
     iEvent.getByToken(electronsToken_, electrons);
@@ -475,7 +476,8 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     iEvent.getByToken(metsToken_, mets);
 
     MiniTree::AnalyzeCollection<reco::Vertex>(vertices,"vertices",names);
-    MiniTree::AnalyzeCollection<reco::GenParticle>(genParticles,"genParticles",names);
+    if (!isData_)
+        MiniTree::AnalyzeCollection<reco::GenParticle>(genParticles,"genParticles",names);
     MiniTree::AnalyzeCollection<pat::Electron>(electrons,"electrons",names);
     MiniTree::AnalyzeCollection<pat::Muon>(muons,"muons",names);
     MiniTree::AnalyzeCollection<pat::Tau>(taus,"taus",names);

@@ -80,14 +80,14 @@ triggerBranches = cms.PSet(
                                                     path  = cms.string('HLT_Mu17_TrkIsoVVL_v\\[0-9]+'),
                                                     pdgid = cms.vint32(13),
                                                 ),
-    IsoMu18                                     = cms.PSet(
-                                                    path  = cms.string('HLT_IsoMu18_v\\[0-9]+'),
-                                                    pdgid = cms.vint32(13),
-                                                ),
-    IsoTkMu18                                   = cms.PSet(
-                                                    path  = cms.string('HLT_IsoTkMu18_v\\[0-9]+'),
-                                                    pdgid = cms.vint32(13),
-                                                ),
+    #IsoMu18                                     = cms.PSet(
+    #                                                path  = cms.string('HLT_IsoMu18_v\\[0-9]+'),
+    #                                                pdgid = cms.vint32(13),
+    #                                            ),
+    #IsoTkMu18                                   = cms.PSet(
+    #                                                path  = cms.string('HLT_IsoTkMu18_v\\[0-9]+'),
+    #                                                pdgid = cms.vint32(13),
+    #                                            ),
     IsoMu20                                     = cms.PSet(
                                                     path  = cms.string('HLT_IsoMu20_v\\[0-9]+'),
                                                     pdgid = cms.vint32(13),
@@ -96,14 +96,14 @@ triggerBranches = cms.PSet(
                                                     path  = cms.string('HLT_IsoTkMu20_v\\[0-9]+'),
                                                     pdgid = cms.vint32(13),
                                                 ),
-    IsoMu22                                     = cms.PSet(
-                                                    path  = cms.string('HLT_IsoMu22_v\\[0-9]+'),
-                                                    pdgid = cms.vint32(13),
-                                                ),
-    IsoTkMu22                                   = cms.PSet(
-                                                    path  = cms.string('HLT_IsoTkMu22_v\\[0-9]+'),
-                                                    pdgid = cms.vint32(13),
-                                                ),
+    #IsoMu22                                     = cms.PSet(
+    #                                                path  = cms.string('HLT_IsoMu22_v\\[0-9]+'),
+    #                                                pdgid = cms.vint32(13),
+    #                                            ),
+    #IsoTkMu22                                   = cms.PSet(
+    #                                                path  = cms.string('HLT_IsoTkMu22_v\\[0-9]+'),
+    #                                                pdgid = cms.vint32(13),
+    #                                            ),
     IsoMu27                                     = cms.PSet(
                                                     path  = cms.string('HLT_IsoMu27_v\\[0-9]+'),
                                                     pdgid = cms.vint32(13),
