@@ -483,7 +483,7 @@ jetBranches = commonPatCandidates.clone(
 
 # mets
 metBranches = commonMet.clone(
-    uncorEt               = cms.vstring('uncorSumEt','F'),
+    uncorEt               = cms.vstring('uncorPt','F'),
     uncorPhi              = cms.vstring('uncorPhi','F'),
     # need to embed these
     #jetResUp_et           = cms.vstring('shiftedSumEt(0)','F'),
