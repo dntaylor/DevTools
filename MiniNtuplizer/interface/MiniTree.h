@@ -73,6 +73,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     edm::EDGetTokenT<double> rhoToken_;
     edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryInfoToken_;
     edm::EDGetTokenT<edm::TriggerResults> triggerBitsToken_;
+    edm::EDGetTokenT<edm::TriggerResults> filterBitsToken_;
     edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken_;
     edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescalesToken_;
     edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
@@ -86,11 +87,13 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
 
     // handles
     edm::Handle<edm::TriggerResults> triggerBits_;
+    edm::Handle<edm::TriggerResults> filterBits_;
     edm::Handle<pat::TriggerObjectStandAloneCollection> triggerObjects_;
     edm::Handle<pat::PackedTriggerPrescales> triggerPrescales_;
 
     // branch parameters
     edm::ParameterSet triggerBranches_;
+    edm::ParameterSet filterBranches_;
     edm::ParameterSet vertexBranches_;
     edm::ParameterSet genParticleBranches_;
     edm::ParameterSet electronBranches_;
@@ -128,6 +131,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
 
     // trigger
     std::vector<std::string>                 triggerNames_;
+    std::vector<std::string>                 filterNames_;
     std::vector<std::string>                 triggerBranchStrings_;
     std::map<std::string, std::string>       triggerNamingMap_;
     std::map<std::string, std::vector<int> > triggerMatchMap_;

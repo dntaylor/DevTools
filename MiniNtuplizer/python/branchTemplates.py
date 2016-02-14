@@ -206,6 +206,28 @@ triggerBranches = cms.PSet(
                                                 ),
 )
 
+# filters
+filterBranches = cms.PSet(
+    HBHENoiseFilter                    = cms.PSet(
+                                           path  = cms.string('Flag_HBHENoiseFilter'),
+                                       ),
+    HBHENoiseIsoFilter                 = cms.PSet(
+                                           path  = cms.string('Flag_HBHENoiseIsoFilter'),
+                                       ),
+    CSCTightHalo2015Filter             = cms.PSet(
+                                           path  = cms.string('Flag_CSCTightHalo2015Filter'),
+                                       ),
+    EcalDeadCellTriggerPrimitiveFilter = cms.PSet(
+                                           path  = cms.string('Flag_EcalDeadCellTriggerPrimitiveFilter'),
+                                       ),
+    goodVertices                       = cms.PSet(
+                                           path  = cms.string('Flag_goodVertices'),
+                                       ),
+    eeBadScFilter                      = cms.PSet(
+                                           path  = cms.string('Flag_eeBadScFilter'),
+                                       ),
+)
+
 # vertices
 vertexBranches = commonVertex.clone()
 

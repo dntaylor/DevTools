@@ -1,9 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-miniTreePath = cms.Path()
-
-
-
 # load branches
 from AnalysisTools.MiniNtuplizer.branchTemplates import *
 
@@ -14,9 +10,11 @@ miniTree = cms.EDAnalyzer("MiniTree",
     rho = cms.InputTag("fixedGridRhoFastjetAll"),
     pileupSummaryInfo = cms.InputTag("slimmedAddPileupInfo"),
     triggerResults = cms.InputTag("TriggerResults","","HLT"),
+    filterResults = cms.InputTag("TriggerResults","","PAT"),
     triggerObjects = cms.InputTag("selectedPatTrigger"),
     triggerPrescales = cms.InputTag("patTrigger"),
     triggerBranches = triggerBranches,
+    filterBranches = filterBranches,
     vertices = cms.InputTag("slimmedOfflinePrimaryVertices"),
     vertexBranches = cms.PSet(
         vertices = cms.PSet(
@@ -74,4 +72,3 @@ miniTree = cms.EDAnalyzer("MiniTree",
         ),
     ),
 )
-miniTreePath += miniTree
