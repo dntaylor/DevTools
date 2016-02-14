@@ -279,6 +279,7 @@ electronBranches = commonPatCandidates.clone(
     mvaTrigValues                  = cms.vstring('userFloat("ElectronMVAEstimatorRun2Spring15Trig25nsV1Values")','F'),
     mvaNonTrigCategories           = cms.vstring('userInt("ElectronMVAEstimatorRun2Spring15NonTrig25nsV1Categories")','I'),
     mvaTrigCategories              = cms.vstring('userInt("ElectronMVAEstimatorRun2Spring15Trig25nsV1Categories")','I'),
+    wwLoose                        = cms.vstring('userInt("WWLoose")','I'),
     # pv
     dz                             = cms.vstring('userFloat("dz")','F'),
     dxy                            = cms.vstring('userFloat("dxy")','F'),

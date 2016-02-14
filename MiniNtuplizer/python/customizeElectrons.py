@@ -95,6 +95,18 @@ def customizeElectrons(process,eSrc,**kwargs):
     process.electronCustomization *= process.egmGsfElectronIDSequence
     process.electronCustomization *= process.eidEmbedder
 
+    ###################
+    ### embed ww id ###
+    ###################
+    process.eWW = cms.EDProducer(
+        "ElectronWWIdEmbedder",
+        src = cms.InputTag(eSrc),
+        vertexSrc = cms.InputTag(pvSrc),
+    )
+    eSrc = 'eWW'
+
+    process.electronCustomization *= process.eWW
+
     #############################
     ### embed effective areas ###
     #############################

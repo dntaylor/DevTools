@@ -76,11 +76,11 @@ selections = {
 cleaning = {
     'jets' : {
         'electrons' : {
-            'cut' : 'pt>10 && abs(eta)<2.5 && userInt("cutBasedElectronID-Spring15-25ns-V1-standalone-medium")>0.5',
+            'cut' : 'pt>10 && abs(eta)<2.5 && userInt("cutBasedElectronID-Spring15-25ns-V1-standalone-medium")>0.5 && userInt("WWLoose")>0.5',
             'dr'  : 0.3,
         },
         'muons' : {
-            'cut' : 'pt>10 && abs(eta)<2.4 && isMediumMuon>0.5',
+            'cut' : 'pt>10 && abs(eta)<2.4 && isMediumMuon>0.5 && trackIso/pt<0.4 && userFloat("dxy")<0.02 && userFloat("dz")<0.1 && (pfIsolationR04().sumChargedHadronPt+max(0.,pfIsolationR04().sumNeutralHadronEt+pfIsolationR04().sumPhotonEt-0.5*pfIsolationR04().sumPUPt))/pt<0.15',
             'dr'  : 0.3,
         },
         'taus' : {
