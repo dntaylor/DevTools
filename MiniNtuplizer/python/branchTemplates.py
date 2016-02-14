@@ -481,4 +481,40 @@ jetBranches = commonPatCandidates.clone(
 )
 
 # mets
-metBranches = commonMet.clone()
+metBranches = commonMet.clone(
+    uncorEt               = cms.vstring('uncorSumEt','F'),
+    uncorPhi              = cms.vstring('uncorPhi','F'),
+    # need to embed these
+    #jetResUp_et           = cms.vstring('shiftedSumEt(0)','F'),
+    #jetResDown_et         = cms.vstring('shiftedSumEt(1)','F'),
+    #jetEnUp_et            = cms.vstring('shiftedSumEt(2)','F'),
+    #jetEnDown_et          = cms.vstring('shiftedSumEt(3)','F'),
+    #muonEnUp_et           = cms.vstring('shiftedSumEt(4)','F'),
+    #muonEnDown_et         = cms.vstring('shiftedSumEt(5)','F'),
+    #electronEnUp_et       = cms.vstring('shiftedSumEt(6)','F'),
+    #electronEnDown_et     = cms.vstring('shiftedSumEt(7)','F'),
+    #tauEnUp_et            = cms.vstring('shiftedSumEt(8)','F'),
+    #tauEnDown_et          = cms.vstring('shiftedSumEt(9)','F'),
+    #unclusteredEnUp_et    = cms.vstring('shiftedSumEt(10)','F'),
+    #unclusteredEnDown_et  = cms.vstring('shiftedSumEt(11)','F'),
+    #photonEnUp_et         = cms.vstring('shiftedSumEt(12)','F'),
+    #photonEnDown_et       = cms.vstring('shiftedSumEt(13)','F'),
+    #jetResUpSmear_et      = cms.vstring('shiftedSumEt(16)','F'),
+    #jetResDownSmear_et    = cms.vstring('shiftedSumEt(17)','F'),
+    #jetResUp_phi          = cms.vstring('shiftedPhi(0)','F'),
+    #jetResDown_phi        = cms.vstring('shiftedPhi(1)','F'),
+    #jetEnUp_phi           = cms.vstring('shiftedPhi(2)','F'),
+    #jetEnDown_phi         = cms.vstring('shiftedPhi(3)','F'),
+    #muonEnUp_phi          = cms.vstring('shiftedPhi(4)','F'),
+    #muonEnDown_phi        = cms.vstring('shiftedPhi(5)','F'),
+    #electronEnUp_phi      = cms.vstring('shiftedPhi(6)','F'),
+    #electronEnDown_phi    = cms.vstring('shiftedPhi(7)','F'),
+    #tauEnUp_phi           = cms.vstring('shiftedPhi(8)','F'),
+    #tauEnDown_phi         = cms.vstring('shiftedPhi(9)','F'),
+    #unclusteredEnUp_phi   = cms.vstring('shiftedPhi(10)','F'),
+    #unclusteredEnDown_phi = cms.vstring('shiftedPhi(11)','F'),
+    #photonEnUp_phi        = cms.vstring('shiftedPhi(12)','F'),
+    #photonEnDown_phi      = cms.vstring('shiftedPhi(13)','F'),
+    #jetResUpSmear_phi     = cms.vstring('shiftedPhi(16)','F'),
+    #jetResDownSmear_phi   = cms.vstring('shiftedPhi(17)','F'),
+)

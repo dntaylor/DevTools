@@ -8,7 +8,9 @@ miniTreePath = cms.Path()
 from AnalysisTools.MiniNtuplizer.branchTemplates import *
 
 miniTree = cms.EDAnalyzer("MiniTree",
+    isData = cms.bool(True),
     genEventInfo = cms.InputTag("generator"),
+    lheEventProduct = cms.InputTag("externalLHEProducer"),
     rho = cms.InputTag("fixedGridRhoFastjetAll"),
     pileupSummaryInfo = cms.InputTag("slimmedAddPileupInfo"),
     triggerResults = cms.InputTag("TriggerResults","","HLT"),

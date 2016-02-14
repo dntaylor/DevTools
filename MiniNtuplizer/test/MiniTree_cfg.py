@@ -59,6 +59,7 @@ collections = {
     'pfmet'        : 'slimmedMETs',
     'rho'          : 'fixedGridRhoFastjetAll',
     'vertices'     : 'offlineSlimmedPrimaryVertices',
+    'packed'       : 'packedPFCandidates',
 }
 
 # the selections for each object (to be included in ntuple)
@@ -138,6 +139,12 @@ collections['pfmet'] = customizeMets(
     process,
     collections['pfmet'],
     isMC=bool(options.isMC),
+    jSrc=collections['jets'],
+    pSrc=collections['photons'],
+    eSrc=collections['electrons'],
+    mSrc=collections['muons'],
+    tSrc=collections['taus'],
+    pfSrc=collections['packed'],
 )
 
 # select desired objects
@@ -150,6 +157,7 @@ for coll in cleaning:
 # add the analyzer
 process.load("AnalysisTools.MiniNtuplizer.MiniTree_cfi")
 
+process.miniTree.isData = not options.isMC
 process.miniTree.genParticles = collections['genParticles']
 process.miniTree.electrons = collections['electrons']
 process.miniTree.muons = collections['muons']

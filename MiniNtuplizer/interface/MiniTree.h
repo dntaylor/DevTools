@@ -21,6 +21,7 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
@@ -67,6 +68,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     void AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std::string name, const edm::TriggerNames& names);
 
     // tokens
+    edm::EDGetTokenT<LHEEventProduct> lheEventProductToken_;
     edm::EDGetTokenT<GenEventInfoProduct> genEventInfoToken_;
     edm::EDGetTokenT<double> rhoToken_;
     edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupSummaryInfoToken_;
@@ -98,6 +100,9 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     edm::ParameterSet jetBranches_;
     edm::ParameterSet metBranches_;
 
+    // other configurations
+    bool isData_;
+
     // tree
     TTree *tree;
     TTree *lumitree;
@@ -109,10 +114,12 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     Float_t summedWeightsBranch_;
 
     // one off tree branches
+    Int_t     isDataBranch_;
     Float_t   genWeightBranch_;
     ULong64_t eventBranch_;
     Float_t   rhoBranch_;
     Float_t   nTrueVerticesBranch_;
+    Int_t     nupBranch_;
 
     // maps for branches
     std::map<std::string, UInt_t>                countMap_;

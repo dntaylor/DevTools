@@ -1,6 +1,7 @@
 #include "AnalysisTools/MiniNtuplizer/interface/MiniTree.h"
 
 MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
+    lheEventProductToken_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("lheEventProduct"))),
     genEventInfoToken_(consumes<GenEventInfoProduct>(iConfig.getParameter<edm::InputTag>("genEventInfo"))),
     rhoToken_(consumes<double>(iConfig.getParameter<edm::InputTag>("rho"))),
     pileupSummaryInfoToken_(consumes<std::vector<PileupSummaryInfo> >(iConfig.getParameter<edm::InputTag>("pileupSummaryInfo"))),
@@ -23,7 +24,8 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     tauBranches_(iConfig.getParameter<edm::ParameterSet>("tauBranches")),
     photonBranches_(iConfig.getParameter<edm::ParameterSet>("photonBranches")),
     jetBranches_(iConfig.getParameter<edm::ParameterSet>("jetBranches")),
-    metBranches_(iConfig.getParameter<edm::ParameterSet>("metBranches"))
+    metBranches_(iConfig.getParameter<edm::ParameterSet>("metBranches")),
+    isData_(iConfig.getParameter<bool>("isData"))
 {
     // Declare use of TFileService
     usesResource("TFileService");
@@ -193,6 +195,8 @@ void MiniTree::beginJob() {
     tree->Branch("genWeight", &genWeightBranch_, "genWeight/F");
     tree->Branch("rho", &rhoBranch_, "rho/F");
     tree->Branch("nTrueVertices", &nTrueVerticesBranch_, "nTrueVertices/F");
+    tree->Branch("NUP", &nupBranch_, "NUP/I");
+    tree->Branch("isData", &isDataBranch_, "isData/I");
 
     // add triggers
     for (auto trigName : triggerNames_) {
@@ -403,6 +407,8 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     summedWeightsBranch_ += genWeightBranch_;
 
     // now the actual tree
+    isDataBranch_ = isData_;
+
     eventBranch_ = iEvent.id().event();
 
     // one off stuff
@@ -416,6 +422,14 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     nTrueVerticesBranch_ = 0;
     if (pileupSummaryInfo.isValid() && pileupSummaryInfo->size()>0) {
         nTrueVerticesBranch_ = pileupSummaryInfo->at(1).getTrueNumInteractions();
+    }
+
+    edm::Handle<LHEEventProduct> lheInfo;
+    iEvent.getByToken(lheEventProductToken_, lheInfo);
+
+    nupBranch_ = 0;
+    if (lheInfo.isValid()) {
+        nupBranch_ = lheInfo->hepeup().NUP;
     }
 
     // triggers
