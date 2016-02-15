@@ -8,6 +8,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -21,25 +22,27 @@
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 
+#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/LHEEventProduct.h"
 #include "FWCore/Common/interface/TriggerNames.h"
 #include "DataFormats/Common/interface/TriggerResults.h"
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-#include "DataFormats/VertexReco/interface/Vertex.h"
-#include "DataFormats/VertexReco/interface/VertexFwd.h"
-#include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/PatCandidates/interface/Electron.h"
-#include "DataFormats/PatCandidates/interface/Muon.h"
-#include "DataFormats/PatCandidates/interface/Tau.h"
-#include "DataFormats/PatCandidates/interface/Photon.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/MET.h"
+//#include "DataFormats/VertexReco/interface/Vertex.h"
+//#include "DataFormats/VertexReco/interface/VertexFwd.h"
+//#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+//#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+//#include "DataFormats/PatCandidates/interface/Electron.h"
+//#include "DataFormats/PatCandidates/interface/Muon.h"
+//#include "DataFormats/PatCandidates/interface/Tau.h"
+//#include "DataFormats/PatCandidates/interface/Photon.h"
+//#include "DataFormats/PatCandidates/interface/Jet.h"
+//#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
+
+#include "AnalysisTools/MiniNtuplizer/interface/CandidateCollectionBranches.h"
 
 class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchLuminosityBlocks> {
   public:
@@ -55,17 +58,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     virtual void endLuminosityBlock(edm::LuminosityBlock const& iEvent, edm::EventSetup const&) override;
     virtual void endJob() override;
 
-    void AddCollectionToTree(std::string coll, std::string name, edm::ParameterSet pset);
     size_t GetTriggerBit(std::string trigName, const edm::TriggerNames& names);
-
-    template<typename ObjType>
-    bool MatchedToTriggerObject(ObjType obj, std::string trigName, const edm::TriggerNames& names);
-
-    template<typename T, typename ObjType>
-    T Evaluate(std::string branchName, std::string function, ObjType obj);
-
-    template<typename ObjType>
-    void AnalyzeCollection(edm::Handle<std::vector<ObjType> > objects, std::string name, const edm::TriggerNames& names);
 
     // tokens
     edm::EDGetTokenT<LHEEventProduct> lheEventProductToken_;
@@ -76,14 +69,6 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     edm::EDGetTokenT<edm::TriggerResults> filterBitsToken_;
     edm::EDGetTokenT<pat::TriggerObjectStandAloneCollection> triggerObjectsToken_;
     edm::EDGetTokenT<pat::PackedTriggerPrescales> triggerPrescalesToken_;
-    edm::EDGetTokenT<reco::VertexCollection> verticesToken_;
-    edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
-    edm::EDGetTokenT<pat::ElectronCollection> electronsToken_;
-    edm::EDGetTokenT<pat::MuonCollection> muonsToken_;
-    edm::EDGetTokenT<pat::TauCollection> tausToken_;
-    edm::EDGetTokenT<pat::PhotonCollection> photonsToken_;
-    edm::EDGetTokenT<pat::JetCollection> jetsToken_;
-    edm::EDGetTokenT<pat::METCollection> metsToken_;
 
     // handles
     edm::Handle<edm::TriggerResults> triggerBits_;
@@ -94,21 +79,15 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     // branch parameters
     edm::ParameterSet triggerBranches_;
     edm::ParameterSet filterBranches_;
-    edm::ParameterSet vertexBranches_;
-    edm::ParameterSet genParticleBranches_;
-    edm::ParameterSet electronBranches_;
-    edm::ParameterSet muonBranches_;
-    edm::ParameterSet tauBranches_;
-    edm::ParameterSet photonBranches_;
-    edm::ParameterSet jetBranches_;
-    edm::ParameterSet metBranches_;
+
+    edm::ParameterSet collections_;
 
     // other configurations
     bool isData_;
 
     // tree
-    TTree *tree;
-    TTree *lumitree;
+    TTree *tree_;
+    TTree *lumitree_;
 
     // lumitree branches
     Int_t   runBranch_;
@@ -124,29 +103,16 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     Float_t   nTrueVerticesBranch_;
     Int_t     nupBranch_;
 
-    // maps for branches
-    std::map<std::string, UInt_t>                countMap_;
-    std::map<std::string, std::vector<Float_t> > floatMap_;
-    std::map<std::string, std::vector<Int_t> >   intMap_;
-
     // trigger
     std::vector<std::string>                 triggerNames_;
     std::vector<std::string>                 filterNames_;
     std::vector<std::string>                 triggerBranchStrings_;
     std::map<std::string, std::string>       triggerNamingMap_;
-    std::map<std::string, std::vector<int> > triggerMatchMap_;
     std::map<std::string, Int_t>             triggerIntMap_;
 
     // collections
-    std::vector<std::string> collectionOrder_;
-    std::map<std::string, std::vector<std::string> > collectionNamesMap_;
-    std::map<std::string, edm::ParameterSet> collectionPSetMap_;
-    std::map<std::string, unsigned int> collectionMaxCounts_;
-    std::map<std::string, std::string> collectionSelections_;
-    std::map<std::string, std::vector<std::string> > collectionBranches_;
-    std::map<std::string, std::string> branchTypes_;
-    std::map<std::string, std::string> branchFunctions_;
-
+    std::vector<std::string> collectionNames_;
+    std::vector<std::unique_ptr<CandidateCollectionBranches> > collectionBranches_;
 };
 
 void MiniTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

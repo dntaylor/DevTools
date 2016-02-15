@@ -15,59 +15,37 @@ miniTree = cms.EDAnalyzer("MiniTree",
     triggerPrescales = cms.InputTag("patTrigger"),
     triggerBranches = triggerBranches,
     filterBranches = filterBranches,
-    vertices = cms.InputTag("slimmedOfflinePrimaryVertices"),
-    vertexBranches = cms.PSet(
-        vertices = cms.PSet(
-            maxCount = cms.uint32(100),
-            branches = vertexBranches,
-        ),
-    ),
-    genParticles = cms.InputTag("prunedGenParticles"),
-    genParticleBranches = cms.PSet(
+    collections = cms.PSet(
+        #vertices = cms.PSet(
+        #    collection = cms.InputTag("slimmedOfflinePrimaryVertices"),
+        #    branches = vertexBranches,
+        #),
         genParticles = cms.PSet(
-            maxCount = cms.uint32(10000),
+            collection = cms.InputTag("prunedGenParticles"),
             branches = genParticleBranches,
         ),
-    ),
-    electrons = cms.InputTag("slimmedElectrons"),
-    electronBranches = cms.PSet(
         electrons = cms.PSet(
-            maxCount = cms.uint32(100),
+            collection = cms.InputTag("slimmedElectrons"),
             branches = electronBranches,
         ),
-    ),
-    muons = cms.InputTag("slimmedMuons"),
-    muonBranches = cms.PSet(
         muons = cms.PSet(
-            maxCount = cms.uint32(100),
+            collection = cms.InputTag("slimmedMuons"),
             branches = muonBranches,
         ),
-    ),
-    taus = cms.InputTag("slimmedTaus"),
-    tauBranches = cms.PSet(
         taus = cms.PSet(
-            maxCount = cms.uint32(100),
+            collection = cms.InputTag("slimmedTaus"),
             branches = tauBranches,
         ),
-    ),
-    photons = cms.InputTag("slimmedPhotons"),
-    photonBranches = cms.PSet(
         photons = cms.PSet(
-            maxCount = cms.uint32(100),
+            collection = cms.InputTag("slimmedPhotons"),
             branches = photonBranches,
         ),
-    ),
-    jets = cms.InputTag("slimmedJets"),
-    jetBranches = cms.PSet(
         jets = cms.PSet(
-            maxCount = cms.uint32(100),
+            collection = cms.InputTag("slimmedJets"),
             branches = jetBranches,
         ),
-    ),
-    mets = cms.InputTag("slimmedMETs"),
-    metBranches = cms.PSet(
         pfmet = cms.PSet(
-            maxCount = cms.uint32(1),
+            collection = cms.InputTag("slimmedMETs"),
             branches = metBranches,
         ),
     ),

@@ -54,6 +54,18 @@ process.schedule = cms.Schedule()
 ### Profiling utilities ###
 ###########################
 
+#process.ProfilerService = cms.Service (
+#      "ProfilerService",
+#       firstEvent = cms.untracked.int32(2),
+#       lastEvent = cms.untracked.int32(500),
+#       paths = cms.untracked.vstring('schedule') 
+#)
+
+#process.SimpleMemoryCheck = cms.Service(
+#    "SimpleMemoryCheck",
+#    ignoreTotal = cms.untracked.int32(1)
+#)
+
 ### To use IgProf's neat memory profiling tools, uncomment the following 
 ### lines then run this cfg with igprof like so:
 ###      $ igprof -d -mp -z -o igprof.mp.gz cmsRun ... 
@@ -199,15 +211,15 @@ process.load("AnalysisTools.MiniNtuplizer.MiniTree_cfi")
 
 process.miniTree.isData = not options.isMC
 process.miniTree.filterResults = cms.InputTag('TriggerResults', '', 'PAT') if options.isMC else cms.InputTag('TriggerResults', '', 'RECO')
-process.miniTree.genParticles = collections['genParticles']
-process.miniTree.electrons = collections['electrons']
-process.miniTree.muons = collections['muons']
-process.miniTree.taus = collections['taus']
-process.miniTree.photons = collections['photons']
-process.miniTree.jets = collections['jets']
-process.miniTree.mets = collections['pfmet']
+#process.miniTree.collections.vertices.collection = collections['vertices']
+process.miniTree.collections.genParticles.collection = collections['genParticles']
+process.miniTree.collections.electrons.collection = collections['electrons']
+process.miniTree.collections.muons.collection = collections['muons']
+process.miniTree.collections.taus.collection = collections['taus']
+process.miniTree.collections.photons.collection = collections['photons']
+process.miniTree.collections.jets.collection = collections['jets']
+process.miniTree.collections.pfmet.collection = collections['pfmet']
 process.miniTree.rho = collections['rho']
-process.miniTree.vertices = collections['vertices']
 
 process.miniTreePath = cms.Path()
 for f in filters:
