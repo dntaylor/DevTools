@@ -22,10 +22,6 @@ miniTree = cms.EDAnalyzer("MiniTree",
         ),
     ),
     collections = cms.PSet(
-        genParticles = cms.PSet(
-            collection = cms.InputTag("prunedGenParticles"),
-            branches = genParticleBranches,
-        ),
         electrons = cms.PSet(
             collection = cms.InputTag("slimmedElectrons"),
             branches = electronBranches,

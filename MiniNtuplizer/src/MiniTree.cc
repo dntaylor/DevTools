@@ -127,8 +127,9 @@ size_t MiniTree::GetTriggerBit(std::string trigName, const edm::TriggerNames& na
         }
     }
     if (trigBit == names.size()) {
-        throw cms::Exception("UnrecognizedTrigger")
-            << "No trigger matched for \"" << trigPathString << "\"." << std::endl;
+        return 9999;
+        //throw cms::Exception("UnrecognizedTrigger")
+        //    << "No trigger matched for \"" << trigPathString << "\"." << std::endl;
     }
     return trigBit;
 }
@@ -183,15 +184,26 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
         size_t trigBit = MiniTree::GetTriggerBit(trigName,names);
         std::string passString = trigName + "Pass";
         std::string prescaleString = trigName + "Prescale";
-        triggerIntMap_[passString] = triggerBits_->accept(trigBit);
-        triggerIntMap_[prescaleString] = triggerPrescales_->getPrescaleForIndex(trigBit);
+        if (trigBit==9999) {
+            triggerIntMap_[passString] = -1;
+            triggerIntMap_[prescaleString] = -1;
+        }
+        else {
+            triggerIntMap_[passString] = triggerBits_->accept(trigBit);
+            triggerIntMap_[prescaleString] = triggerPrescales_->getPrescaleForIndex(trigBit);
+        }
     }
 
     const edm::TriggerNames& filters = iEvent.triggerNames(*filterBits_);
 
     for (auto trigName : filterNames_) {
         size_t trigBit = MiniTree::GetTriggerBit(trigName,filters);
-        triggerIntMap_[trigName] = filterBits_->accept(trigBit);
+        if (trigBit==9999) {
+            triggerIntMap_[trigName] = -1;
+        }
+        else {
+            triggerIntMap_[trigName] = filterBits_->accept(trigBit);
+        }
     }
 
     // add vertices
@@ -204,5 +216,20 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
         coll->fill(iEvent);
     }
 
-    tree_->Fill();
+    // decide if we store it
+    // for now, require at least 1 lepton
+    bool keep = false;
+    for ( auto& coll : collectionBranches_ ) {
+        std::string name = coll->getName();
+        int count = coll->getCount();
+        if (name=="electrons" && count>0)
+            keep = true;
+        if (name=="muons" && count>0)
+            keep = true;
+        if (name=="taus" && count>0)
+            keep = true;
+    }
+
+    if (keep)
+        tree_->Fill();
 }

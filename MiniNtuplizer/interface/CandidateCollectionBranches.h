@@ -28,6 +28,8 @@ class CandidateCollectionBranches {
   public:
     CandidateCollectionBranches(TTree * tree, std::string collectionName,  const edm::ParameterSet& iConfig, edm::ConsumesCollector cc);
     void fill(const edm::Event& iEvent);
+    std::string getName() { return collectionName_; }
+    int getCount() { return collectionCount_; }
 
   private:
     edm::EDGetTokenT<reco::CandidateView> collectionToken_;
@@ -35,5 +37,6 @@ class CandidateCollectionBranches {
     std::vector<std::unique_ptr<CandidateCollectionFloatFunction> > floatFunctions_;
     std::vector<std::unique_ptr<CandidateCollectionIntFunction> > intFunctions_;
     TBranch * collectionCountBranch_;
+    std::string collectionName_;
     int collectionCount_;
 };

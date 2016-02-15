@@ -32,7 +32,7 @@ private:
   void endJob() {}
 
   size_t GetTriggerBit(std::string path, const edm::TriggerNames& names);
-  bool MatchToTriggerObject(T obj, std::string path, const edm::TriggerNames& names);
+  int MatchToTriggerObject(T obj, std::string path, const edm::TriggerNames& names);
 
   // Data
   edm::EDGetTokenT<edm::View<T> > collectionToken_;                              // input collection
@@ -85,7 +85,7 @@ void HLTMatchEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     for (size_t i=0; i<labels_.size(); i++) {
       std::string label = labels_.at(i);
       std::string path = paths_.at(i);
-      bool match = MatchToTriggerObject(obj,path,names);
+      int match = MatchToTriggerObject(obj,path,names);
       newObj.addUserInt(label, match);
     }
 
@@ -111,16 +111,20 @@ size_t HLTMatchEmbedder<T>::GetTriggerBit(std::string path, const edm::TriggerNa
         }
     }
     if (trigBit == names.size()) {
-        throw cms::Exception("UnrecognizedTrigger")
-            << "No trigger matched for \"" << path << "\"." << std::endl;
+        return 9999;
+        //throw cms::Exception("UnrecognizedTrigger")
+        //    << "No trigger matched for \"" << path << "\"." << std::endl;
     }
     return trigBit;
 }
 
 template<typename T>
-bool HLTMatchEmbedder<T>::MatchToTriggerObject(T obj, std::string path, const edm::TriggerNames& names) {
-    bool matched = false;
+int HLTMatchEmbedder<T>::MatchToTriggerObject(T obj, std::string path, const edm::TriggerNames& names) {
+    int matched = 0;
     size_t trigBit = GetTriggerBit(path,names);
+    if (trigBit==9999) {
+        return -1;
+    }
     std::string pathToMatch = names.triggerName(trigBit);
     for (auto trigObj : *triggerObjects_) {
        if (abs(trigObj.pdgId()) != abs(obj.pdgId())) continue;
@@ -129,7 +133,7 @@ bool HLTMatchEmbedder<T>::MatchToTriggerObject(T obj, std::string path, const ed
        std::vector<std::string> allPathNames = trigObj.pathNames(false);
        for (auto pathName : allPathNames) {
            if (pathName.compare(pathToMatch)==0) {
-               matched = true;
+               matched = 1;
                return matched;
            }
        }
