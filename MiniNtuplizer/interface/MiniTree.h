@@ -29,20 +29,11 @@
 #include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 #include "DataFormats/PatCandidates/interface/PackedTriggerPrescales.h"
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h"
-//#include "DataFormats/VertexReco/interface/Vertex.h"
-//#include "DataFormats/VertexReco/interface/VertexFwd.h"
-//#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
-//#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-//#include "DataFormats/PatCandidates/interface/Electron.h"
-//#include "DataFormats/PatCandidates/interface/Muon.h"
-//#include "DataFormats/PatCandidates/interface/Tau.h"
-//#include "DataFormats/PatCandidates/interface/Photon.h"
-//#include "DataFormats/PatCandidates/interface/Jet.h"
-//#include "DataFormats/PatCandidates/interface/MET.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
 #include "AnalysisTools/MiniNtuplizer/interface/CandidateCollectionBranches.h"
+#include "AnalysisTools/MiniNtuplizer/interface/VertexCollectionBranches.h"
 
 class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchLuminosityBlocks> {
   public:
@@ -81,6 +72,7 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     edm::ParameterSet filterBranches_;
 
     edm::ParameterSet collections_;
+    edm::ParameterSet vertexCollections_;
 
     // other configurations
     bool isData_;
@@ -111,8 +103,8 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     std::map<std::string, Int_t>             triggerIntMap_;
 
     // collections
-    std::vector<std::string> collectionNames_;
     std::vector<std::unique_ptr<CandidateCollectionBranches> > collectionBranches_;
+    std::vector<std::unique_ptr<VertexCollectionBranches> > vertexCollectionBranches_;
 };
 
 void MiniTree::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {

@@ -10,9 +10,9 @@
 #include "TTree.h"
 
 template<typename T>
-class CollectionFunction {
+class CandidateCollectionFunction {
   public:
-    CollectionFunction(TTree * tree, std::string functionName, std::string functionString);
+    CandidateCollectionFunction(TTree * tree, std::string functionName, std::string functionString);
     void evaluate(const reco::CandidateView& candidates);
 
   private:
@@ -21,8 +21,8 @@ class CollectionFunction {
     std::vector<T> values_;
 };
 
-typedef CollectionFunction<int> CollectionIntFunction;
-typedef CollectionFunction<float> CollectionFloatFunction;
+typedef CandidateCollectionFunction<int> CandidateCollectionIntFunction;
+typedef CandidateCollectionFunction<float> CandidateCollectionFloatFunction;
 
 class CandidateCollectionBranches {
   public:
@@ -32,8 +32,8 @@ class CandidateCollectionBranches {
   private:
     edm::EDGetTokenT<reco::CandidateView> collectionToken_;
     edm::ParameterSet branches_;
-    std::vector<std::unique_ptr<CollectionFloatFunction> > floatFunctions_;
-    std::vector<std::unique_ptr<CollectionIntFunction> > intFunctions_;
+    std::vector<std::unique_ptr<CandidateCollectionFloatFunction> > floatFunctions_;
+    std::vector<std::unique_ptr<CandidateCollectionIntFunction> > intFunctions_;
     TBranch * collectionCountBranch_;
     int collectionCount_;
 };

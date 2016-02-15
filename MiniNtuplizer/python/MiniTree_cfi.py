@@ -15,11 +15,13 @@ miniTree = cms.EDAnalyzer("MiniTree",
     triggerPrescales = cms.InputTag("patTrigger"),
     triggerBranches = triggerBranches,
     filterBranches = filterBranches,
+    vertexCollections = cms.PSet(
+        vertices = cms.PSet(
+            collection = cms.InputTag("slimmedOfflinePrimaryVertices"),
+            branches = vertexBranches,
+        ),
+    ),
     collections = cms.PSet(
-        #vertices = cms.PSet(
-        #    collection = cms.InputTag("slimmedOfflinePrimaryVertices"),
-        #    branches = vertexBranches,
-        #),
         genParticles = cms.PSet(
             collection = cms.InputTag("prunedGenParticles"),
             branches = genParticleBranches,

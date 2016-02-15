@@ -211,7 +211,7 @@ process.load("AnalysisTools.MiniNtuplizer.MiniTree_cfi")
 
 process.miniTree.isData = not options.isMC
 process.miniTree.filterResults = cms.InputTag('TriggerResults', '', 'PAT') if options.isMC else cms.InputTag('TriggerResults', '', 'RECO')
-#process.miniTree.collections.vertices.collection = collections['vertices']
+process.miniTree.vertexCollections.vertices.collection = collections['vertices']
 process.miniTree.collections.genParticles.collection = collections['genParticles']
 process.miniTree.collections.electrons.collection = collections['electrons']
 process.miniTree.collections.muons.collection = collections['muons']

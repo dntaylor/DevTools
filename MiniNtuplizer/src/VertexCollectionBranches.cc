@@ -1,14 +1,14 @@
-#include "AnalysisTools/MiniNtuplizer/interface/CandidateCollectionBranches.h"
+#include "AnalysisTools/MiniNtuplizer/interface/VertexCollectionBranches.h"
 
 template<typename T>
-CandidateCollectionFunction<T>::CandidateCollectionFunction(TTree * tree, std::string functionName, std::string functionString):
+VertexCollectionFunction<T>::VertexCollectionFunction(TTree * tree, std::string functionName, std::string functionString):
   function_(functionString),
   vectorBranch_(tree->Branch(functionName.c_str(), &values_))
 {
 }
 
 template<typename T>
-void CandidateCollectionFunction<T>::evaluate(const reco::CandidateView& candidates)
+void VertexCollectionFunction<T>::evaluate(const reco::VertexCollection& candidates)
 {
   values_.clear();
   for (const auto& candidate: candidates) {
@@ -17,8 +17,8 @@ void CandidateCollectionFunction<T>::evaluate(const reco::CandidateView& candida
 }
 
 
-CandidateCollectionBranches::CandidateCollectionBranches(TTree * tree, std::string collectionName,  const edm::ParameterSet& iConfig, edm::ConsumesCollector cc):
-  collectionToken_(cc.consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("collection"))),
+VertexCollectionBranches::VertexCollectionBranches(TTree * tree, std::string collectionName,  const edm::ParameterSet& iConfig, edm::ConsumesCollector cc):
+  collectionToken_(cc.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("collection"))),
   branches_(iConfig.getParameter<edm::ParameterSet>("branches"))
 {
   // to verify no duplicate entries
@@ -38,18 +38,18 @@ CandidateCollectionBranches::CandidateCollectionBranches(TTree * tree, std::stri
             << "Branch name \"" << branchName <<"\" already added to ntuple." << std::endl;
     }
     if (functionType=='F') {
-      floatFunctions_.emplace_back(new CandidateCollectionFloatFunction(tree, branchName, functionString));
+      floatFunctions_.emplace_back(new VertexCollectionFloatFunction(tree, branchName, functionString));
     }
     else if (functionType=='I') {
-      intFunctions_.emplace_back(new CandidateCollectionIntFunction(tree, branchName, functionString));
+      intFunctions_.emplace_back(new VertexCollectionIntFunction(tree, branchName, functionString));
     }
     allBranches.insert(branchName);
   }
 }
 
-void CandidateCollectionBranches::fill(const edm::Event& iEvent)
+void VertexCollectionBranches::fill(const edm::Event& iEvent)
 {
-  edm::Handle<reco::CandidateView> candidates;
+  edm::Handle<reco::VertexCollection> candidates;
   iEvent.getByToken(collectionToken_, candidates);
 
   collectionCount_ = candidates->size();

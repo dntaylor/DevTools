@@ -12,6 +12,7 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     triggerBranches_(iConfig.getParameter<edm::ParameterSet>("triggerBranches")),
     filterBranches_(iConfig.getParameter<edm::ParameterSet>("filterBranches")),
     collections_(iConfig.getParameter<edm::ParameterSet>("collections")),
+    vertexCollections_(iConfig.getParameter<edm::ParameterSet>("vertexCollections")),
     isData_(iConfig.getParameter<bool>("isData"))
 {
     // Declare use of TFileService
@@ -77,12 +78,17 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
         tree_->Branch(trigName.c_str(), &triggerIntMap_[trigName], branchLeaf.c_str());
     }
 
+    // add vertices
+    auto vertexCollectionNames_ = vertexCollections_.getParameterNames();
+    for (auto coll : vertexCollectionNames_) {
+        vertexCollectionBranches_.emplace_back(new VertexCollectionBranches(tree_, coll, vertexCollections_.getParameter<edm::ParameterSet>(coll), consumesCollector()));
+    }
+
     // add collections
-    collectionNames_ = collections_.getParameterNames();
+    auto collectionNames_ = collections_.getParameterNames();
     for (auto coll : collectionNames_) {
         collectionBranches_.emplace_back(new CandidateCollectionBranches(tree_, coll, collections_.getParameter<edm::ParameterSet>(coll), consumesCollector()));
     }
-
 }
 
 MiniTree::~MiniTree() { }
@@ -186,6 +192,11 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     for (auto trigName : filterNames_) {
         size_t trigBit = MiniTree::GetTriggerBit(trigName,filters);
         triggerIntMap_[trigName] = filterBits_->accept(trigBit);
+    }
+
+    // add vertices
+    for ( auto& coll : vertexCollectionBranches_ ) {
+        coll->fill(iEvent);
     }
 
     // add collections
