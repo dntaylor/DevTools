@@ -18,63 +18,8 @@ from CRABClient.ClientUtilities import initLoggers
 from httplib import HTTPException
 import CRABClient.Commands.submit as crabClientSubmit
 import CRABClient.Commands.status as crabClientStatus
+import CRABClient.Commands.resubmit as crabClientResubmit
 
-## i want to override this
-##from CRABAPI.RawCommand import crabCommand
-#
-#import CRABAPI
-#from CRABClient.ClientUtilities import initLoggers, flushMemoryLogger, removeLoggerHandlers
-#
-## NOTE: Not included in unittests
-#def crabCommand(command, *args, **kwargs):
-#    """ crabComand - executes a given command with certain arguments and returns
-#                     the raw result back from the client. Arguments are...
-#    """
-#    #Converting all arguments to a list. Adding '--' and '='
-#    arguments = []
-#    for key, val in kwargs.iteritems():
-#        if isinstance(val, bool):
-#            if val:
-#                arguments.append('--'+str(key))
-#        else:
-#            arguments.append('--'+str(key))
-#            arguments.append(val)
-#    arguments.extend(list(args))
-#
-#    return execRaw(command, arguments)
-#
-#
-## NOTE: Not included in unittests
-#def execRaw(command, args):
-#    """
-#        execRaw - executes a given command with certain arguments and returns
-#                  the raw result back from the client. args is a python list,
-#                  the same python list parsed by the optparse module
-#    """
-#    tblogger, logger, memhandler = initLoggers()
-#    tblogger.setLevel(logging.INFO)
-#    logger.setLevel(logging.INFO)
-#    memhandler.setLevel(logging.INFO)
-#
-#    try:
-#        mod = __import__('CRABClient.Commands.%s' % command, fromlist=command)
-#    except ImportError:
-#        raise CRABAPI.BadArgumentException( \
-#                                        'Could not find command "%s"' % command)
-#
-#    try:
-#        cmdobj = getattr(mod, command)(logger, args)
-#        res = cmdobj()
-#    except SystemExit as se:
-#        # most likely an error from the OptionParser in Subcommand.
-#        # CRABClient #4283 should make this less ugly
-#        if se.code == 2:
-#            raise CRABAPI.BadArgumentException
-#    finally:
-#        flushMemoryLogger(tblogger, memhandler, logger.logfile)
-#        removeLoggerHandlers(tblogger)
-#        removeLoggerHandlers(logger)
-#    return res
 
 log = logging.getLogger("submit_job")
 logging.basicConfig(level=logging.INFO, stream=sys.stderr)
@@ -134,6 +79,7 @@ def submit_crab(args):
     else:
         log.error('Sample input list {0} does not exist.'.format(args.sampleList))
 
+    submitMap = {}
     # iterate over samples
     for sample in sampleList:
         _, primaryDataset, datasetTag, dataFormat = sample.split('/')
@@ -148,7 +94,7 @@ def submit_crab(args):
         if args.dryrun: submitArgs += ['--dryrun']
         try:
             log.info("Submitting for input dataset {0}".format(sample))
-            result = crabClientSubmit.submit(logger,submitArgs)()
+            submitMap[sample] = crabClientSubmit.submit(logger,submitArgs)()
             #res = crabCommand(command, config = config, *commandArgs)
         except HTTPException as hte:
             log.info("Submission for input dataset {0} failed: {1}".format(sample, hte.headers))
@@ -156,7 +102,7 @@ def submit_crab(args):
             log.info("Submission for input dataset {0} failed: {1}".format(sample, cle))
 
 def status_crab(args):
-    '''Check jobs matching jobName'''
+    '''Check jobs'''
     crab_dirs = []
     if args.jobName:
         workArea = get_crab_workArea(args)
@@ -181,9 +127,9 @@ def status_crab(args):
                 log.info('Retrieving status of {0}'.format(d))
                 statusMap[d] = crabClientStatus.status(logger,statusArgs)()
             except HTTPException as hte:
-                log.info("Submission for input directory {0} failed: {1}".format(d, hte.headers))
+                log.warning("Status for input directory {0} failed: {1}".format(d, hte.headers))
             except ClientException as cle:
-                log.info("Submission for input directory {0} failed: {1}".format(d, cle))
+                log.warning("Status for input directory {0} failed: {1}".format(d, cle))
 
     parse_crab_status(args,statusMap)
 
@@ -210,6 +156,40 @@ def parse_crab_status(args,statusMap):
     for s in allowedStates:
         if stateSummary[s]:
             log.info('{0:12} : {1}'.format(s,stateSummary[s]))
+
+def resubmit_crab(args):
+    '''Resubmit jobs'''
+    crab_dirs = []
+    if args.jobName:
+        workArea = get_crab_workArea(args)
+        crab_dirs += glob.glob('{0}/*'.format(workArea))
+    elif args.crabDirectories:
+        for d in args.crabDirectories:
+            crab_dirs += glob.glob(d)
+    else:
+        log.error("Shouldn't be possible to get here")
+
+    tblogger, logger, memhandler = initLoggers()
+    tblogger.setLevel(logging.WARNING)
+    logger.setLevel(logging.WARNING)
+    memhandler.setLevel(logging.WARNING)
+
+    resubmitMap = {}
+    for d in crab_dirs:
+        if os.path.exists(d):
+            resubmitArgs = ['--dir',d]
+            try:
+                log.info('Resubmitting {0}'.format(d))
+                resubmitMap[d] = crabClientResubmit.resubmit(logger,resubmitArgs)()
+            except HTTPException as hte:
+                log.warning("Submission for input directory {0} failed: {1}".format(d, hte.headers))
+            except ClientException as cle:
+                log.warning("Submission for input directory {0} failed: {1}".format(d, cle))
+
+    for d,statMap in resubmitMap.iteritems():
+        if statMap['status'] != 'SUCCESS':
+            log.info('Status: {0} - {1}'.format(statMap['status'],d))
+
 
 def submit_condor(args):
     '''Create submission script for condor'''
@@ -267,6 +247,17 @@ def parse_command_line(argv):
     parser_crabStatus.add_argument('--verbose', action='store_true', help='Verbose status summary')
 
     parser_crabStatus.set_defaults(submit=status_crab)
+
+    # crabResubmit
+    parser_crabResubmit = subparsers.add_parser('crabResubmit', help='Resubmit crab jobs')
+
+    parser_crabResubmit_directories = parser_crabResubmit.add_mutually_exclusive_group(required=True)
+    parser_crabResubmit_directories.add_argument('--jobName', type=str, help='Job name from submission')
+    parser_crabResubmit_directories.add_argument('--crabDirectories', type=str, nargs="*",
+        help='Space separated list of crab submission directories. Unix wild-cards allowed.',
+    )
+
+    parser_crabResubmit.set_defaults(submit=resubmit_crab)
 
     # condorSubmit
     parser_condorSubmit = subparsers.add_parser('condorSubmit', help='Submit jobs via condor')
