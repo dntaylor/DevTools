@@ -13,6 +13,10 @@ options.register('runMetFilter', 0, VarParsing.multiplicity.singleton, VarParsin
 
 options.parseArguments()
 
+#####################
+### setup process ###
+#####################
+
 process = cms.Process("MiniNtuple")
 
 process.load('Configuration.Geometry.GeometryRecoDB_cff')
@@ -28,12 +32,42 @@ process.RandomNumberGeneratorService = cms.Service(
     ),
 )
 
+#################
+### GlobalTag ###
+#################
 envvar = 'mcgt' if options.isMC else 'datagt'
-
 from Configuration.AlCa.GlobalTag import GlobalTag
 GT = {'mcgt': 'auto:run2_mc', 'datagt': 'auto:run2_data'}
 process.GlobalTag = GlobalTag(process.GlobalTag, GT[envvar], '')
 
+##################
+### JEC source ###
+##################
+# this is if we need to override the jec in global tag
+sqfile = 'Fall15_25nsV1_MC.db' if options.isMC else 'Summer15_25nsV7_DATA.db'
+tag = 'JetCorrectorParametersCollection_Fall15_25nsV1_MC_AK4PFchs' if options.isMC else\
+      'JetCorrectorParametersCollection_Summer15_25nsV7_DATA_AK4PFchs'
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.jec = cms.ESSource("PoolDBESSource",
+    DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(0)
+    ),
+    timetype = cms.string('runnumber'),
+    toGet = cms.VPSet(
+        cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string(tag),
+            label  = cms.untracked.string('AK4PFchs')
+        ),
+    ), 
+    connect = cms.string('sqlite:{0}'.format(sqfile)),
+)
+process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+
+#############################
+### Setup rest of running ###
+#############################
 process.load("FWCore.MessageService.MessageLogger_cfi")
 
 process.MessageLogger.cerr.FwkReport.reportEvery = 100
