@@ -10,9 +10,12 @@ def customizeMets(process,metSrc,**kwargs):
     pfSrc = kwargs.pop('pfSrc','packedPFCandidates')
     isMC = kwargs.pop('isMC',False)
 
-    #################################
-    ### recompute met uncertainty ###
+    process.metCustomization = cms.Path()
+
     ################################
+    ## recompute met uncertainty ###
+    ###############################
+    #postfix = "New"
     #from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
     #runMetCorAndUncFromMiniAOD(process,
     #                           jetCollUnskimmed="slimmedJets",
@@ -24,38 +27,42 @@ def customizeMets(process,metSrc,**kwargs):
     #                           pfCandColl=pfSrc,
     #                           isData=not isMC,
     #                           jetFlav="AK4PFchs",
-    #                           postfix="New")
+    #                           postfix=postfix)
 
-    ##process.applyCorrections = cms.Path(process.fullPatMetSequenceNew)
-    #process.patPFMetT1T2CorrNew.src = cms.InputTag('patJets')
-    #process.patPFMetT2CorrNew.src = cms.InputTag('patJets')
-    #process.patPFMetTxyCorrNew.vertexCollection = cms.InputTag('offlineSlimmedPrimaryVertices')
-    #process.applyCorrections = cms.Path()
-    #if isMC: process.applyCorrections += process.genMetExtractor
-    #process.applyCorrections += process.pfMetNew
-    #process.applyCorrections += process.patPFMetNew
-    #process.applyCorrections += process.patJetCorrFactorsReapplyJEC
-    #process.applyCorrections += process.patJets
-    #process.applyCorrections += process.patPFMetT1T2CorrNew
-    #process.applyCorrections += process.patPFMetTxyCorrNew
-    #process.applyCorrections += process.patPFMetT1TxyNew
-    #process.applyCorrections += process.patPFMetT1New
-    #process.applyCorrections += process.patPFMetTxyNew
-    #process.applyCorrections += process.patJetsResUpNew
-    #process.applyCorrections += process.patJetsResDownNew
-    #process.applyCorrections += process.patPFMetT2CorrNew
-    #process.applyCorrections += process.patPFMetT2CorrUnclusteredEnUpNew
-    #process.applyCorrections += process.patPFMetT2CorrUnclusteredEnDownNew
-    #for shift in ['JetEn','JetRes','ElectronEn','MuonEn','TauEn','PhotonEn','UnclusteredEn']:
-    #    for direction in ['Up','Down']:
-    #        if shift not in ['UnclusteredEn']:
-    #            process.applyCorrections += getattr(process,"shiftedPat{0}{1}New".format(shift,direction))
-    #            process.applyCorrections += getattr(process,"shiftedPatMETCorr{0}{1}New".format(shift,direction))
-    #        process.applyCorrections += getattr(process,"patPFMetT1{0}{1}New".format(shift,direction))
-    #process.applyCorrections += process.metcalo
-    #process.applyCorrections += process.patCaloMet
-    #process.applyCorrections += process.slimmedMETsNew
-    #process.schedule.append(process.applyCorrections)
-    #metSrc = "slimmedMETsNew"
+    ## this should be it, but fails
+    ##process.applyCorrections = cms.Path(getattr(process,'fullPatMetSequence{0}'.format(postfix)))
+    ## fix things
+    #getattr(process,'patPFMetT1T2Corr{0}'.format(postfix)).src = cms.InputTag('patJets')
+    #getattr(process,'patPFMetT2Corr{0}'.format(postfix)).src = cms.InputTag('patJets')
+    #getattr(process,'patPFMetTxyCorr{0}'.format(postfix)).vertexCollection = cms.InputTag('offlineSlimmedPrimaryVertices')
+    #getattr(process,'slimmedMETs{0}'.format(postfix)).t1Uncertainties = cms.InputTag('patPFMetT1{0}'.format(postfix))
+    #del getattr(process,'slimmedMETs{0}'.format(postfix)).caloMET
+    #process.metCustomization += process.patJets
+    #if isMC: process.metCustomization += process.genMetExtractor
+    #process.metCustomization += getattr(process,'pfMet{0}'.format(postfix))
+    #process.metCustomization += getattr(process,'patPFMet{0}'.format(postfix))
+    ##process.metCustomization += process.patJetCorrFactorsReapplyJEC
+    ##process.metCustomization += process.patJets
+    #process.metCustomization += getattr(process,'patPFMetT1T2Corr{0}'.format(postfix))
+    #process.metCustomization += getattr(process,'patPFMetTxyCorr{0}'.format(postfix))
+    #process.metCustomization += getattr(process,'patPFMetT1Txy{0}'.format(postfix))
+    #process.metCustomization += getattr(process,'patPFMetT1{0}'.format(postfix))
+    #process.metCustomization += getattr(process,'patPFMetTxy{0}'.format(postfix))
+    #process.metCustomization += getattr(process,'slimmedMETs{0}'.format(postfix))
+
+    #metSrc = "slimmedMETs{0}".format(postfix)
+    
+    ####################
+    ### embed shifts ###
+    ####################
+    process.metShiftEmbed = cms.EDProducer(
+        "METShiftEmbedder",
+        src = cms.InputTag(metSrc),
+    )
+    process.metCustomization += process.metShiftEmbed
+
+    metSrc = "metShiftEmbed"
+
+    process.schedule.append(process.metCustomization)
 
     return metSrc
