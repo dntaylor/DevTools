@@ -25,5 +25,5 @@ process.TFileService = cms.Service("TFileService",
     fileName = cms.string(options.outputFile),
 )
 
-process.load("AnalysisTools.GenNtuplizer.GenTree_cfi")
+process.load("DevTools.GenNtuplizer.GenTree_cfi")
 

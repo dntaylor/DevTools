@@ -1,4 +1,4 @@
-#include "AnalysisTools/GenNtuplizer/interface/GenTree.h"
+#include "DevTools/GenNtuplizer/interface/GenTree.h"
 
 GenTree::GenTree(const edm::ParameterSet &iConfig) :
     genParticlesToken_(consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticles"))),

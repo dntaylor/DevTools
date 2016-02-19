@@ -1,4 +1,4 @@
-#include "AnalysisTools/MiniNtuplizer/interface/CandidateCollectionBranches.h"
+#include "DevTools/Ntuplizer/interface/CandidateCollectionBranches.h"
 
 template<typename T>
 CandidateCollectionFunction<T>::CandidateCollectionFunction(TTree * tree, std::string functionName, std::string functionString):

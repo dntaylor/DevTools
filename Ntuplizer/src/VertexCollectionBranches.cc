@@ -1,4 +1,4 @@
-#include "AnalysisTools/MiniNtuplizer/interface/VertexCollectionBranches.h"
+#include "DevTools/Ntuplizer/interface/VertexCollectionBranches.h"
 
 template<typename T>
 VertexCollectionFunction<T>::VertexCollectionFunction(TTree * tree, std::string functionName, std::string functionString):

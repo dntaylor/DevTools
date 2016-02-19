@@ -54,7 +54,7 @@ from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
 tauGenJets.GenParticles = cms.InputTag("prunedGenParticles")
 genTreePath += tauGenJets
 
-from AnalysisTools.GenNtuplizer.branchTemplates import *
+from DevTools.GenNtuplizer.branchTemplates import *
 
 genTree = cms.EDAnalyzer("GenTree",
     genParticles = cms.InputTag("prunedGenParticles"),

@@ -143,7 +143,7 @@ if options.runMetFilter:
         filters += [getattr(process,modName)]
 
 # now do any customization/cleaning
-from AnalysisTools.MiniNtuplizer.customizeElectrons import customizeElectrons
+from DevTools.Ntuplizer.customizeElectrons import customizeElectrons
 collections['electrons'] = customizeElectrons(
     process,
     collections['electrons'],
@@ -152,7 +152,7 @@ collections['electrons'] = customizeElectrons(
     isMC=bool(options.isMC),
 )
 
-from AnalysisTools.MiniNtuplizer.customizeMuons import customizeMuons
+from DevTools.Ntuplizer.customizeMuons import customizeMuons
 collections['muons'] = customizeMuons(
     process,
     collections['muons'],
@@ -161,7 +161,7 @@ collections['muons'] = customizeMuons(
     isMC=bool(options.isMC),
 )
 
-from AnalysisTools.MiniNtuplizer.customizeTaus import customizeTaus
+from DevTools.Ntuplizer.customizeTaus import customizeTaus
 collections['taus'] = customizeTaus(
     process,
     collections['taus'],
@@ -170,7 +170,7 @@ collections['taus'] = customizeTaus(
     isMC=bool(options.isMC),
 )
 
-from AnalysisTools.MiniNtuplizer.customizePhotons import customizePhotons
+from DevTools.Ntuplizer.customizePhotons import customizePhotons
 collections['photons'] = customizePhotons(
     process,
     collections['photons'],
@@ -178,7 +178,7 @@ collections['photons'] = customizePhotons(
     isMC=bool(options.isMC),
 )
 
-from AnalysisTools.MiniNtuplizer.customizeJets import customizeJets
+from DevTools.Ntuplizer.customizeJets import customizeJets
 collections['jets'] = customizeJets(
     process,
     collections['jets'],
@@ -186,7 +186,7 @@ collections['jets'] = customizeJets(
     isMC=bool(options.isMC),
 )
 
-from AnalysisTools.MiniNtuplizer.customizeMets import customizeMets
+from DevTools.Ntuplizer.customizeMets import customizeMets
 collections['pfmet'] = customizeMets(
     process,
     collections['pfmet'],
@@ -200,20 +200,20 @@ collections['pfmet'] = customizeMets(
 )
 
 # select desired objects
-from AnalysisTools.MiniNtuplizer.objectTools import objectSelector, objectCleaner
+from DevTools.Ntuplizer.objectTools import objectSelector, objectCleaner
 for coll in selections:
     collections[coll] = objectSelector(process,coll,collections[coll],selections[coll])
 for coll in cleaning:
     collections[coll] = objectCleaner(process,coll,collections[coll],collections,cleaning[coll])
 
 # add the analyzer
-process.load("AnalysisTools.MiniNtuplizer.MiniTree_cfi")
+process.load("DevTools.Ntuplizer.MiniTree_cfi")
 
 process.miniTree.isData = not options.isMC
 process.miniTree.filterResults = cms.InputTag('TriggerResults', '', 'PAT') if options.isMC else cms.InputTag('TriggerResults', '', 'RECO')
 process.miniTree.vertexCollections.vertices.collection = collections['vertices']
 if options.isMC:
-    from AnalysisTools.MiniNtuplizer.branchTemplates import genParticleBranches 
+    from DevTools.Ntuplizer.branchTemplates import genParticleBranches 
     process.miniTree.collections.genParticles = cms.PSet(
         collection = cms.InputTag(collections['genParticles']),
         branches = genParticleBranches,

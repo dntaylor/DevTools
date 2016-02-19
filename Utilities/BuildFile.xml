@@ -2,5 +2,5 @@
 <use name="FWCore/PluginManager"/>
 <use name="CommonTools/Utils"/>
 <export>
-  <lib name="AnalysisToolsUtilities"/>
+  <lib name="DevToolsUtilities"/>
 </export>

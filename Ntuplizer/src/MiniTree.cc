@@ -1,4 +1,4 @@
-#include "AnalysisTools/MiniNtuplizer/interface/MiniTree.h"
+#include "DevTools/Ntuplizer/interface/MiniTree.h"
 
 MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     lheEventProductToken_(consumes<LHEEventProduct>(iConfig.getParameter<edm::InputTag>("lheEventProduct"))),

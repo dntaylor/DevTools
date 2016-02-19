@@ -32,8 +32,8 @@
 
 #include "DataFormats/Math/interface/deltaR.h"
 
-#include "AnalysisTools/MiniNtuplizer/interface/CandidateCollectionBranches.h"
-#include "AnalysisTools/MiniNtuplizer/interface/VertexCollectionBranches.h"
+#include "DevTools/Ntuplizer/interface/CandidateCollectionBranches.h"
+#include "DevTools/Ntuplizer/interface/VertexCollectionBranches.h"
 
 class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one::WatchLuminosityBlocks> {
   public:

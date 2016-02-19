@@ -1,7 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
 # load branches
-from AnalysisTools.MiniNtuplizer.branchTemplates import *
+from DevTools.Ntuplizer.branchTemplates import *
 
 miniTree = cms.EDAnalyzer("MiniTree",
     isData = cms.bool(True),
