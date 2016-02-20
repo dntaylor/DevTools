@@ -177,10 +177,23 @@ def resubmit_crab(args):
     resubmitMap = {}
     for d in crab_dirs:
         if os.path.exists(d):
+            statusArgs = ['--dir',d]
             resubmitArgs = ['--dir',d]
             try:
-                log.info('Resubmitting {0}'.format(d))
-                resubmitMap[d] = crabClientResubmit.resubmit(logger,resubmitArgs)()
+                summary = crabClientStatus.status(logger,statusArgs)()
+                resubmit = False
+                total = 0
+                failed = 0
+                if 'jobs' in summary:
+                    for j,job in summary['jobs'].iteritems():
+                        total += 1
+                        if job['State'] in ['failed']:
+                            failed += 1
+                            resubmit = True
+                if resubmit:
+                    log.info('Resubmitting {0}'.format(d))
+                    log.info('{0} of {1} jobs failed'.format(failed,total))
+                    resubmitMap[d] = crabClientResubmit.resubmit(logger,resubmitArgs)()
             except HTTPException as hte:
                 log.warning("Submission for input directory {0} failed: {1}".format(d, hte.headers))
             except ClientException as cle:
