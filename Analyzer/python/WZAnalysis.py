@@ -260,6 +260,10 @@ class WZAnalysis(AnalysisBase):
                 'Ele23_WPLoose_Gsf',
             ],
         }
+        # the order here defines the heirarchy
+        # first dataset, any trigger passes
+        # second dataset, if a trigger in the first dataset is found, reject event
+        # so forth
         datasets = [
             'DoubleMuon', 
             'DoubleEG', 
@@ -267,14 +271,19 @@ class WZAnalysis(AnalysisBase):
             'SingleMuon',
             'SingleEG'
         ]
-        # reject triggers if the are in another dataset
-        reject = True if self.sample in datasets else False
+        # reject triggers if they are in another dataset
+        # looks for the dataset name in the filename
+        # for MC it accepts all
+        reject = True if rtrow.isData>0.5 else False
         for dataset in datasets:
-            if dataset in self.sample: reject = False
+            # if we match to the dataset, start accepting triggers
+            if dataset in self.fileNames[0]: reject = False
             for trigger in triggerNames[dataset]:
                 var = '{0}Pass'.format(trigger)
                 passTrigger = self.getTreeVariable(rtrow,var)
                 if passTrigger>0.5:
+                    # it passed the trigger
+                    # in data: reject if it corresponds to a higher dataset
                     return False if reject else True
         return False
 

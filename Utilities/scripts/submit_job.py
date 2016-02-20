@@ -11,6 +11,7 @@ import logging
 import os
 import sys
 import glob
+import subprocess
 from socket import gethostname
 
 from CRABClient.ClientExceptions import ClientException
@@ -31,34 +32,60 @@ def get_crab_workArea(args):
     scratchDir = 'data' if 'uwlogin' in gethostname() else 'nfs_scratch'
     return '/{0}/{1}/crab_projects/{2}'.format(scratchDir,uname,args.jobName)
 
-def submit_crab(args):
-    '''Create submission script for crab'''
-    submit_strings = []
+def strip_hdfs(directory):
+    return '/'.join([x for x in directory.split('/') if x not in ['hdfs']])
 
+def hdfs_ls_directory(storeDir):
+    '''Utility for ls'ing /hdfs at UW'''
+    storeDir = strip_hdfs(storeDir)
+    command = 'gfal-ls srm://cmssrm2.hep.wisc.edu:8443/srm/v2/server?SFN=/hdfs/{0}'.format(storeDir)
+    out = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
+    if 'gfal-ls' in out:
+        log.error(out)
+        return []
+    return out.split()
+
+def get_hdfs_root_files(topDir,lastDir):
+    '''Utility for getting all root files in a directory (and subdirectories)'''
+    lsDir = strip_hdfs('{0}/{1}'.format(topDir,lastDir))
+    nextLevel = hdfs_ls_directory(lsDir)
+    out = []
+    for nl in nextLevel:
+        if nl=='failed': # dont include
+            continue
+        elif nl[-4:]=='root': # its a root file
+            out += ['{0}/{1}'.format(lsDir,nl)]
+        else: # keep going down
+            out += get_hdfs_root_files(lsDir,nl)
+    return out
+
+def get_config(args):
+    '''Get a crab config file based on the arguments of crabSubmit'''
     uname = os.environ['USER']
-
-    tblogger, logger, memhandler = initLoggers()
-    tblogger.setLevel(logging.INFO)
-    logger.setLevel(logging.INFO)
-    memhandler.setLevel(logging.INFO)
-
-    # crab config
     from CRABClient.UserUtilities import config
 
     config = config()
-    
+
     config.General.workArea         = get_crab_workArea(args)
     config.General.transferOutputs  = True
-    
+
     config.JobType.pluginName       = 'Analysis'
-    config.JobType.psetName         = args.cfg
+    #if args.scriptExe:
+    #    config.JobType.psetName     = '{0}/src/DevTools/Utilities/test/PSet.py'.format(os.environ['CMSSW_BASE'])
+    #    config.JobType.scriptExe    = args.cfg
+    else:
+        config.JobType.psetName     = args.cfg
     config.JobType.pyCfgParams      = args.cmsRunArgs
+    #if args.scriptExe: # add in the outputFile
+    #    config.JobType.pyCfgParams += ['--outputFile=crab_out.root']
+    #    config.JobType.outputFiles  = ['crab_out.root']
     config.JobType.sendPythonFolder = True
-    
+
     config.Data.inputDBS            = args.inputDBS
     config.Data.splitting           = 'FileBased'
     config.Data.unitsPerJob         = 1
     #config.Data.splitting           = 'LumiBased'
+    #config.Data.unitsPerJob         = 10
     #config.Data.splitting           = 'EventAwareLumiBased'
     #config.Data.unitsPerJob         = 100000
     config.Data.outLFNDirBase       = '/store/user/{0}/{1}/'.format(uname,args.jobName)
@@ -70,6 +97,18 @@ def submit_crab(args):
                                       'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
 
     config.Site.storageSite         = 'T2_US_Wisconsin'
+
+    return config
+
+def submit_das(args):
+    '''Submit samples using DAS'''
+    tblogger, logger, memhandler = initLoggers()
+    tblogger.setLevel(logging.INFO)
+    logger.setLevel(logging.INFO)
+    memhandler.setLevel(logging.INFO)
+
+    # crab config
+    config = get_config(args)
 
     # get samples
     sampleList = []
@@ -95,11 +134,57 @@ def submit_crab(args):
         try:
             log.info("Submitting for input dataset {0}".format(sample))
             submitMap[sample] = crabClientSubmit.submit(logger,submitArgs)()
-            #res = crabCommand(command, config = config, *commandArgs)
         except HTTPException as hte:
             log.info("Submission for input dataset {0} failed: {1}".format(sample, hte.headers))
         except ClientException as cle:
             log.info("Submission for input dataset {0} failed: {1}".format(sample, cle))
+
+def submit_untracked(args):
+    '''Submit jobs from an inputDirectory'''
+    tblogger, logger, memhandler = initLoggers()
+    tblogger.setLevel(logging.INFO)
+    logger.setLevel(logging.INFO)
+    memhandler.setLevel(logging.INFO)
+
+    # crab config
+    config = get_config(args)
+    config.Site.whitelist = ['T2_US_Wisconsin'] # whitelist wisconsin so it only runs there
+
+
+    # get samples
+    sampleList = hdfs_ls_directory(args.inputDirectory)
+
+    submitMap = {}
+    # iterate over samples
+    for sample in sampleList:
+        primaryDataset = sample
+        config.General.requestName = '{0}'.format(primaryDataset)
+        # make it only 100 characters
+        config.General.requestName = config.General.requestName[:99] # Warning: may not be unique now
+        config.Data.outputPrimaryDataset = primaryDataset
+        # get file list
+        config.Data.userInputFiles = get_hdfs_root_files(args.inputDirectory,sample)
+        # submit the job
+        submitArgs = ['--config',config]
+        if args.dryrun: submitArgs += ['--dryrun']
+        try:
+            log.info("Submitting for input dataset {0}".format(sample))
+            submitMap[sample] = crabClientSubmit.submit(logger,submitArgs)()
+        except HTTPException as hte:
+            log.info("Submission for input dataset {0} failed: {1}".format(sample, hte.headers))
+        except ClientException as cle:
+            log.info("Submission for input dataset {0} failed: {1}".format(sample, cle))
+
+
+def submit_crab(args):
+    '''Create submission script for crab'''
+    if args.sampleList:
+        submit_das(args)
+    elif args.inputDirectory:
+        submit_untracked(args)
+    else:
+        log.warning('Unrecognized submit configuration.')
+
 
 def status_crab(args):
     '''Check jobs'''
@@ -224,13 +309,17 @@ def parse_command_line(argv):
     # crabSubmit
     parser_crabSubmit = subparsers.add_parser('crabSubmit', help='Submit jobs via crab')
     parser_crabSubmit.add_argument('jobName', type=str, help='Job Name for submission')
-    parser_crabSubmit.add_argument('cfg', type=str, help='cmsRun config file')
+    parser_crabSubmit.add_argument('cfg', type=str, help='cmsRun config file or user script')
     parser_crabSubmit.add_argument('cmsRunArgs', nargs='*', 
-        help='VarParsing arguments passed to cmsRun'
+        help='Arguments passed to cmsRun/script'
     )
 
-    parser_crabSubmit.add_argument('--sampleList', type=str,
+    parser_crabSubmit_inputs = parser_crabSubmit.add_mutually_exclusive_group(required=True)
+    parser_crabSubmit_inputs.add_argument('--sampleList', type=str,
         help='Text file list of DAS samples to submit, one per line'
+    )
+    parser_crabSubmit_inputs.add_argument('--inputDirectory', type=str,
+        help='Top level directory to submit. Each subdirectory will create one crab job.'
     )
 
     parser_crabSubmit.add_argument('--applyLumiMask',action='store_true',
@@ -245,6 +334,8 @@ def parse_command_line(argv):
     parser_crabSubmit.add_argument('--publish', action='store_true', help='Publish output to DBS')
 
     parser_crabSubmit.add_argument('--dryrun', action='store_true', help='Do not submit jobs')
+
+    #parser_crabSubmit.add_argument('--scriptExe', action='store_true', help='This is a script, not a cmsRun config')
 
     parser_crabSubmit.set_defaults(submit=submit_crab)
 

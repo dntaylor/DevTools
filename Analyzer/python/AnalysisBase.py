@@ -20,7 +20,6 @@ class AnalysisBase(object):
     '''
 
     def __init__(self,**kwargs):
-        self.sample = kwargs.pop('sample','sample')
         inputFileNames = kwargs.pop('inputFileNames',[])
         inputTreeDirectory = kwargs.pop('inputTreeDirectory','miniTree')
         inputTreeName = kwargs.pop('inputTreeName','MiniTree')
@@ -28,21 +27,24 @@ class AnalysisBase(object):
         outputFileName = kwargs.pop('outputFileName','analysisTree.root')
         outputTreeName = kwargs.pop('outputTreeName','AnalysisTree')
         # input files
+        self.fileNames = []
         if isinstance(inputFileNames, basestring): # inputFiles is a file name
-            fileNames = []
             if os.path.isfile(inputFileNames):     # single file
                 if inputFileNames[-4:] == 'root':  # file is a root file
-                    fileNames += [inputFileNames]
+                    self.fileNames += [inputFileNames]
                 else:                          # file is list of files
                     with open(inputFileNames,'r') as f:
                         for line in f:
-                            fileNames += [line.strip()]
+                            self.fileNames += [line.strip()]
         else:
-            fileNames = inputFileNames
+            self.fileNames = inputFileNames # already a python list or a cms.untracked.vstring()
+        if not isinstance(outputFileName, basestring): # its a cms.string(), get value
+            outputFileName = outputFileName.value()
         # input tchain
         self.tchain = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputTreeName))
         self.tchainLumi = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputLumiName))
-        for fName in fileNames:
+        for fName in self.fileNames:
+            if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
             self.tchain.Add(fName)
             self.tchainLumi.Add(fName)
         # get the lumi info
