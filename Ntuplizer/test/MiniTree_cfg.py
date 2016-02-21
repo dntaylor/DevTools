@@ -44,27 +44,25 @@ process.GlobalTag = GlobalTag(process.GlobalTag, GT[envvar], '')
 ### JEC source ###
 ##################
 # this is if we need to override the jec in global tag
-if False: #right now having trouble
-    sqfile = 'Fall15_25nsV1_MC.db' if options.isMC else 'Summer15_25nsV7_DATA.db'
-    tag = 'JetCorrectorParametersCollection_Fall15_25nsV1_MC_AK4PFchs' if options.isMC else\
-          'JetCorrectorParametersCollection_Summer15_25nsV7_DATA_AK4PFchs'
-    process.load("CondCore.DBCommon.CondDBCommon_cfi")
-    from CondCore.DBCommon.CondDBSetup_cfi import *
-    process.jec = cms.ESSource("PoolDBESSource",
-        DBParameters = cms.PSet(
-            messageLevel = cms.untracked.int32(0)
+sqfile = 'DevTools/Ntuplizer/data/Fall15_25nsV2_{0}.db'.format('MC' if options.isMC else 'DATA')
+tag = 'JetCorrectorParametersCollection_Fall15_25nsV2_{0}_AK4PFchs'.format('MC' if options.isMC else 'DATA')
+process.load("CondCore.DBCommon.CondDBCommon_cfi")
+from CondCore.DBCommon.CondDBSetup_cfi import *
+process.jec = cms.ESSource("PoolDBESSource",
+    DBParameters = cms.PSet(
+        messageLevel = cms.untracked.int32(0)
+    ),
+    timetype = cms.string('runnumber'),
+    toGet = cms.VPSet(
+        cms.PSet(
+            record = cms.string('JetCorrectionsRecord'),
+            tag    = cms.string(tag),
+            label  = cms.untracked.string('AK4PFchs')
         ),
-        timetype = cms.string('runnumber'),
-        toGet = cms.VPSet(
-            cms.PSet(
-                record = cms.string('JetCorrectionsRecord'),
-                tag    = cms.string(tag),
-                label  = cms.untracked.string('AK4PFchs')
-            ),
-        ), 
-        connect = cms.string('sqlite:{0}'.format(sqfile)),
-    )
-    process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
+    ), 
+    connect = cms.string('sqlite:{0}'.format(sqfile)),
+)
+process.es_prefer_jec = cms.ESPrefer('PoolDBESSource','jec')
 
 #############################
 ### Setup rest of running ###
