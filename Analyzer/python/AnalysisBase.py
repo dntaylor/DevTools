@@ -90,14 +90,18 @@ class AnalysisBase(object):
         '''
         logging.info('Beginning Analysis')
         start = time.time()
+        new = start
+        old = start
         treeEvents = self.tchain.GetEntries()
         rtrow = self.tchain
         for r in xrange(treeEvents):
             rtrow.GetEntry(r)
             if r % 1000 == 1:
                 cur = time.time()
-                elapsed = cur-start
-                remaining = float(elapsed)/r * treeEvents
+                old = new
+                new = cur
+                elapsed = new-old
+                remaining = float(elapsed) * float(treeEvents-r)/1000.
                 mins, secs = divmod(int(remaining),60)
                 hours, mins = divmod(mins,60)
                 logging.info('Processing event {0}/{1} - {2}:{3:02d}:{4:02d} remaining'.format(r,treeEvents,hours,mins,secs))
