@@ -73,8 +73,8 @@ def get_config(args):
     #if args.scriptExe:
     #    config.JobType.psetName     = '{0}/src/DevTools/Utilities/test/PSet.py'.format(os.environ['CMSSW_BASE'])
     #    config.JobType.scriptExe    = args.cfg
-    else:
-        config.JobType.psetName     = args.cfg
+    #else:
+    config.JobType.psetName         = args.cfg
     config.JobType.pyCfgParams      = args.cmsRunArgs
     #if args.scriptExe: # add in the outputFile
     #    config.JobType.pyCfgParams += ['--outputFile=crab_out.root']
@@ -83,7 +83,7 @@ def get_config(args):
 
     config.Data.inputDBS            = args.inputDBS
     config.Data.splitting           = 'FileBased'
-    config.Data.unitsPerJob         = 1
+    config.Data.unitsPerJob         = args.filesPerJob
     #config.Data.splitting           = 'LumiBased'
     #config.Data.unitsPerJob         = 10
     #config.Data.splitting           = 'EventAwareLumiBased'
@@ -100,7 +100,7 @@ def get_config(args):
 
     return config
 
-def submit_das(args):
+def submit_das_crab(args):
     '''Submit samples using DAS'''
     tblogger, logger, memhandler = initLoggers()
     tblogger.setLevel(logging.INFO)
@@ -112,7 +112,9 @@ def submit_das(args):
 
     # get samples
     sampleList = []
-    if os.path.isfile(args.sampleList):
+    if args.samples:
+        sampleList += args.samples
+    elif os.path.isfile(args.sampleList):
         with open(args.sampleList,'r') as f:
             sampleList = [line.strip() for line in f]
     else:
@@ -139,7 +141,7 @@ def submit_das(args):
         except ClientException as cle:
             log.info("Submission for input dataset {0} failed: {1}".format(sample, cle))
 
-def submit_untracked(args):
+def submit_untracked_crab(args):
     '''Submit jobs from an inputDirectory'''
     tblogger, logger, memhandler = initLoggers()
     tblogger.setLevel(logging.INFO)
@@ -178,10 +180,10 @@ def submit_untracked(args):
 
 def submit_crab(args):
     '''Create submission script for crab'''
-    if args.sampleList:
-        submit_das(args)
+    if args.sampleList or args.samples:
+        submit_das_crab(args)
     elif args.inputDirectory:
-        submit_untracked(args)
+        submit_untracked_crab(args)
     else:
         log.warning('Unrecognized submit configuration.')
 
@@ -288,17 +290,55 @@ def resubmit_crab(args):
         if statMap['status'] != 'SUCCESS':
             log.info('Status: {0} - {1}'.format(statMap['status'],d))
 
+def get_condor_workArea(args):
+    '''Get the job working area'''
+    uname = os.environ['USER']
+    scratchDir = 'data' if 'uwlogin' in gethostname() else 'nfs_scratch'
+    return '/{0}/{1}/condor_projects/{2}'.format(scratchDir,uname,args.jobName)
+
+
+def submit_untracked_condor(args):
+    '''Submit to condor using an input directory'''
+    uname = os.environ['USER']
+    # get samples
+    sampleList = hdfs_ls_directory(args.inputDirectory)
+    scratchDir = 'data' if 'uwlogin' in gethostname() else 'nfs_scratch'
+
+    workArea = get_condor_workArea(args)
+    os.system('mkdir -p {0}'.format(workArea))
+
+    submitMap = {}
+    # iterate over samples
+    for sample in sampleList:
+        # farmout config
+        command = 'farmoutAnalysisJobs --infer-cmssw-path'
+        if args.scriptExe:
+            command += ' --fwklite'
+        # submit dir
+        submitDir = '{0}/{1}'.format(workArea, sample)
+        command += ' --submit-dir={0}'.format(submitDir)
+        # input files
+        inputFiles = get_hdfs_root_files(args.inputDirectory,sample)
+        fileList = '{0}_inputs.txt'.format(submitDir)
+        with open(fileList,'w') as f:
+            f.write('\n'.join(inputFiles))
+        command += ' --input-file-list={0} --assume-input-files-exist --input-files-per-job={1}'.format(fileList,args.filesPerJob)
+        # output directory
+        outputDir = 'srm://cmssrm2.hep.wisc.edu:8443/srm/v2/server?SFN=/hdfs/store/user/{0}/{1}/{2}'.format(uname,args.jobName,sample)
+        command += ' --output-dir={0}'.format(outputDir)
+        command += ' {0} {1} {2}'.format(args.jobName, args.cfg, ' '.join(args.cmsRunArgs))
+        if args.dryrun:
+            logging.info(command)
+        else:
+            os.system(command)
+        
 
 def submit_condor(args):
     '''Create submission script for condor'''
-    submit_string = ''
-    if args.outfile:
-        with open(args.outfile,'w') as f:
-            f.write('#!/bin/bash\n')
-            f.write(submit_string)
-        log.info('Wrote submit script to {0}'.format(args.outfile))
+    if args.inputDirectory:
+        submit_untracked_condor(args)
     else:
-        sys.stdout.write(submit_string)
+        log.warning('Unrecognized submit configuration.')
 
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Submit jobs to grid')
@@ -315,6 +355,9 @@ def parse_command_line(argv):
     )
 
     parser_crabSubmit_inputs = parser_crabSubmit.add_mutually_exclusive_group(required=True)
+    parser_crabSubmit_inputs.add_argument('--samples', type=str, nargs='*',
+        help='Space delimited list of DAS samples to submit'
+    )
     parser_crabSubmit_inputs.add_argument('--sampleList', type=str,
         help='Text file list of DAS samples to submit, one per line'
     )
@@ -329,6 +372,10 @@ def parse_command_line(argv):
     parser_crabSubmit.add_argument('--inputDBS', type=str, default='global',
         choices=['global','phys01','phys02','phys03'], 
         help='DAS instance to search for input files'
+    )
+
+    parser_crabSubmit.add_argument('--filesPerJob', type=int, default=1,
+        help='Number of files per job'
     )
 
     parser_crabSubmit.add_argument('--publish', action='store_true', help='Publish output to DBS')
@@ -371,8 +418,15 @@ def parse_command_line(argv):
         help='VarParsing arguments passed to cmsRun'
     )
 
-    parser_condorSubmit.add_argument('--sampleList', type=str, nargs=1,
+    parser_condorSubmit_inputs = parser_condorSubmit.add_mutually_exclusive_group(required=True)
+    parser_condorSubmit_inputs.add_argument('--samples', type=str, nargs='*',
+        help='Space delimited list of DAS samples to submit'
+    )
+    parser_condorSubmit_inputs.add_argument('--sampleList', type=str,
         help='Text file list of DAS samples to submit, one per line'
+    )
+    parser_condorSubmit_inputs.add_argument('--inputDirectory', type=str,
+        help='Top level directory to submit. Each subdirectory will create one crab job.'
     )
 
     parser_condorSubmit.add_argument('--applyLumiMask',action='store_true',
@@ -384,9 +438,13 @@ def parse_command_line(argv):
         help='DAS instance to search for input files'
     )
 
-    parser_condorSubmit.add_argument('-o','--outfile',type=str,default='',
-        help='Output file name to write submission commands'
+    parser_condorSubmit.add_argument('--filesPerJob', type=int, default=1,
+        help='Number of files per job'
     )
+
+    parser_condorSubmit.add_argument('--dryrun', action='store_true', help='Do not submit jobs')
+
+    parser_condorSubmit.add_argument('--scriptExe', action='store_true', help='This is a script, not a cmsRun config')
 
     parser_condorSubmit.set_defaults(submit=submit_condor)
 
