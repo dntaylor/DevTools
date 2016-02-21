@@ -1,5 +1,5 @@
-AnalysisTool Package Description
-================================
+DevTools Package Description
+============================
 
 The DevTools package is a simple set of tools for analyzing within
 the [CMSSW framework](https://github.com/cms-sw/cmssw).
