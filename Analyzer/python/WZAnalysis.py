@@ -26,6 +26,9 @@ class WZAnalysis(AnalysisBase):
 
         # setup analysis tree
 
+        # chan string
+        self.tree.add(self.getChannelString, 'channel', ['C',4])
+
         # event counts
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',15), 'numJetsLoose15', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',15), 'numJetsTight15', 'I')
@@ -228,6 +231,15 @@ class WZAnalysis(AnalysisBase):
             )
         )
 
+    ######################
+    ### channel string ###
+    ######################
+    def getChannelString(self,rtrow,cands):
+        '''Get the channel string'''
+        chanString = ''
+        for c in ['z1','z2','w1']:
+            chanString += self.getCollectionString(cands[c])
+        return chanString
 
     ###########################
     ### analysis selections ###

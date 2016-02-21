@@ -81,6 +81,9 @@ class AnalysisBase(object):
         sys.stdout.flush()
         sys.stderr.flush()
 
+    #############################
+    ### primary analysis loop ###
+    #############################
     def analyze(self):
         '''
         The primary analyzer loop.
@@ -114,6 +117,21 @@ class AnalysisBase(object):
             self.tree.fill(rtrow,cands)
             self.eventsStored += 1
 
+    def selectCandidates(self,rtrow):
+        '''
+        Select candidates
+            format should be:
+            candidates = {
+                "objectName" : ("collectionName", position),
+                ...
+            }
+        '''
+        logging.warning("You must override selectCandidates.")
+        return {}
+
+    ########################
+    ### object variables ###
+    ########################
     def getObjectVariable(self, rtrow, cand, var):
         '''
         Simple utility to get variables
@@ -257,6 +275,17 @@ class AnalysisBase(object):
             if func(rtrow,cand): cands += [cand]
         return cands
 
+    def getCollectionString(self,cand):
+        if cand[0]=='electrons': return 'e'
+        elif cand[0]=='muons':   return 'm'
+        elif cand[0]=='taus':    return 't'
+        elif cand[0]=='photons': return 'g'
+        elif cand[0]=='jets':    return 'j'
+        else:                    return 'a'
+
+    ##########################
+    ### add object to tree ###
+    ##########################
     def addMet(self,label,met):
         '''Add Met variables'''
         self.addMetVar(label,met,'pt','et','F')
@@ -340,14 +369,3 @@ class AnalysisBase(object):
         '''Add single variable for multiple objects'''
         self.tree.add(lambda rtrow,cands: self.getCompositeVariable(rtrow,var,*[cands[obj] for obj in objs]), '{0}_{1}'.format(label,varLabel), rootType)
 
-    def selectCandidates(self,rtrow):
-        '''
-        Select candidates
-            format should be:
-            candidates = {
-                "objectName" : ("collectionName", position),
-                ...
-            }
-        '''
-        logging.warning("You must override selectCandidates.")
-        return {}
