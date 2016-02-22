@@ -91,6 +91,10 @@ class WZAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['w1']), 'w1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['w1']), 'w1_passTight', 'I')
 
+        # wrong combination
+        self.addDiLepton('w1_z1','w1','z1')
+        self.addDiLepton('w1_z2','w1','z2')
+
         # met
         self.addMet('met',('pfmet',0))
 
