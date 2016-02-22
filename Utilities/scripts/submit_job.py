@@ -14,16 +14,19 @@ import glob
 import subprocess
 from socket import gethostname
 
-from CRABClient.ClientExceptions import ClientException
-from CRABClient.ClientUtilities import initLoggers
-from httplib import HTTPException
-import CRABClient.Commands.submit as crabClientSubmit
-import CRABClient.Commands.status as crabClientStatus
-import CRABClient.Commands.resubmit as crabClientResubmit
-
-
 log = logging.getLogger("submit_job")
 logging.basicConfig(level=logging.INFO, stream=sys.stderr)
+
+try:
+    from CRABClient.ClientExceptions import ClientException
+    from CRABClient.ClientUtilities import initLoggers
+    from httplib import HTTPException
+    import CRABClient.Commands.submit as crabClientSubmit
+    import CRABClient.Commands.status as crabClientStatus
+    import CRABClient.Commands.resubmit as crabClientResubmit
+except:
+    logging.info('You must source a crab environment to submit to crab.\nsource /cvmfs/cms.cern.ch/crab3/crab.sh')
+
 
 
 def get_crab_workArea(args):
