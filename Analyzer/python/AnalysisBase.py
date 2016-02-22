@@ -74,6 +74,8 @@ class AnalysisBase(object):
     def finish(self):
         logging.info('Finishing')
         logging.info('Writing {0} events'.format(self.eventsStored))
+        cutflowHist = ROOT.TH1F('summedWeights','summedWeights',1,0,1)
+        cutflowHist.SetBinContent(1,self.summedWeights)
         self.outfile.Write()
         self.outfile.Close()
 
