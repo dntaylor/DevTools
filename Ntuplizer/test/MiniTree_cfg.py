@@ -24,6 +24,10 @@ process.load('Configuration.StandardSequences.MagneticField_38T_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 process.load('Configuration.StandardSequences.Services_cff')
 
+process.options = cms.untracked.PSet(
+    allowUnscheduled = cms.untracked.bool(True),
+)
+
 process.RandomNumberGeneratorService = cms.Service(
     "RandomNumberGeneratorService",
     calibratedPatElectrons = cms.PSet(
