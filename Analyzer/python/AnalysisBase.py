@@ -152,6 +152,12 @@ class AnalysisBase(object):
         if pos<0:
             val = 0
 
+        # override muon pt/eta/phi/energy for rochester correction
+        elif coll=='muons' and var in ['pt','eta','phi','energy']:
+            val = getattr(rtrow,'{0}_rochester{1}'.format(coll,var.capitalize()))[pos]
+        elif coll=='muons' and var in ['pt_uncorrected','eta_uncorrected','phi_uncorrected','energy_uncorrected']:
+            val = getattr(rtrow,'{0}_{1}'.format(coll,var.split('_')[0]))[pos]
+
         # the variable is in the input tree
         elif hasattr(rtrow,'{0}_{1}'.format(coll,var)):
             val = getattr(rtrow,'{0}_{1}'.format(coll,var))[pos]

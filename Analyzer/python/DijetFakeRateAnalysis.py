@@ -1,6 +1,3 @@
-# WZAnalysis.py
-# for WZ analysis
-
 from AnalysisBase import AnalysisBase
 from utilities import ZMASS, deltaPhi, deltaR
 
@@ -9,25 +6,24 @@ import operator
 
 import ROOT
 
-class WZAnalysis(AnalysisBase):
+class DijetFakeRateAnalysis(AnalysisBase):
     '''
-    WZ analysis
+    Select a single lepton to performa dijet control fake rate
     '''
 
     def __init__(self,**kwargs):
-        outputFileName = kwargs.pop('outputFileName','wzTree.root')
-        outputTreeName = kwargs.pop('outputTreeName','WZTree')
+        outputFileName = kwargs.pop('outputFileName','dijetTree.root')
+        outputTreeName = kwargs.pop('outputTreeName','DijetTree')
         super(WZAnalysis, self).__init__(outputFileName=outputFileName,outputTreeName=outputTreeName,**kwargs)
 
         # setup cut tree
-        self.cutTree.add(self.threeLoose,'threeLooseLeptons')
-        self.cutTree.add(self.vetoFourth,'noFourthTightLepton')
+        self.cutTree.add(self.vetoSecond,'vetoSecond')
         self.cutTree.add(self.trigger,'trigger')
 
         # setup analysis tree
 
         # chan string
-        self.tree.add(self.getChannelString, 'channel', ['C',4])
+        self.tree.add(self.getChannelString, 'channel', ['C',2])
 
         # event counts
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',15), 'numJetsLoose15', 'I')
@@ -57,15 +53,13 @@ class WZAnalysis(AnalysisBase):
 
         # trigger
         triggers = [
-            'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ',
-            'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ',
-            'Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ',
-            'Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL',
-            'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL',
-            'IsoMu20',
-            'IsoTkMu20',
-            'IsoMu27',
-            'Ele23_WPLoose_Gsf',
+            'Mu8_TrkIsoVVL',
+            'Mu17_TrkIsoVVL',
+            'Mu24_TrkIsoVVL',
+            'Mu34_TrkIsoVVL',
+            'Ele12_CaloIdL_TrackIdL_IsoVL',
+            'Ele17_CaloIdL_TrackIdL_IsoVL',
+            'Ele23_CaloIdL_TrackIdL_IsoVL',
         ]
         for trigger in triggers:
             self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'{0}Pass'.format(trigger)), 'pass{0}'.format(trigger), 'I')
@@ -73,84 +67,38 @@ class WZAnalysis(AnalysisBase):
         # lead jet
         self.addJet('leadJet')
 
-        # 3 lepton
-        self.addComposite('3l','z1','z2','w1')
-
-        # z leptons
-        self.addDiLepton('z','z1','z2')
-        self.addLepton('z1')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z1']), 'z1_passMedium', 'I')
-        self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z1']), 'z1_passTight', 'I')
-        self.addLepton('z2')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z2']), 'z2_passMedium', 'I')
-        self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z2']), 'z2_passTight', 'I')
-
-        # w lepton
-        self.addLeptonMet('w','w1',('pfmet',0))
-        self.addLepton('w1')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['w1']), 'w1_passMedium', 'I')
-        self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['w1']), 'w1_passTight', 'I')
-
-        # wrong combination
-        self.addDiLepton('w1_z1','w1','z1')
-        self.addDiLepton('w1_z2','w1','z2')
+        # lepton
+        self.addLeptonMet('w','l1',('pfmet',0))
+        self.addLepton('l1')
+        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['l1']), 'l1_passMedium', 'I')
+        self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['l1']), 'l1_passTight', 'I')
 
         # met
         self.addMet('met',('pfmet',0))
 
-    ############################
-    ### select WZ candidates ###
-    ############################
+    #############################
+    ### select fake candidate ###
+    #############################
     def selectCandidates(self,rtrow):
         candidate = {
-            'z1' : (),
-            'z2' : (),
-            'w1' : (),
+            'l1' : (),
             'leadJet' : (),
         }
 
         # get leptons
         colls = ['electrons','muons']
         pts = {}
-        p4s = {}
-        charges = {}
         leps = []
         leps = self.getPassingCands(rtrow,'Loose')
-        if len(leps)<3: return candidate # need at least 3 leptons
+        if len(leps)<1: return candidate # need at least 1 lepton
 
         for cand in leps:
             pts[cand] = self.getObjectVariable(rtrow,cand,'pt')
-            p4s[cand] = self.getObjectVariable(rtrow,cand,'p4')
-            charges[cand] = self.getObjectVariable(rtrow,cand,'charge')
 
-        # get invariant masses
-        massDiffs = {}
-        for zpair in itertools.combinations(pts.keys(),2):
-            if zpair[0][0]!=zpair[1][0]: continue # SF
-            if charges[zpair[0]]==charges[zpair[1]]: continue # OS
-            zp4 = p4s[zpair[0]] + p4s[zpair[1]]
-            zmass = zp4.M()
-            massDiffs[zpair] = abs(zmass-ZMASS)
+        # choose highest pt
+        l = sorted(pts.items(), key=operator.itemgetter(1))[-1][0]
 
-        if not massDiffs: return candidate # need a z candidate
-
-        # sort by closest z
-        bestZ = sorted(massDiffs.items(), key=operator.itemgetter(1))[0][0]
-
-        # now get the highest pt w
-        zpts = {}
-        zpts[bestZ[0]] = pts.pop(bestZ[0])
-        zpts[bestZ[1]] = pts.pop(bestZ[1])
-        bestW = sorted(pts.items(), key=operator.itemgetter(1))[-1][0]
-
-        # and sort pt of Z
-        z = sorted(zpts.items(), key=operator.itemgetter(1))
-        z1 = z[1][0]
-        z2 = z[0][0]
-
-        candidate['z1'] = z1
-        candidate['z2'] = z2
-        candidate['w1'] = bestW
+        candidate['l1'] = l
 
         # add jet
         jets = self.getCands(rtrow, 'jets', lambda rtrow,cand: self.getObjectVariable(rtrow,cand,'isLoose')>0.5)
@@ -241,66 +189,44 @@ class WZAnalysis(AnalysisBase):
     def getChannelString(self,rtrow,cands):
         '''Get the channel string'''
         chanString = ''
-        for c in ['z1','z2','w1']:
+        for c in ['l1']:
             chanString += self.getCollectionString(cands[c])
         return chanString
 
     ###########################
     ### analysis selections ###
     ###########################
-    def threeLoose(self,rtrow,cands):
-        return len(self.getPassingCands(rtrow,'Loose'))>=3
-
-    def vetoFourth(self,rtrow,cands):
-        return len(self.getPassingCands(rtrow,'Medium'))<=3
+    def vetoSecond(self,rtrow,cands):
+        return len(self.getPassingCands(rtrow,'Loose'))==1
 
     def trigger(self,rtrow,cands):
         triggerNames = {
             'DoubleMuon'     : [
-                'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ',
-                'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ',
+                ['Mu8_TrkIsoVVL', 0],
+                ['Mu17_TrkIsoVVL', 20],
+                ['Mu24_TrkIsoVVL', 30],
+                ['Mu34_TrkIsoVVL', 40],
             ],
             'DoubleEG'       : [
-                'Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ',
-            ],
-            'MuonEG'         : [
-                'Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL',
-                'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL',
-            ],
-            'SingleMuon'     : [
-                'IsoMu20',
-                'IsoTkMu20',
-                'IsoMu27',
-            ],
-            'SingleElectron' : [
-                'Ele23_WPLoose_Gsf',
+                ['Ele12_CaloIdL_TrackIdL_IsoVL', 0],
+                ['Ele17_CaloIdL_TrackIdL_IsoVL', 20],
+                ['Ele23_CaloIdL_TrackIdL_IsoVL', 30],
             ],
         }
-        # the order here defines the heirarchy
-        # first dataset, any trigger passes
-        # second dataset, if a trigger in the first dataset is found, reject event
-        # so forth
-        datasets = [
-            'DoubleMuon', 
-            'DoubleEG', 
-            'MuonEG',
-            'SingleMuon',
-            'SingleElectron',
-        ]
-        # reject triggers if they are in another dataset
-        # looks for the dataset name in the filename
-        # for MC it accepts all
+        # here we need to accept only a specific trigger after a certain pt threshold
+        pt = self.getObjectVariable(rtrow,cands['l1'],'pt')
+        dataset = 'DoubleEG' if cands['l1'][0] == 'electrons' else 'DoubleMuon'
+        # accept the event only if it is triggered in the current dataset
         reject = True if rtrow.isData>0.5 else False
-        for dataset in datasets:
-            # if we match to the dataset, start accepting triggers
-            if dataset in self.fileNames[0]: reject = False
-            for trigger in triggerNames[dataset]:
-                var = '{0}Pass'.format(trigger)
-                passTrigger = self.getTreeVariable(rtrow,var)
-                if passTrigger>0.5:
-                    # it passed the trigger
-                    # in data: reject if it corresponds to a higher dataset
-                    return False if reject else True
+        if dataset in self.fileNames[0]: reject = False
+        # now pick the appropriate trigger for the pt
+        theTrigger = ''
+        for trig, ptThresh in triggerNames[dataset]:
+            if pt < ptThresh: break
+            theTrigger = trig
+        # and check if we pass
+        passTrigger = self.getTreeVariable(rtrow,'{0}Pass'.format(theTrigger))
+        if passTrigger>0.5: return False if reject else True
         return False
 
 
