@@ -78,6 +78,12 @@ triggerBranches = cms.PSet(
     Mu17_TrkIsoVVL                              = cms.PSet(
                                                     path  = cms.string('HLT_Mu17_TrkIsoVVL_v\\[0-9]+'),
                                                 ),
+    Mu24_TrkIsoVVL                              = cms.PSet(
+                                                    path  = cms.string('HLT_Mu24_TrkIsoVVL_v\\[0-9]+'),
+                                                ),
+    Mu34_TrkIsoVVL                              = cms.PSet(
+                                                    path  = cms.string('HLT_Mu34_TrkIsoVVL_v\\[0-9]+'),
+                                                ),
     IsoMu20                                     = cms.PSet(
                                                     path  = cms.string('HLT_IsoMu20_v\\[0-9]+'),
                                                 ),
@@ -102,6 +108,9 @@ triggerBranches = cms.PSet(
                                                 ),
     Ele17_CaloIdL_TrackIdL_IsoVL                = cms.PSet(
                                                     path  = cms.string('HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v\\[0-9]+'),
+                                                ),
+    Ele23_CaloIdL_TrackIdL_IsoVL                = cms.PSet(
+                                                    path  = cms.string('HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v\\[0-9]+'),
                                                 ),
     Ele22_eta2p1_WPLoose_Gsf                    = cms.PSet(
                                                     path  = cms.string('HLT_Ele22_eta2p1_WPLoose_Gsf_v\\[0-9]+'),
@@ -273,6 +282,7 @@ electronBranches = commonPatCandidates.clone(
     # single electron
     matches_Ele12_CaloIdL_TrackIdL_IsoVL                = cms.vstring('userInt("matches_Ele12_CaloIdL_TrackIdL_IsoVL")','I'),
     matches_Ele17_CaloIdL_TrackIdL_IsoVL                = cms.vstring('userInt("matches_Ele17_CaloIdL_TrackIdL_IsoVL")','I'),
+    matches_Ele23_CaloIdL_TrackIdL_IsoVL                = cms.vstring('userInt("matches_Ele23_CaloIdL_TrackIdL_IsoVL")','I'),
     matches_Ele22_eta2p1_WPLoose_Gsf                    = cms.vstring('userInt("matches_Ele22_eta2p1_WPLoose_Gsf")','I'),
     matches_Ele23_WPLoose_Gsf                           = cms.vstring('userInt("matches_Ele23_WPLoose_Gsf")','I'),
     matches_Ele27_WPLoose_Gsf                           = cms.vstring('userInt("matches_Ele27_WPLoose_Gsf")','I'),
@@ -349,6 +359,8 @@ muonBranches = commonPatCandidates.clone(
     # single muon
     matches_Mu8_TrkIsoVVL                               = cms.vstring('userInt("matches_Mu8_TrkIsoVVL")','I'),
     matches_Mu17_TrkIsoVVL                              = cms.vstring('userInt("matches_Mu17_TrkIsoVVL")','I'),
+    matches_Mu24_TrkIsoVVL                              = cms.vstring('userInt("matches_Mu24_TrkIsoVVL")','I'),
+    matches_Mu34_TrkIsoVVL                              = cms.vstring('userInt("matches_Mu34_TrkIsoVVL")','I'),
     matches_IsoMu20                                     = cms.vstring('userInt("matches_IsoMu20")','I'),
     matches_IsoTkMu20                                   = cms.vstring('userInt("matches_IsoTkMu20")','I'),
     matches_IsoMu27                                     = cms.vstring('userInt("matches_IsoMu27")','I'),

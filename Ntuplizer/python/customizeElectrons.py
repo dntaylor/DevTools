@@ -159,6 +159,7 @@ def customizeElectrons(process,eSrc,**kwargs):
             # single electron
             'matches_Ele12_CaloIdL_TrackIdL_IsoVL',
             'matches_Ele17_CaloIdL_TrackIdL_IsoVL',
+            'matches_Ele23_CaloIdL_TrackIdL_IsoVL',
             'matches_Ele22_eta2p1_WPLoose_Gsf',
             'matches_Ele23_WPLoose_Gsf',
             'matches_Ele27_WPLoose_Gsf',
@@ -179,6 +180,7 @@ def customizeElectrons(process,eSrc,**kwargs):
             # single electron
             'HLT_Ele12_CaloIdL_TrackIdL_IsoVL_v\\[0-9]+',
             'HLT_Ele17_CaloIdL_TrackIdL_IsoVL_v\\[0-9]+',
+            'HLT_Ele23_CaloIdL_TrackIdL_IsoVL_v\\[0-9]+',
             'HLT_Ele22_eta2p1_WPLoose_Gsf_v\\[0-9]+',
             'HLT_Ele23_WPLoose_Gsf_v\\[0-9]+',
             'HLT_Ele27_WPLoose_Gsf_v\\[0-9]+',

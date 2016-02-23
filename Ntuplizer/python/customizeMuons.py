@@ -71,6 +71,8 @@ def customizeMuons(process,mSrc,**kwargs):
             # single muon
             'matches_Mu8_TrkIsoVVL',
             'matches_Mu17_TrkIsoVVL',
+            'matches_Mu24_TrkIsoVVL',
+            'matches_Mu34_TrkIsoVVL',
             'matches_IsoMu20',
             'matches_IsoTkMu20',
             'matches_IsoMu27',
@@ -95,6 +97,8 @@ def customizeMuons(process,mSrc,**kwargs):
             # single muon
             'HLT_Mu8_TrkIsoVVL_v\\[0-9]+',
             'HLT_Mu17_TrkIsoVVL_v\\[0-9]+',
+            'HLT_Mu24_TrkIsoVVL_v\\[0-9]+',
+            'HLT_Mu34_TrkIsoVVL_v\\[0-9]+',
             'HLT_IsoMu20_v\\[0-9]+',
             'HLT_IsoTkMu20_v\\[0-9]+',
             'HLT_IsoMu27_v\\[0-9]+',
