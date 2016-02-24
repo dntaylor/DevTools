@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-def customizeMuons(process,mSrc,**kwargs):
+def customizeMuons(process,coll,**kwargs):
     '''Customize muons'''
-    rhoSrc = kwargs.pop('rhoSrc','')
-    pvSrc = kwargs.pop('pvSrc','')
     isMC = kwargs.pop('isMC',False)
+    mSrc = coll['muons']
+    rhoSrc = coll['rho']
+    pvSrc = coll['vertices']
 
     # customization path
     process.muonCustomization = cms.Path()
@@ -127,4 +128,6 @@ def customizeMuons(process,mSrc,**kwargs):
     # add to schedule
     process.schedule.append(process.muonCustomization)
 
-    return mSrc
+    coll['muons'] = mSrc
+
+    return coll

@@ -1,10 +1,11 @@
 import FWCore.ParameterSet.Config as cms
 
-def customizeElectrons(process,eSrc,**kwargs):
+def customizeElectrons(process,coll,**kwargs):
     '''Customize electrons'''
-    rhoSrc = kwargs.pop('rhoSrc','')
-    pvSrc = kwargs.pop('pvSrc','')
     isMC = kwargs.pop('isMC',False)
+    eSrc = coll['electrons']
+    rhoSrc = coll['rho']
+    pvSrc = coll['vertices']
 
     # customization path
     process.electronCustomization = cms.Path()
@@ -205,4 +206,6 @@ def customizeElectrons(process,eSrc,**kwargs):
     # add to schedule
     process.schedule.append(process.electronCustomization)
 
-    return eSrc
+    coll['electrons'] = eSrc
+
+    return coll

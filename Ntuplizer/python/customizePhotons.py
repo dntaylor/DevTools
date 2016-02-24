@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-def customizePhotons(process,pSrc,**kwargs):
+def customizePhotons(process,coll,**kwargs):
     '''Customize photons'''
-    rhoSrc = kwargs.pop('rhoSrc','')
     isMC = kwargs.pop('isMC',False)
+    pSrc = coll['photons']
+    rhoSrc = coll['rho']
 
     # customization path
     process.photonCustomization = cms.Path()
@@ -33,4 +34,6 @@ def customizePhotons(process,pSrc,**kwargs):
     # add to schedule
     process.schedule.append(process.photonCustomization)
 
-    return pSrc
+    coll['photons'] = pSrc
+
+    return coll

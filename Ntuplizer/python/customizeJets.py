@@ -1,8 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
-def customizeJets(process,jSrc,**kwargs):
+def customizeJets(process,coll,**kwargs):
     '''Customize jets'''
-    rhoSrc = kwargs.pop('rhoSrc','')
+    jSrc = coll['jets']
+    rhoSrc = coll['rho']
 
     # customization path
     process.jetCustomization = cms.Path()
@@ -55,4 +56,6 @@ def customizeJets(process,jSrc,**kwargs):
     # add to schedule
     process.schedule.append(process.jetCustomization)
 
-    return jSrc
+    coll['jets'] = jSrc
+
+    return coll

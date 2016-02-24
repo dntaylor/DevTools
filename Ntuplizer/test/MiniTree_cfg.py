@@ -181,59 +181,45 @@ if options.runMetFilter:
 
 # now do any customization/cleaning
 from DevTools.Ntuplizer.customizeElectrons import customizeElectrons
-collections['electrons'] = customizeElectrons(
+collections = customizeElectrons(
     process,
-    collections['electrons'],
-    rhoSrc=collections['rho'],
-    pvSrc=collections['vertices'],
+    collections,
     isMC=bool(options.isMC),
 )
 
 from DevTools.Ntuplizer.customizeMuons import customizeMuons
-collections['muons'] = customizeMuons(
+collections = customizeMuons(
     process,
-    collections['muons'],
-    rhoSrc=collections['rho'],
-    pvSrc=collections['vertices'],
+    collections,
     isMC=bool(options.isMC),
 )
 
 from DevTools.Ntuplizer.customizeTaus import customizeTaus
-collections['taus'] = customizeTaus(
+collections = customizeTaus(
     process,
-    collections['taus'],
-    rhoSrc=collections['rho'],
-    pvSrc=collections['vertices'],
+    collections,
     isMC=bool(options.isMC),
 )
 
 from DevTools.Ntuplizer.customizePhotons import customizePhotons
-collections['photons'] = customizePhotons(
+collections = customizePhotons(
     process,
-    collections['photons'],
-    rhoSrc=collections['rho'],
+    collections,
     isMC=bool(options.isMC),
 )
 
 from DevTools.Ntuplizer.customizeJets import customizeJets
-collections['jets'] = customizeJets(
+collections = customizeJets(
     process,
-    collections['jets'],
-    rhoSrc=collections['rho'],
+    collections,
     isMC=bool(options.isMC),
 )
 
 from DevTools.Ntuplizer.customizeMets import customizeMets
-collections['pfmet'] = customizeMets(
+collections = customizeMets(
     process,
-    collections['pfmet'],
+    collections,
     isMC=bool(options.isMC),
-    jSrc=collections['jets'],
-    pSrc=collections['photons'],
-    eSrc=collections['electrons'],
-    mSrc=collections['muons'],
-    tSrc=collections['taus'],
-    pfSrc=collections['packed'],
 )
 
 # select desired objects

@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
 
-def customizeTaus(process,tSrc,**kwargs):
+def customizeTaus(process,coll,**kwargs):
     '''Customize taus'''
-    rhoSrc = kwargs.pop('rhoSrc','')
-    pvSrc = kwargs.pop('pvSrc','')
+    tSrc = coll['taus']
+    rhoSrc = coll['rho']
+    pvSrc = coll['vertices']
 
     # customization path
     process.tauCustomization = cms.Path()
@@ -72,4 +73,6 @@ def customizeTaus(process,tSrc,**kwargs):
     # add to schedule
     process.schedule.append(process.tauCustomization)
 
-    return tSrc
+    coll['taus'] = tSrc
+
+    return coll

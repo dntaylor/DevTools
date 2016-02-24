@@ -298,6 +298,15 @@ electronBranches = commonPatCandidates.clone(
     matches_Ele16_Ele12_Ele8_CaloIdL_TrackIdL           = cms.vstring('userInt("matches_Ele16_Ele12_Ele8_CaloIdL_TrackIdL")','I'),
     matches_Mu8_DiEle12_CaloIdL_TrackIdL                = cms.vstring('userInt("matches_Mu8_DiEle12_CaloIdL_TrackIdL")','I'),
     matches_DiMu9_Ele9_CaloIdL_TrackIdL                 = cms.vstring('userInt("matches_DiMu9_Ele9_CaloIdL_TrackIdL")','I'),
+    # energy shifts
+    pt_electronEnUp                                     = cms.vstring('userCand("ElectronEnUp").pt()','F'),
+    eta_electornEnUp                                    = cms.vstring('userCand("ElectronEnUp").eta()','F'),
+    phi_electronEnUp                                    = cms.vstring('userCand("ElectronEnUp").phi()','F'),
+    energy_electronEnUp                                 = cms.vstring('userCand("ElectronEnUp").energy()','F'),
+    pt_electronEnDown                                   = cms.vstring('userCand("ElectronEnDown").pt()','F'),
+    eta_electronEnDown                                  = cms.vstring('userCand("ElectronEnDown").eta()','F'),
+    phi_electronEnDown                                  = cms.vstring('userCand("ElectronEnDown").phi()','F'),
+    energy_electronEnDown                               = cms.vstring('userCand("ElectronEnDown").energy()','F'),
 
 )
 
@@ -380,6 +389,15 @@ muonBranches = commonPatCandidates.clone(
     matches_Mu8_DiEle12_CaloIdL_TrackIdL                = cms.vstring('userInt("matches_Mu8_DiEle12_CaloIdL_TrackIdL")','I'),
     matches_DiMu9_Ele9_CaloIdL_TrackIdL                 = cms.vstring('userInt("matches_DiMu9_Ele9_CaloIdL_TrackIdL")','I'),
     matches_TripleMu_12_10_5                            = cms.vstring('userInt("matches_TripleMu_12_10_5")','I'),
+    # energy shifts
+    pt_muonEnUp                                         = cms.vstring('userCand("MuonEnUp").pt()','F'),
+    eta_muonEnUp                                        = cms.vstring('userCand("MuonEnUp").eta()','F'),
+    phi_muonEnUp                                        = cms.vstring('userCand("MuonEnUp").phi()','F'),
+    energy_muonEnUp                                     = cms.vstring('userCand("MuonEnUp").energy()','F'),
+    pt_muonEnDown                                       = cms.vstring('userCand("MuonEnDown").pt()','F'),
+    eta_muonEnDown                                      = cms.vstring('userCand("MuonEnDown").eta()','F'),
+    phi_muonEnDown                                      = cms.vstring('userCand("MuonEnDown").phi()','F'),
+    energy_muonEnDown                                   = cms.vstring('userCand("MuonEnDown").energy()','F'),
 
 )
 
@@ -490,6 +508,15 @@ tauBranches = commonPatCandidates.clone(
     # electron tau
     matches_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20 = cms.vstring('userInt("matches_Ele22_eta2p1_WPLoose_Gsf_LooseIsoPFTau20")','I'),
     matches_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20 = cms.vstring('userInt("matches_Ele27_eta2p1_WPLoose_Gsf_LooseIsoPFTau20")','I'),
+    # energy shifts
+    pt_tauEnUp                                       = cms.vstring('userCand("TauEnUp").pt()','F'),
+    eta_tauEnUp                                      = cms.vstring('userCand("TauEnUp").eta()','F'),
+    phi_tauEnUp                                      = cms.vstring('userCand("TauEnUp").phi()','F'),
+    energy_tauEnUp                                   = cms.vstring('userCand("TauEnUp").energy()','F'),
+    pt_tauEnDown                                     = cms.vstring('userCand("TauEnDown").pt()','F'),
+    eta_tauEnDown                                    = cms.vstring('userCand("TauEnDown").eta()','F'),
+    phi_tauEnDown                                    = cms.vstring('userCand("TauEnDown").phi()','F'),
+    energy_tauEnDown                                 = cms.vstring('userCand("TauEnDown").energy()','F'),
 )
 
 # photons
@@ -527,6 +554,15 @@ jetBranches = commonPatCandidates.clone(
     isTight                                      = cms.vstring('userInt("idTight")','I'),
     isTightLepVeto                               = cms.vstring('userInt("idTightLepVeto")','I'),
     puID                                         = cms.vstring('userInt("puID")','I'),
+    # energy shifts
+    pt_jetEnUp                                   = cms.vstring('userCand("JetEnUp").pt()','F'),
+    eta_jetEnUp                                  = cms.vstring('userCand("JetEnUp").eta()','F'),
+    phi_jetEnUp                                  = cms.vstring('userCand("JetEnUp").phi()','F'),
+    energy_jetEnUp                               = cms.vstring('userCand("JetEnUp").energy()','F'),
+    pt_jetEnDown                                 = cms.vstring('userCand("JetEnDown").pt()','F'),
+    eta_jetEnDown                                = cms.vstring('userCand("JetEnDown").eta()','F'),
+    phi_jetEnDown                                = cms.vstring('userCand("JetEnDown").phi()','F'),
+    energy_jetEnDown                             = cms.vstring('userCand("JetEnDown").energy()','F'),
 )
 
 # mets

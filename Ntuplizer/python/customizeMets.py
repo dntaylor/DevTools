@@ -1,14 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
-def customizeMets(process,metSrc,**kwargs):
+def customizeMets(process,coll,**kwargs):
     '''Customize METs'''
-    jSrc = kwargs.pop('jSrc','slimmedJets')
-    pSrc = kwargs.pop('pSrc','slimmedPhotons')
-    eSrc = kwargs.pop('eSrc','slimmedElectrons')
-    mSrc = kwargs.pop('mSrc','slimmedMuons')
-    tSrc = kwargs.pop('tSrc','slimmedTaus')
-    pfSrc = kwargs.pop('pfSrc','packedPFCandidates')
     isMC = kwargs.pop('isMC',False)
+    metSrc = coll['pfmet']
+    jSrc = coll['jets']
+    pSrc = coll['photons']
+    eSrc = coll['electrons']
+    mSrc = coll['muons']
+    tSrc = coll['taus']
+    pfSrc = coll['packed']
 
     process.metCustomization = cms.Path()
 
@@ -51,6 +52,62 @@ def customizeMets(process,metSrc,**kwargs):
             metSrc = modName
             process.metCustomization += getattr(process,modName)
 
+    for sign in ['Up','Down']:
+        # electrons
+        shift = 'ElectronEn'
+        mod = cms.EDProducer(
+            "ShiftedElectronEmbedder",
+            src = cms.InputTag(eSrc),
+            label = cms.string('{0}{1}'.format(shift,sign)),
+            shiftedSrc = cms.InputTag('shiftedPat{0}{1}{2}'.format(shift,sign,postfix)),
+        )
+        modName = 'electronEmbed{0}{1}'.format(shift,sign)
+        setattr(process,modName,mod)
+        eSrc = modName
+        process.metCustomization += getattr(process,modName)
+        # muons
+        shift = 'MuonEn'
+        mod = cms.EDProducer(
+            "ShiftedMuonEmbedder",
+            src = cms.InputTag(mSrc),
+            label = cms.string('{0}{1}'.format(shift,sign)),
+            shiftedSrc = cms.InputTag('shiftedPat{0}{1}{2}'.format(shift,sign,postfix)),
+        )
+        modName = 'muonEmbed{0}{1}'.format(shift,sign)
+        setattr(process,modName,mod)
+        mSrc = modName
+        process.metCustomization += getattr(process,modName)
+        # taus
+        shift = 'TauEn'
+        mod = cms.EDProducer(
+            "ShiftedTauEmbedder",
+            src = cms.InputTag(tSrc),
+            label = cms.string('{0}{1}'.format(shift,sign)),
+            shiftedSrc = cms.InputTag('shiftedPat{0}{1}{2}'.format(shift,sign,postfix)),
+        )
+        modName = 'tauEmbed{0}{1}'.format(shift,sign)
+        setattr(process,modName,mod)
+        tSrc = modName
+        process.metCustomization += getattr(process,modName)
+        # jets
+        shift = 'JetEn'
+        mod = cms.EDProducer(
+            "ShiftedJetEmbedder",
+            src = cms.InputTag(jSrc),
+            label = cms.string('{0}{1}'.format(shift,sign)),
+            shiftedSrc = cms.InputTag('shiftedPat{0}{1}{2}'.format(shift,sign,postfix)),
+        )
+        modName = 'jetEmbed{0}{1}'.format(shift,sign)
+        setattr(process,modName,mod)
+        jSrc = modName
+        process.metCustomization += getattr(process,modName)
+
     process.schedule.append(process.metCustomization)
 
-    return metSrc
+    coll['pfmet'] = metSrc
+    coll['muons'] = mSrc
+    coll['electrons'] = eSrc
+    coll['taus'] = tSrc
+    coll['jets'] = jSrc
+
+    return coll
