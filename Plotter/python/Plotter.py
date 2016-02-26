@@ -1,6 +1,7 @@
 import os
 import sys
 import logging
+import math
 
 import ROOT
 
@@ -84,8 +85,9 @@ class Plotter(object):
             logging.error('Variable {0} does not exist for {1}'.format(variable,sampleName))
             return 0
 
-    def __getHistogram(self,histName,variable):
+    def __getHistogram(self,histName,variable,**kwargs):
         '''Get a styled histogram'''
+        nofill = kwargs.pop('nofill',False)
         if histName in self.histDict:
             hists = ROOT.TList()
             for sampleName in self.histDict[histName]:
@@ -97,9 +99,10 @@ class Plotter(object):
             hist.Merge(hists)
             style = getStyle(histName)
             hist.SetTitle(style['name'])
-            if 'fillstyle' in style: hist.SetFillStyle(style['fillstyle'])
             if 'linecolor' in style: hist.SetLineColor(style['linecolor'])
-            if 'fillcolor' in style: hist.SetFillColor(style['fillcolor'])
+            if not nofill:
+                if 'fillstyle' in style: hist.SetFillStyle(style['fillstyle'])
+                if 'fillcolor' in style: hist.SetFillColor(style['fillcolor'])
             return hist
         else:
             logging.error('{0} not defined.'.format(histName))
@@ -115,14 +118,47 @@ class Plotter(object):
 
     def __getLegend(self,**kwargs):
         '''Get the legend'''
-        stack = kwargs.pop('stack',ROOT.THStack())
+        stack = kwargs.pop('stack',None)
         hists = kwargs.pop('hists',[])
-        # TODO, programatically decide
-        xstart = 0.76
-        ystart = 0.6
-        xend = 0.92
-        yend = 0.90
+        position = kwargs.pop('position',33)
+        numcol = kwargs.pop('numcol',1)
+        # programatically decide position
+        # ----------------
+        # | 14 | 24 | 34 |
+        # ----------------
+        # | 13 | 23 | 33 |
+        # ----------------
+        # | 12 | 22 | 32 |
+        # ----------------
+        # | 11 | 21 | 31 |
+        # ----------------
+        width = 0.15*numcol+0.1
+        numentries = len(hists)
+        if stack: numentries += len(stack.GetHists())
+        height = math.ceil(float(numentries)/numcol)*0.06+0.02
+        if position % 10 == 1:   # bottom
+            ystart = 0.16
+            yend = ystart+height
+        elif position % 10 == 2: # middle
+            yend = 0.54+height/2
+            ystart = 0.54-height/2
+        elif position % 10 == 3: # top
+            yend = 0.84
+            ystart = yend-height
+        else:                    # verytop
+            yend = 0.92
+            ystart = yend-height
+        if position / 10 == 1:   # left
+            xstart = 0.19
+            xend = xstart+width
+        elif position / 10 == 2: # middle
+            xstart = 0.57-width/2
+            xend = 0.57+width/2
+        else:                    # right
+            xend = 0.95
+            xstart = xend-width
         legend = ROOT.TLegend(xstart,ystart,xend,yend,'','NDC')
+        if numcol>1: legend.SetNColumns(int(numcol))
         legend.SetTextFont(42)
         legend.SetBorderSize(0)
         legend.SetFillColor(0)
@@ -168,6 +204,9 @@ class Plotter(object):
         '''Plot a variable and save'''
         xaxis = kwargs.pop('xaxis', 'Variable')
         yaxis = kwargs.pop('yaxis', 'Events')
+        ymax = kwargs.pop('ymax',0)
+        numcol = kwargs.pop('numcol',1)
+        legendpos = kwargs.pop('legendpos',33)
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
 
@@ -178,16 +217,50 @@ class Plotter(object):
             stack.Draw("hist")
             stack.GetXaxis().SetTitle(xaxis)
             stack.GetYaxis().SetTitle(yaxis)
+            if ymax: stack.SetMaximum(ymax)
 
         hists = []
         for histName in self.histOrder:
             # TODO: poisson errors for data
-            hist = self.__getHistogram(histName,variable)
+            hist = self.__getHistogram(histName,variable,nofill=True)
             style = getStyle(histName)
             hist.Draw(style['drawstyle']+' same')
             hists += [hist]
 
-        legend = self.__getLegend(stack=stack,hists=hists)
+        legend = self.__getLegend(stack=stack,hists=hists,numcol=numcol,position=legendpos)
+        legend.Draw()
+
+        self.__setStyle(canvas)
+
+        self.__save(canvas,savename)
+
+    def plotRatio(self,numerator,denominator,savename,**kwargs):
+        '''Plot a ratio of two variables and save'''
+        xaxis = kwargs.pop('xaxis', 'Variable')
+        yaxis = kwargs.pop('yaxis', 'Events')
+        ymax = kwargs.pop('ymax',0)
+        numcol = kwargs.pop('numcol',1)
+        legendpos = kwargs.pop('legendpos',33)
+
+        canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
+
+        hists = []
+        for i,histName in enumerate(self.histOrder):
+            # TODO: poisson errors for data
+            num = self.__getHistogram(histName,numerator,nofill=True)
+            denom = self.__getHistogram(histName,denominator,nofill=True)
+            num.Divide(denom)
+            style = getStyle(histName)
+            if i==0:
+                num.Draw(style['drawstyle'])
+                num.GetXaxis().SetTitle(xaxis)
+                num.GetYaxis().SetTitle(yaxis)
+                if ymax: num.SetMaximum(ymax)
+            else:
+                num.Draw(style['drawstyle']+' same')
+            hists += [num]
+
+        legend = self.__getLegend(hists=hists,numcol=numcol,position=legendpos)
         legend.Draw()
 
         self.__setStyle(canvas)
