@@ -382,7 +382,7 @@ def parse_command_line(argv):
     parser_crabSubmit.add_argument('--filesPerJob', type=int, default=1,
         help='Number of files per job'
     )
-    parser_crabSubmit.add_argument('--lumisPerJob', type=int, default=3,
+    parser_crabSubmit.add_argument('--lumisPerJob', type=int, default=30,
         help='Number of lumis per job'
     )
 
