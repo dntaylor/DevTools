@@ -98,6 +98,8 @@ def get_config(args):
         config.Data.lumiMask        = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/'\
                                       'Collisions15/13TeV/'\
                                       'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
+        config.Data.splitting       = 'LumiBased'
+        config.Data.unitsPerJob     = args.lumisPerJob
 
     config.Site.storageSite         = 'T2_US_Wisconsin'
 
@@ -379,6 +381,9 @@ def parse_command_line(argv):
 
     parser_crabSubmit.add_argument('--filesPerJob', type=int, default=1,
         help='Number of files per job'
+    )
+    parser_crabSubmit.add_argument('--lumisPerJob', type=int, default=3,
+        help='Number of lumis per job'
     )
 
     parser_crabSubmit.add_argument('--publish', action='store_true', help='Publish output to DBS')
