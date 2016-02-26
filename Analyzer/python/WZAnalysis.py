@@ -30,12 +30,12 @@ class WZAnalysis(AnalysisBase):
         self.tree.add(self.getChannelString, 'channel', ['C',4])
 
         # event counts
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',15), 'numJetsLoose15', 'I')
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',15), 'numJetsTight15', 'I')
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',15), 'numBjetsTight15', 'I')
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',20), 'numJetsLoose20', 'I')
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',20), 'numJetsTight20', 'I')
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',20), 'numBjetsTight20', 'I')
+        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',15), 'numJetsLoose15', 'I')
+        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',15), 'numJetsTight15', 'I')
+        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',15), 'numBjetsTight15', 'I')
+        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',20), 'numJetsLoose20', 'I')
+        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',20), 'numJetsTight20', 'I')
+        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',20), 'numBjetsTight20', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',30), 'numJetsLoose30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',30), 'numJetsTight30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',30), 'numBjetsTight30', 'I')
@@ -70,26 +70,35 @@ class WZAnalysis(AnalysisBase):
         for trigger in triggers:
             self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'{0}Pass'.format(trigger)), 'pass{0}'.format(trigger), 'I')
 
-        # lead jet
+        # vbf
         self.addJet('leadJet')
+        self.addJet('subleadJet')
+        self.addDiJet('dijet','leadJet','subleadJet')
+        self.tree.add(lambda rtrow,cands: self.numCentralJets(rtrow,cands,'isLoose',30), 'dijet_numCentralJetsLoose30', 'I')
+        self.tree.add(lambda rtrow,cands: self.numCentralJets(rtrow,cands,'isTight',30), 'dijet_numCentralJetsTight30', 'I')
 
         # 3 lepton
         self.addComposite('3l','z1','z2','w1')
+        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1'],cands['z2'],cands['w1']), '3l_zeppenfeld','F')
 
         # z leptons
         self.addDiLepton('z','z1','z2')
+        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1'],cands['z2']), 'z_zeppenfeld','F')
         self.addLepton('z1')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z1']), 'z1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z1']), 'z1_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1']), 'z1_zeppenfeld','F')
         self.addLepton('z2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z2']), 'z2_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z2']), 'z2_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z2']), 'z2_zeppenfeld','F')
 
         # w lepton
         self.addLeptonMet('w','w1',('pfmet',0))
         self.addLepton('w1')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['w1']), 'w1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['w1']), 'w1_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['w1']), 'w1_zeppenfeld','F')
 
         # wrong combination
         self.addDiLepton('w1_z1','w1','z1')
@@ -107,6 +116,7 @@ class WZAnalysis(AnalysisBase):
             'z2' : (),
             'w1' : (),
             'leadJet' : (),
+            'subleadJet' : (),
         }
 
         # get leptons
@@ -154,10 +164,15 @@ class WZAnalysis(AnalysisBase):
 
         # add jet
         jets = self.getCands(rtrow, 'jets', lambda rtrow,cand: self.getObjectVariable(rtrow,cand,'isLoose')>0.5)
-        if len(jets)>0:
+        if len(jets)==1:
             candidate['leadJet'] = jets[0]
+            candidate['subleadJet'] = ('jets',-1)
+        if len(jets)>1:
+            candidate['leadJet'] = jets[0]
+            candidate['subleadJet'] = jets[1]
         else:
             candidate['leadJet'] = ('jets',-1)
+            candidate['subleadJet'] = ('jets',-1)
 
         return candidate
 
@@ -234,6 +249,36 @@ class WZAnalysis(AnalysisBase):
                                    and self.getObjectVariable(rtrow,cand,'pt')>pt
             )
         )
+
+    def numCentralJets(self,rtrow,cands,mode,pt):
+        if cands['leadJet'][1]<0: return -1
+        if cands['subleadJet'][1]<0: return -1
+        eta1 = self.getObjectVariable(rtrow,cands['leadJet'],'eta')
+        eta2 = self.getObjectVariable(rtrow,cands['subleadJet'],'eta')
+        mineta = min(eta1,eta2)
+        maxeta = max(eta1,eta2)
+        return len(
+            self.getCands(
+                rtrow,
+                'jets',
+                lambda rtrow,cand: self.getObjectVariable(rtrow,cand,mode)>0.5
+                                   and self.getObjectVariable(rtrow,cand,'pt')>pt
+                                   and self.getObjectVariable(rtrow,cand,'eta')>mineta
+                                   and self.getObjectVariable(rtrow,cand,'eta')<maxeta
+            )
+        )
+    
+    def zeppenfeld(self,rtrow,cands,*probeCands):
+        if cands['leadJet'][1]<0: return -10.
+        if cands['subleadJet'][1]<0: return -10.
+        eta1 = self.getObjectVariable(rtrow,cands['leadJet'],'eta')
+        eta2 = self.getObjectVariable(rtrow,cands['subleadJet'],'eta')
+        meaneta = (eta1+eta2)/2
+        if len(probeCands)>1:
+            eta = self.getCompositeVariable(rtrow,'eta',*probeCands)
+        else:
+            eta = self.getObjectVariable(rtrow,probeCands[0],'eta')
+        return eta-meaneta
 
     ######################
     ### channel string ###

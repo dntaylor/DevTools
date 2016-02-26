@@ -147,8 +147,17 @@ class AnalysisBase(object):
         key = '{0}_{1}_{2}'.format(coll,var,pos)
         if key in self.cache: return self.cache[key]
 
-        # first, if invalid, return 0
-        if pos<0:
+        # get a TLorentzVector
+        if var=='p4':
+            pt     = self.getObjectVariable(rtrow,cand,'pt')
+            eta    = self.getObjectVariable(rtrow,cand,'eta')
+            phi    = self.getObjectVariable(rtrow,cand,'phi')
+            energy = self.getObjectVariable(rtrow,cand,'energy')
+            val = ROOT.TLorentzVector()
+            val.SetPtEtaPhiE(pt,eta,phi,energy)
+
+        # if invalid, return 0
+        elif pos<0:
             val = 0
 
         # override muon pt/eta/phi/energy for rochester correction
@@ -161,14 +170,6 @@ class AnalysisBase(object):
         elif hasattr(rtrow,'{0}_{1}'.format(coll,var)):
             val = getattr(rtrow,'{0}_{1}'.format(coll,var))[pos]
 
-        # get a TLorentzVector
-        elif var=='p4':
-            pt     = self.getObjectVariable(rtrow,cand,'pt')
-            eta    = self.getObjectVariable(rtrow,cand,'eta')
-            phi    = self.getObjectVariable(rtrow,cand,'phi')
-            energy = self.getObjectVariable(rtrow,cand,'energy')
-            val = ROOT.TLorentzVector()
-            val.SetPtEtaPhiE(pt,eta,phi,energy)
 
         # didnt catch it
         else:
@@ -210,6 +211,10 @@ class AnalysisBase(object):
                 phi1 = self.getObjectVariable(rtrow,cands[0],'phi')
                 phi2 = self.getObjectVariable(rtrow,cands[1],'phi')
                 val = deltaPhi(phi1,phi2)
+            elif var in ['deltaEta','dEta','deta','DEta']:
+                eta1 = self.getObjectVariable(rtrow,cands[0],'eta')
+                eta2 = self.getObjectVariable(rtrow,cands[1],'eta')
+                val = abs(eta1-eta2)
             else:
                 val = 0
         else:
@@ -342,6 +347,17 @@ class AnalysisBase(object):
         '''Add a variable for a cand based on flavor'''
         self.tree.add(lambda rtrow,cands: self.getObjectVariable(rtrow,cands[label],varMap[cands[label][0]]), '{0}_{1}'.format(label,varLabel), rootType)
 
+    def addDiJet(self,label,obj1,obj2):
+        '''Add variables relevant for a dijet candidate'''
+        self.addDiCandVar(label,obj1,obj2,'mass','mass','F')
+        self.addDiCandVar(label,obj1,obj2,'pt','pt','F')
+        self.addDiCandVar(label,obj1,obj2,'eta','eta','F')
+        self.addDiCandVar(label,obj1,obj2,'phi','phi','F')
+        self.addDiCandVar(label,obj1,obj2,'deltaR','deltaR','F')
+        self.addDiCandVar(label,obj1,obj2,'deltaEta','deltaEta','F')
+        self.addDiCandVar(label,obj1,obj2,'deltaPhi','deltaPhi','F')
+        self.addDiCandVar(label,obj1,obj2,'energy','energy','F')
+
     def addDiLepton(self,label,obj1,obj2):
         '''Add variables relevant for a dilepton candidate'''
         self.addDiCandVar(label,obj1,obj2,'mass','mass','F')
@@ -349,6 +365,7 @@ class AnalysisBase(object):
         self.addDiCandVar(label,obj1,obj2,'eta','eta','F')
         self.addDiCandVar(label,obj1,obj2,'phi','phi','F')
         self.addDiCandVar(label,obj1,obj2,'deltaR','deltaR','F')
+        self.addDiCandVar(label,obj1,obj2,'deltaEta','deltaEta','F')
         self.addDiCandVar(label,obj1,obj2,'deltaPhi','deltaPhi','F')
         self.addDiCandVar(label,obj1,obj2,'energy','energy','F')
 
