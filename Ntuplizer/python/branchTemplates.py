@@ -12,7 +12,19 @@ commonCandidates = cms.PSet(
 )
 
 commonGenCandidates = commonCandidates.clone(
-    status            = cms.vstring('status()','I'),
+    status                 = cms.vstring('status()','I'),
+    numberOfDaughters      = cms.vstring('numberOfDaughters()','I'),
+    daughter_1             = cms.vstring('? numberOfDaughters()>0 ? daughter(0).pdgId() : 0','I'),
+    daughter_2             = cms.vstring('? numberOfDaughters()>1 ? daughter(1).pdgId() : 0','I'),
+    numberOfMothers        = cms.vstring('numberOfMothers()','I'),
+    mother_1               = cms.vstring('? numberOfMothers()>0 ? mother(0).pdgId() : 0','I'),
+    mother_2               = cms.vstring('? numberOfMothers()>1 ? mother(1).pdgId() : 0','I'),
+    isPrompt               = cms.vstring('isPromptFinalState()','I'),
+    isFromTau              = cms.vstring('isDirectPromptTauDecayProductFinalState()','I'),
+    isPromptDecayed        = cms.vstring('isPromptDecayed()','I'),
+    fromHardProcess        = cms.vstring('fromHardProcessFinalState()','I'),
+    fromHardProcessDecayed = cms.vstring('fromHardProcessDecayed()','I'),
+    fromHardProcessTau     = cms.vstring('isDirectHardProcessTauDecayProductFinalState()','I'),
 )
 
 commonPatCandidates = commonCandidates.clone(
@@ -34,16 +46,16 @@ commonPatCandidates = commonCandidates.clone(
     genFromHardProcessTau     = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().isDirectHardProcessTauDecayProductFinalState() : 0', 'I'),
 )
 
-statusOneCandidates = commonGenCandidates.clone(
-    isPrompt               = cms.vstring('isPromptFinalState()','I'),
-    isFromTau              = cms.vstring('isDirectPromptTauDecayProductFinalState()','I'),
-    isPromptDecayed        = cms.vstring('isPromptDecayed()','I'),
-    fromHardProcess        = cms.vstring('fromHardProcessFinalState()','I'),
-    fromHardProcessDecayed = cms.vstring('fromHardProcessDecayed()','I'),
-    fromHardProcessTau     = cms.vstring('isDirectHardProcessTauDecayProductFinalState()','I'),
-)
+#statusOneCandidates = commonGenCandidates.clone(
+#    isPrompt               = cms.vstring('isPromptFinalState()','I'),
+#    isFromTau              = cms.vstring('isDirectPromptTauDecayProductFinalState()','I'),
+#    isPromptDecayed        = cms.vstring('isPromptDecayed()','I'),
+#    fromHardProcess        = cms.vstring('fromHardProcessFinalState()','I'),
+#    fromHardProcessDecayed = cms.vstring('fromHardProcessDecayed()','I'),
+#    fromHardProcessTau     = cms.vstring('isDirectHardProcessTauDecayProductFinalState()','I'),
+#)
 
-commonGenJetCandidates = commonGenCandidates.clone(
+commonGenJetCandidates = commonCandidates.clone(
     emEnergy         = cms.vstring('emEnergy()','F'),
     hadEnergy        = cms.vstring('hadEnergy()','F'),
     invisibileEnergy = cms.vstring('invisibleEnergy()','F'),

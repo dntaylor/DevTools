@@ -98,8 +98,8 @@ def get_config(args):
         config.Data.lumiMask        = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/'\
                                       'Collisions15/13TeV/'\
                                       'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
-        config.Data.splitting       = 'LumiBased'
-        config.Data.unitsPerJob     = args.lumisPerJob
+        #config.Data.splitting       = 'LumiBased'
+        #config.Data.unitsPerJob     = args.lumisPerJob
 
     config.Site.storageSite         = 'T2_US_Wisconsin'
 
@@ -214,7 +214,7 @@ def status_crab(args):
     for d in crab_dirs:
         if os.path.exists(d):
             statusArgs = ['--dir',d]
-            if args.verbose: statusArgs += ['--long']
+            #if args.verbose: statusArgs += ['--long']
             try:
                 log.info('Retrieving status of {0}'.format(d))
                 statusMap[d] = crabClientStatus.status(logger,statusArgs)()
@@ -231,13 +231,17 @@ def parse_crab_status(args,statusMap):
     allowedStates = ['idle','running','transferring','finished','failed','unsubmitted','cooloff','killing','held']
     statusSummary = {}
     for status in allowedStatuses: statusSummary[status] = []
+    singleStateSummary = {}
     stateSummary = {}
     for state in allowedStates: stateSummary[state] = 0
     for d,summary in statusMap.iteritems():
         status = summary['status']
         statusSummary[status] += [d]
         if 'jobs' in summary:
+            singleStateSummary[d] = {}
+            for state in allowedStates: singleStateSummary[d][state] = 0
             for j,job in summary['jobs'].iteritems():
+                singleStateSummary[d][job['State']] += 1
                 stateSummary[job['State']] += 1
     log.info('Summary')
     for s in allowedStatuses:
@@ -245,6 +249,10 @@ def parse_crab_status(args,statusMap):
             log.info('Status: {0}'.format(s))
             for d in statusSummary[s]:
                 log.info('    {0}'.format(d))
+                if args.verbose:
+                    for s in allowedStates:
+                        if singleStateSummary[d][s]:
+                            log.info('        {0:12} : {1}'.format(s,singleStateSummary[d][s]))
     for s in allowedStates:
         if stateSummary[s]:
             log.info('{0:12} : {1}'.format(s,stateSummary[s]))
