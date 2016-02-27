@@ -337,7 +337,7 @@ class AnalysisBase(object):
         self.addCandVar(label,'genCharge','genCharge','I')
         self.addCandVar(label,'genIsPrompt','genIsPrompt','I')
         self.addCandVar(label,'genIsFromTau','genIsFromTau','I')
-        self.addFlavorDependentCandVar(label,'isolation',{'electrons':'relPFIsoRhoR03','muons':'relPFIsoDeltaBetaR04'},'F')
+        self.addFlavorDependentCandVar(label,'isolation',{'electrons':'relPFIsoRhoR03','muons':'relPFIsoDeltaBetaR04','':''},'F')
 
     def addCandVar(self,label,varLabel,var,rootType):
         '''Add a variable for a cand'''

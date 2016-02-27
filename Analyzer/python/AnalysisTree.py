@@ -38,7 +38,7 @@ class AnalysisTree(object):
             self.tree.Branch(label, self.branches[label]['var'], '{0}/{1}'.format(self.branches[label]['branchName'],self.branches[label]['rootType']))
             self.branchSet.add(label)
         else:
-            logging.warning('Branch with label "{0}" already exists.'.format(label))
+            logging.error('Branch with label "{0}" already exists.'.format(label))
 
     def add(self, fun, label, rootType):
         if label not in self.branches:
@@ -48,7 +48,8 @@ class AnalysisTree(object):
                 self.branches[label] = {'var': array(arrayMap[rootType],[0]), 'rootType': rootType, 'function': fun, 'branchName': label}
             self.__addBranch(label)
         else:
-            logging.warning("{0} already in AnalysisTree.".format(label))
+            logging.error("{0} already in AnalysisTree.".format(label))
+            raise ValueError("{0} already in AnalysisTree.".format(label))
 
     def __evaluate(self,label,rtrow,cands):
         pyType = typeMap[self.branches[label]['rootType']]

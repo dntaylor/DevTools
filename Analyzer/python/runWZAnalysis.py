@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, stream=sys.stderr)
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Run analyzer')
 
-    parser.add_argument('--inputFiles', type=str, nargs='*', default=['/store/user/dntaylor/2016-02-19_DevTools_v1/WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8/2016-02-19_DevTools_v1/160219_162545/0000/miniTree_1.root'], help='Input files')
+    parser.add_argument('--inputFiles', type=str, nargs='*', default=['/store/user/dntaylor/2016-02-26_DevTools_v1/WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8/2016-02-26_DevTools_v1/160226_104351/0000/miniTree_1.root'], help='Input files')
     parser.add_argument('--inputFileList', type=str, default='', help='Input file list')
     parser.add_argument('--outputFile', type=str, default='wzTree.root', help='Output file')
 
