@@ -6,7 +6,7 @@ import sys
 from DevTools.Analyzer.Hpp4lAnalysis import Hpp4lAnalysis
 
 logger = logging.getLogger("Hpp4lAnalysis")
-logging.basicConfig(level=logging.INFO, stream=sys.stderr)
+logging.basicConfig(level=logging.INFO, stream=sys.stderr,format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
 def parse_command_line(argv):

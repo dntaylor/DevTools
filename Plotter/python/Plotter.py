@@ -210,8 +210,12 @@ class Plotter(object):
         ymax = kwargs.pop('ymax',None)
         numcol = kwargs.pop('numcol',1)
         legendpos = kwargs.pop('legendpos',33)
+        logy = kwargs.pop('logy',False)
+        logx = kwargs.pop('logx',False)
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
+        canvas.SetLogy(logy)
+        canvas.SetLogx(logx)
 
         highestMax = 0.
 
@@ -231,6 +235,7 @@ class Plotter(object):
         for histName in self.histOrder:
             # TODO: poisson errors for data
             hist = self.__getHistogram(histName,variable,nofill=True)
+            hist.SetLineWidth(3)
             style = getStyle(histName)
             hist.Draw(style['drawstyle']+' same')
             highestMax = max(highestMax,hist.GetMaximum())
@@ -252,8 +257,12 @@ class Plotter(object):
         ymax = kwargs.pop('ymax',None)
         numcol = kwargs.pop('numcol',1)
         legendpos = kwargs.pop('legendpos',33)
+        logy = kwargs.pop('logy',False)
+        logx = kwargs.pop('logx',False)
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
+        canvas.SetLogy(logy)
+        canvas.SetLogx(logx)
 
         highestMax = 0.
 
@@ -262,6 +271,7 @@ class Plotter(object):
             num = self.__getHistogram(histName,numerator,nofill=True)
             denom = self.__getHistogram(histName,denominator,nofill=True)
             num.Divide(denom)
+            num.SetLineWidth(3)
             style = getStyle(histName)
             if i==0:
                 num.Draw(style['drawstyle'])
@@ -291,8 +301,12 @@ class Plotter(object):
         ymax = kwargs.pop('ymax',None)
         numcol = kwargs.pop('numcol',1)
         legendpos = kwargs.pop('legendpos',33)
+        logy = kwargs.pop('logy',False)
+        logx = kwargs.pop('logx',False)
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
+        canvas.SetLogy(logy)
+        canvas.SetLogx(logx)
 
         highestMax = 0.
 
@@ -300,6 +314,7 @@ class Plotter(object):
         for i,histName in enumerate(self.histOrder):
             hist = self.__getHistogram(histName,variable,nofill=True)
             hist.Scale(1./hist.Integral())
+            hist.SetLineWidth(3)
             style = getStyle(histName)
             if i==0:
                 hist.Draw(style['drawstyle'])

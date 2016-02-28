@@ -27,7 +27,7 @@ def main(argv=None):
     args = parse_command_line(argv)
 
     loglevel = getattr(logging,args.log)
-    logging.basicConfig(format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', level=loglevel, datefmt='%Y-%m-%d %H:%M:%S')
+    logging.basicConfig(format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', level=loglevel, datefmt='%Y-%m-%d %H:%M:%S', stream=sys.stderr)
 
     files = [filename for string in args.files for filename in glob.glob(string)]
 

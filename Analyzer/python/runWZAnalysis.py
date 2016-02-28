@@ -6,7 +6,7 @@ import sys
 from DevTools.Analyzer.WZAnalysis import WZAnalysis
 
 logger = logging.getLogger("WZAnalysis")
-logging.basicConfig(level=logging.INFO, stream=sys.stderr)
+logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
 def parse_command_line(argv):
