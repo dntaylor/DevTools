@@ -50,4 +50,46 @@ def passWZTight(self,rtrow,cand):
         return False
     return True
 
+###############
+### H++ ids ###
+###############
+def passHppLoose(self,rtrow,cand):
+    if cand[0]=='electrons':
+        pt = self.getObjectVariable(rtrow,cand,'pt')
+        sceta = self.getObjectVariable(rtrow,cand,'superClusterEta')
+        sigmaIEtaIEta = self.getObjectVariable(rtrow,cand,'sigmaIetaIeta')
+        hcalOverEcal = self.getObjectVariable(rtrow,cand,'hcalOverEcal')
+        ecalRelIso = self.getObjectVariable(rtrow,cand,'dr03EcalRecHitSumEt')/pt
+        hcalRelIso = self.getObjectVariable(rtrow,cand,'dr03HcalTowerSumEt')/pt
+        trackRelIso = self.getObjectVariable(rtrow,cand,'dr03TkSumPt')/pt
+        dEtaSC = self.getObjectVariable(rtrow,cand,'deltaEtaSuperClusterTrackAtVtx')
+        dPhiSC = self.getObjectVariable(rtrow,cand,'deltaPhiSuperClusterTrackAtVtx')
+        passMVATrigPre = True
+        if sceta<1.479:
+            if sigmaIEtaIEta>0.012: passMVATrigPre = False
+            if hcalOverEcal>0.09:   passMVATrigPre = False
+            if ecalRelIso>0.37:     passMVATrigPre = False
+            if hcalRelIso>0.25:     passMVATrigPre = False
+            if trackRelIso>0.18:    passMVATrigPre = False
+            if abs(dEtaSC)>0.0095:  passMVATrigPre = False
+            if abs(dPhiSC)>0.065:   passMVATrigPre = False
+        else:
+            if sigmaIEtaIEta>0.033: passMVATrigPre = False
+            if hcalOverEcal>0.09:   passMVATrigPre = False
+            if ecalRelIso>0.45:     passMVATrigPre = False
+            if hcalRelIso>0.28:     passMVATrigPre = False
+            if trackRelIso>0.18:    passMVATrigPre = False
+        return passMVATrigPre
+    elif cand[0]=='muons':
+        return passWZLoose(self,rtrow,cand)
+    else:
+        return False
 
+def passHppTight(self,rtrow,cand):
+    if not passHppLoose(self,rtrow,cand): return False
+    if cand[0]=='electrons':
+        return self.getObjectVariable(rtrow,cand,'mvaTrigWP80') > 0.5
+    elif cand[0]=='muons':
+        return self.getObjectVariable(rtrow,cand,'isTightMuon') > 0.5
+    else:
+        return False

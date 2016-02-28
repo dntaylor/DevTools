@@ -3,7 +3,7 @@
 
 from AnalysisBase import AnalysisBase
 from utilities import ZMASS, deltaPhi, deltaR
-from leptonId import passWZLoose, passWZMedium, passWZTight
+from leptonId import passHppLoose, passHppTight
 
 import itertools
 import operator
@@ -42,10 +42,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',30), 'numJetsTight30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',30), 'numBjetsTight30', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passLoose)), 'numLooseElectrons', 'I')
-        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passMedium)), 'numMediumElectrons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passTight)), 'numTightElectrons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passLoose)), 'numLooseMuons', 'I')
-        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passMedium)), 'numMediumMuons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passTight)), 'numTightMuons', 'I')
 
         # pileup
@@ -87,18 +85,15 @@ class Hpp3lAnalysis(AnalysisBase):
         self.addDiLepton('hpp','hpp1','hpp2')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp1'],cands['hpp2']), 'hpp_zeppenfeld','F')
         self.addLepton('hpp1')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hpp1']), 'hpp1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hpp1']), 'hpp1_passTight', 'I')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp1']), 'hpp1_zeppenfeld','F')
         self.addLepton('hpp2')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hpp2']), 'hpp2_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hpp2']), 'hpp2_passTight', 'I')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp2']), 'hpp2_zeppenfeld','F')
 
         # hm lepton
         self.addLeptonMet('hm','hm1',('pfmet',0))
         self.addLepton('hm1')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hm1']), 'hm1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hm1']), 'hm1_passTight', 'I')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hm1']), 'hm1_zeppenfeld','F')
 
@@ -110,18 +105,15 @@ class Hpp3lAnalysis(AnalysisBase):
         self.addDiLepton('z','z1','z2')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1'],cands['z2']), 'z_zeppenfeld','F')
         self.addLepton('z1')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z1']), 'z1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z1']), 'z1_passTight', 'I')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1']), 'z1_zeppenfeld','F')
         self.addLepton('z2')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z2']), 'z2_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z2']), 'z2_passTight', 'I')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z2']), 'z2_zeppenfeld','F')
 
         # w lepton
         self.addLeptonMet('w','w1',('pfmet',0))
         self.addLepton('w1')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['w1']), 'w1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['w1']), 'w1_passTight', 'I')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['w1']), 'w1_zeppenfeld','F')
 
@@ -234,19 +226,14 @@ class Hpp3lAnalysis(AnalysisBase):
     ##################
     # TODO: these are still WZ
     def passLoose(self,rtrow,cand):
-        return passWZLoose(self,rtrow,cand)
-
-    def passMedium(self,rtrow,cand):
-        return passWZMedium(self,rtrow,cand)
+        return passHppLoose(self,rtrow,cand)
 
     def passTight(self,rtrow,cand):
-        return passWZTight(self,rtrow,cand)
+        return passHppTight(self,rtrow,cand)
 
     def getPassingCands(self,rtrow,mode):
         if mode=='Loose':
             passMode = self.passLoose
-        elif mode=='Medium':
-            passMode = self.passMedium
         elif mode=='Tight':
             passMode = self.passTight
         else:
