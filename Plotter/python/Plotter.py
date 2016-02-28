@@ -206,11 +206,14 @@ class Plotter(object):
         '''Plot a variable and save'''
         xaxis = kwargs.pop('xaxis', 'Variable')
         yaxis = kwargs.pop('yaxis', 'Events')
-        ymax = kwargs.pop('ymax',0)
+        ymin = kwargs.pop('ymax',None)
+        ymax = kwargs.pop('ymax',None)
         numcol = kwargs.pop('numcol',1)
         legendpos = kwargs.pop('legendpos',33)
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
+
+        highestMax = 0.
 
         # TODO: add ratio
         stack = ROOT.THStack()
@@ -219,7 +222,10 @@ class Plotter(object):
             stack.Draw("hist")
             stack.GetXaxis().SetTitle(xaxis)
             stack.GetYaxis().SetTitle(yaxis)
-            if ymax: stack.SetMaximum(ymax)
+            stack.GetYaxis().SetTitleOffset(1.5)
+            highestMax = max(highestMax,stack.GetMaximum())
+            if ymax!=None: stack.SetMaximum(ymax)
+            if ymin!=None: stack.SetMinimum(ymin)
 
         hists = []
         for histName in self.histOrder:
@@ -227,6 +233,8 @@ class Plotter(object):
             hist = self.__getHistogram(histName,variable,nofill=True)
             style = getStyle(histName)
             hist.Draw(style['drawstyle']+' same')
+            highestMax = max(highestMax,hist.GetMaximum())
+            if ymax==None: hist.SetMaximum(1.2*highestMax)
             hists += [hist]
 
         legend = self.__getLegend(stack=stack,hists=hists,numcol=numcol,position=legendpos)
@@ -240,11 +248,14 @@ class Plotter(object):
         '''Plot a ratio of two variables and save'''
         xaxis = kwargs.pop('xaxis', 'Variable')
         yaxis = kwargs.pop('yaxis', 'Events')
-        ymax = kwargs.pop('ymax',0)
+        ymin = kwargs.pop('ymin',None)
+        ymax = kwargs.pop('ymax',None)
         numcol = kwargs.pop('numcol',1)
         legendpos = kwargs.pop('legendpos',33)
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
+
+        highestMax = 0.
 
         hists = []
         for i,histName in enumerate(self.histOrder):
@@ -256,9 +267,13 @@ class Plotter(object):
                 num.Draw(style['drawstyle'])
                 num.GetXaxis().SetTitle(xaxis)
                 num.GetYaxis().SetTitle(yaxis)
-                if ymax: num.SetMaximum(ymax)
+                num.GetYaxis().SetTitleOffset(1.5)
+                if ymax!=None: num.SetMaximum(ymax)
+                if ymin!=None: num.SetMinimum(ymin)
             else:
                 num.Draw(style['drawstyle']+' same')
+            highestMax = max(highestMax,num.GetMaximum())
+            if ymax==None: num.SetMaximum(1.2*highestMax)
             hists += [num]
 
         legend = self.__getLegend(hists=hists,numcol=numcol,position=legendpos)
@@ -272,11 +287,14 @@ class Plotter(object):
         '''Plot a ratio of two variables and save'''
         xaxis = kwargs.pop('xaxis', 'Variable')
         yaxis = kwargs.pop('yaxis', 'Events')
-        ymax = kwargs.pop('ymax',0)
+        ymin = kwargs.pop('ymin',None)
+        ymax = kwargs.pop('ymax',None)
         numcol = kwargs.pop('numcol',1)
         legendpos = kwargs.pop('legendpos',33)
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
+
+        highestMax = 0.
 
         hists = []
         for i,histName in enumerate(self.histOrder):
@@ -287,9 +305,13 @@ class Plotter(object):
                 hist.Draw(style['drawstyle'])
                 hist.GetXaxis().SetTitle(xaxis)
                 hist.GetYaxis().SetTitle(yaxis)
-                if ymax: hist.SetMaximum(ymax)
+                hist.GetYaxis().SetTitleOffset(1.5)
+                if ymax!=None: hist.SetMaximum(ymax)
+                if ymin!=None: hist.SetMinimum(ymin)
             else:
                 hist.Draw(style['drawstyle']+' same')
+            highestMax = max(highestMax,hist.GetMaximum())
+            if ymax==None: hist.SetMaximum(1.2*highestMax)
             hists += [hist]
 
         legend = self.__getLegend(hists=hists,numcol=numcol,position=legendpos)

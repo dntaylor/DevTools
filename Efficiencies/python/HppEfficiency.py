@@ -170,7 +170,8 @@ class HppEfficiency(Efficiency):
             # match to gen particle
             if (self.getObjectVariable(rtrow,('electrons',i),'genMatch')>0.5
                 and self.getObjectVariable(rtrow,('electrons',i),'genStatus')==1
-                and self.getObjectVariable(rtrow,('electrons',i),'genIsPrompt')>0.5):
+                and self.getObjectVariable(rtrow,('electrons',i),'genIsPrompt')>0.5
+                and self.getObjectVariable(rtrow,('electrons',i),'genIsFromTau')<0.5):
                 # fill efficiencies
                 self.fillEfficiency('electron_cbidVeto',pt,passCutBasedVeto)
                 self.fillEfficiency('electron_cbidLoose',pt,passCutBasedLoose)
@@ -261,7 +262,8 @@ class HppEfficiency(Efficiency):
             # match to gen particle
             if (self.getObjectVariable(rtrow,('muons',i),'genMatch')>0.5
                 and self.getObjectVariable(rtrow,('muons',i),'genStatus')==1
-                and self.getObjectVariable(rtrow,('muons',i),'genIsPrompt')>0.5):
+                and self.getObjectVariable(rtrow,('muons',i),'genIsPrompt')>0.5
+                and self.getObjectVariable(rtrow,('muons',i),'genIsFromTau')<0.5):
                 # fill efficiencies
                 self.fillEfficiency('muon_loose',pt,passLoose)
                 self.fillEfficiency('muon_medium',pt,passMedium)

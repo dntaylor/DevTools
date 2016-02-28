@@ -32,6 +32,7 @@ sigMap = {
 }
 
 effPlotter.addHistogram('WZ',sigMap['WZ'])
+effPlotter.addHistogram('TT',sigMap['TT'])
 effPlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'])
 
 xaxisMap = {
@@ -51,17 +52,25 @@ xaxisMap = {
 for varname in ['wzLoose','wzMedium','wzTight','heepV60','mvaTrigWP80','mvaTrigWP90','mvaNonTrigWP80','mvaNonTrigWP90']:
     plotname = 'electron_{0}'.format(varname)
     num = 'h_{0}_numerator'.format(plotname)
+    numFake = 'h_{0}_fake_numerator'.format(plotname)
     denom = 'h_{0}_denominator'.format(plotname)
-    effPlotter.plotRatio(num,denom,plotname,numcol=2,legendpos=34,ymax=1.2,yaxis='Efficiency',xaxis='p_{T} (GeV)')
+    denomFake = 'h_{0}_fake_denominator'.format(plotname)
+    numMap = {'WZ':num, 'TT':numFake, 'HppHmm500GeV':num}
+    denomMap = {'WZ':denom, 'TT':denomFake, 'HppHmm500GeV':denom}
+    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=3,legendpos=34,ymax=1.2,ymin=0.,yaxis='Efficiency',xaxis='p_{T} (GeV)')
 for region in ['barrel','endcap']:
     for var in ['pt','sigmaIEtaIEta','absDEtaIn','absDPhiIn','hOverE','relIsoEA','ooEmooP','absDxy','absDz','conversionVeto']:
-        varname = 'electron_{0}_{1}'.format(var,region)
-        effPlotter.plotNormalized(varname,varname,numcol=2,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var])
+        varname = 'h_electron_{0}_{1}'.format(var,region)
+        effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var])
 
 
 # muons
 for varname in ['wzLoose','wzMedium','highPt_tightiso','tight_tightiso']:
     plotname = 'muon_{0}'.format(varname)
     num = 'h_{0}_numerator'.format(plotname)
+    numFake = 'h_{0}_fake_numerator'.format(plotname)
     denom = 'h_{0}_denominator'.format(plotname)
-    effPlotter.plotRatio(num,denom,plotname,numcol=2,legendpos=34,ymax=1.2,yaxis='Efficiency',xaxis='p_{T} (GeV)')
+    denomFake = 'h_{0}_fake_denominator'.format(plotname)
+    numMap = {'WZ':num, 'TT':numFake, 'HppHmm500GeV':num}
+    denomMap = {'WZ':denom, 'TT':denomFake, 'HppHmm500GeV':denom}
+    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=3,legendpos=34,ymax=1.2,ymin=0.,yaxis='Efficiency',xaxis='p_{T} (GeV)')
