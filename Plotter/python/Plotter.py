@@ -88,7 +88,7 @@ class Plotter(object):
     def __getHistogram(self,histName,variable,**kwargs):
         '''Get a styled histogram'''
         # check if it is a variable map
-        varName = variable if isinstance(variable,basetring) else variable[histName]
+        varName = variable if isinstance(variable,basestring) else variable[histName]
         nofill = kwargs.pop('nofill',False)
         if histName in self.histDict:
             hists = ROOT.TList()
