@@ -198,7 +198,7 @@ def status_crab(args):
     crab_dirs = []
     if args.jobName:
         workArea = get_crab_workArea(args)
-        crab_dirs += glob.glob('{0}/*'.format(workArea))
+        crab_dirs += sorted(glob.glob('{0}/*'.format(workArea)))
     elif args.crabDirectories:
         for d in args.crabDirectories:
             crab_dirs += glob.glob(d)
@@ -227,7 +227,7 @@ def status_crab(args):
 
 def parse_crab_status(args,statusMap):
     '''Parse the output of a crab status call'''
-    allowedStatuses = ['UPLOADED','SUBMITTED','FAILED','QUEUED','SUBMITFAILED','COMPLETED','KILLED','KILLFAILED','RESUBMITFAILED','NEW','RESUBMIT','KILL','UNKNOWN']
+    allowedStatuses = ['COMPLETED','UPLOADED','SUBMITTED','FAILED','QUEUED','SUBMITFAILED','KILLED','KILLFAILED','RESUBMITFAILED','NEW','RESUBMIT','KILL','UNKNOWN']
     allowedStates = ['idle','running','transferring','finished','failed','unsubmitted','cooloff','killing','held']
     statusSummary = {}
     for status in allowedStatuses: statusSummary[status] = []
@@ -247,7 +247,7 @@ def parse_crab_status(args,statusMap):
     for s in allowedStatuses:
         if statusSummary[s]:
             log.info('Status: {0}'.format(s))
-            for d in statusSummary[s]:
+            for d in sorted(statusSummary[s]):
                 log.info('    {0}'.format(d))
                 if args.verbose:
                     for s in allowedStates:
@@ -262,7 +262,7 @@ def resubmit_crab(args):
     crab_dirs = []
     if args.jobName:
         workArea = get_crab_workArea(args)
-        crab_dirs += glob.glob('{0}/*'.format(workArea))
+        crab_dirs += sorted(glob.glob('{0}/*'.format(workArea)))
     elif args.crabDirectories:
         for d in args.crabDirectories:
             crab_dirs += glob.glob(d)
