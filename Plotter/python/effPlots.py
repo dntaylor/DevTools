@@ -34,11 +34,32 @@ sigMap = {
 effPlotter.addHistogram('WZ',sigMap['WZ'])
 effPlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'])
 
+xaxisMap = {
+    'pt'            : 'p_{T} (GeV)',
+    'sigmaIEtaIEta' : '#sigma_{i#eta i#eta}',
+    'absDEtaIn'     : '|#Delta#eta_{in}|',
+    'absDPhiIn'     : '|#Delta#phi_{in}|',
+    'hOverE'        : 'E_{HCAL}/E_{ECAL}',
+    'relIsoEA'      : 'Rel. Iso.',
+    'ooEmooP'       : '1/E-1/p',
+    'absDxy'        : '|#Delta_{xy}|',
+    'absDz'         : '|#Delta_{z}|',
+    'conversionVeto': 'Pass Conversion Veto',
+}
+
+# electrons
 for varname in ['wzLoose','wzMedium','wzTight','heepV60','mvaTrigWP80','mvaTrigWP90','mvaNonTrigWP80','mvaNonTrigWP90']:
     plotname = 'electron_{0}'.format(varname)
     num = 'h_{0}_numerator'.format(plotname)
     denom = 'h_{0}_denominator'.format(plotname)
     effPlotter.plotRatio(num,denom,plotname,numcol=2,legendpos=34,ymax=1.2,yaxis='Efficiency',xaxis='p_{T} (GeV)')
+for region in ['barrel','endcap']:
+    for var in ['pt','sigmaIEtaIEta','absDEtaIn','absDPhiIn','hOverE','relIsoEA','ooEmooP','absDxy','absDz','conversionVeto']:
+        varname = 'electron_{0}_{1}'.format(var,region)
+        effPlotter.plotNormalized(varname,varname,numcol=2,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var])
+
+
+# muons
 for varname in ['wzLoose','wzMedium','highPt_tightiso','tight_tightiso']:
     plotname = 'muon_{0}'.format(varname)
     num = 'h_{0}_numerator'.format(plotname)

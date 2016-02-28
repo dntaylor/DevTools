@@ -87,14 +87,16 @@ class Plotter(object):
 
     def __getHistogram(self,histName,variable,**kwargs):
         '''Get a styled histogram'''
+        # check if it is a variable map
+        varName = variable if isinstance(variable,basetring) else variable[histName]
         nofill = kwargs.pop('nofill',False)
         if histName in self.histDict:
             hists = ROOT.TList()
             for sampleName in self.histDict[histName]:
-                hist = self.__readSampleVariable(sampleName,variable)
+                hist = self.__readSampleVariable(sampleName,varName)
                 if hist: hists.Add(hist)
             if hists.IsEmpty(): return 0
-            hist = hists[0].Clone('{0}_{1}'.format(histName,variable))
+            hist = hists[0].Clone('{0}_{1}'.format(histName,varName))
             hist.Reset()
             hist.Merge(hists)
             style = getStyle(histName)
@@ -246,7 +248,6 @@ class Plotter(object):
 
         hists = []
         for i,histName in enumerate(self.histOrder):
-            # TODO: poisson errors for data
             num = self.__getHistogram(histName,numerator,nofill=True)
             denom = self.__getHistogram(histName,denominator,nofill=True)
             num.Divide(denom)
@@ -259,6 +260,37 @@ class Plotter(object):
             else:
                 num.Draw(style['drawstyle']+' same')
             hists += [num]
+
+        legend = self.__getLegend(hists=hists,numcol=numcol,position=legendpos)
+        legend.Draw()
+
+        self.__setStyle(canvas)
+
+        self.__save(canvas,savename)
+
+    def plotNormalized(self,variable,savename,**kwargs):
+        '''Plot a ratio of two variables and save'''
+        xaxis = kwargs.pop('xaxis', 'Variable')
+        yaxis = kwargs.pop('yaxis', 'Events')
+        ymax = kwargs.pop('ymax',0)
+        numcol = kwargs.pop('numcol',1)
+        legendpos = kwargs.pop('legendpos',33)
+
+        canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
+
+        hists = []
+        for i,histName in enumerate(self.histOrder):
+            hist = self.__getHistogram(histName,variable,nofill=True)
+            hist.Scale(1./hist.Integral())
+            style = getStyle(histName)
+            if i==0:
+                hist.Draw(style['drawstyle'])
+                hist.GetXaxis().SetTitle(xaxis)
+                hist.GetYaxis().SetTitle(yaxis)
+                if ymax: hist.SetMaximum(ymax)
+            else:
+                hist.Draw(style['drawstyle']+' same')
+            hists += [hist]
 
         legend = self.__getLegend(hists=hists,numcol=numcol,position=legendpos)
         legend.Draw()
