@@ -38,6 +38,30 @@ class HppEfficiency(Efficiency):
         self.addEfficiency('muon_wzLoose',           [100,0,500])
         self.addEfficiency('muon_wzMedium',          [100,0,500])
 
+        # add variables
+        self.addVariable('electron_pt_barrel',             [100,0,500])
+        self.addVariable('electron_pt_endcap',             [100,0,500])
+        self.addVariable('electron_sigmaIEtaIEta_barrel',  [100,0,0.05])
+        self.addVariable('electron_sigmaIEtaIEta_endcap',  [100,0,0.05])
+        self.addVariable('electron_absDEtaIn_barrel',      [100,0,0.02])
+        self.addVariable('electron_absDEtaIn_endcap',      [100,0,0.02])
+        self.addVariable('electron_absDPhiIn_barrel',      [100,0,0.25])
+        self.addVariable('electron_absDPhiIn_endcap',      [100,0,0.25])
+        self.addVariable('electron_hOverE_barrel',         [100,0,0.25])
+        self.addVariable('electron_hOverE_endcap',         [100,0,0.25])
+        self.addVariable('electron_relIsoEA_barrel',       [100,0,0.25])
+        self.addVariable('electron_relIsoEA_endcap',       [100,0,0.25])
+        self.addVariable('electron_ooEmooP_barrel',        [100,0,0.3])
+        self.addVariable('electron_ooEmooP_endcap',        [100,0,0.3])
+        self.addVariable('electron_absDxy_barrel',         [100,0,0.3])
+        self.addVariable('electron_absDxy_endcap',         [100,0,0.3])
+        self.addVariable('electron_absDz_barrel',          [100,0,1.0])
+        self.addVariable('electron_absDz_endcap',          [100,0,1.0])
+        self.addVariable('electron_missingHits_barrel',    [5,0,5])
+        self.addVariable('electron_missingHits_endcap',    [5,0,5])
+        self.addVariable('electron_conversionVeto_barrel', [2,0,2])
+        self.addVariable('electron_conversionVeto_endcap', [2,0,2])
+
     def fill(self,rtrow):
         # first electrons
         for i in xrange(rtrow.electrons_count):
@@ -66,6 +90,14 @@ class HppEfficiency(Efficiency):
             trackRelIso = self.getObjectVariable(rtrow,('electrons',i),'dr03TkSumPt')/pt
             dEtaSC = self.getObjectVariable(rtrow,('electrons',i),'deltaEtaSuperClusterTrackAtVtx')
             dPhiSC = self.getObjectVariable(rtrow,('electrons',i),'deltaPhiSuperClusterTrackAtVtx')
+            relIsoRho = self.getObjectVariable(rtrow,('electrons',i),'relPFIsoRhoR03')
+            passConversion = self.getObjectVariable(rtrow,('electrons',i),'passConversionVeto')
+            hOverE = self.getObjectVariable(rtrow,('electrons',i),'hOverE')
+            dxy = self.getObjectVariable(rtrow,('electrons',i),'dxy')
+            dz = self.getObjectVariable(rtrow,('electrons',i),'dz')
+            ecalEnergy = self.getObjectVariable(rtrow,('electrons',i),'ecalEnergy')
+            eSuperClusterOverP = self.getObjectVariable(rtrow,('electrons',i),'eSuperClusterOverP')
+            ooEmooP = abs((1.-eSuperClusterOverP)*1./ecalEnergy)
             passMVATrigPre = True
             if pt<15: passMVATrigPre = False
             if sceta<1.479:
@@ -76,12 +108,32 @@ class HppEfficiency(Efficiency):
                 if trackRelIso>0.18:    passMVATrigPre = False
                 if abs(dEtaSC)>0.0095:  passMVATrigPre = False
                 if abs(dPhiSC)>0.065:   passMVATrigPre = False
+                self.fillVariable('electron_pt_barrel',pt)
+                self.fillVariable('electron_sigmaIEtaIEta_barrel',sigmaIEtaIEta)
+                self.fillVariable('electron_absDEtaIn_barrel',abs(dEtaSC))
+                self.fillVariable('electron_absDPhiIn_barrel',abs(dPhiSC))
+                self.fillVariable('electron_hOverE_barrel',hOverE)
+                self.fillVariable('electron_relIsoEA_barrel',relIsoRho)
+                self.fillVariable('electron_ooEmooP_barrel',ooEmooP)
+                self.fillVariable('electron_absDxy_barrel',abs(dxy))
+                self.fillVariable('electron_absDz_barrel',abs(dz))
+                self.fillVariable('electron_conversionVeto_barrel',passConversion)
             else:
                 if sigmaIEtaIEta>0.033: passMVATrigPre = False
                 if hcalOverEcal>0.09:   passMVATrigPre = False
                 if ecalRelIso>0.45:     passMVATrigPre = False
                 if hcalRelIso>0.28:     passMVATrigPre = False
                 if trackRelIso>0.18:    passMVATrigPre = False
+                self.fillVariable('electron_pt_endcap',pt)
+                self.fillVariable('electron_sigmaIEtaIEta_endcap',sigmaIEtaIEta)
+                self.fillVariable('electron_absDEtaIn_endcap',abs(dEtaSC))
+                self.fillVariable('electron_absDPhiIn_endcap',abs(dPhiSC))
+                self.fillVariable('electron_hOverE_endcap',hOverE)
+                self.fillVariable('electron_relIsoEA_endcap',relIsoRho)
+                self.fillVariable('electron_ooEmooP_endcap',ooEmooP)
+                self.fillVariable('electron_absDxy_endcap',abs(dxy))
+                self.fillVariable('electron_absDz_endcap',abs(dz))
+                self.fillVariable('electron_conversionVeto_endcap',passConversion)
             # fill efficiencies
             self.fillEfficiency('electron_cbidVeto',pt,passCutBasedVeto)
             self.fillEfficiency('electron_cbidLoose',pt,passCutBasedLoose)

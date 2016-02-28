@@ -65,6 +65,7 @@ class Efficiency(object):
     def __ratio(self):
         logging.info('Saving histograms')
         for name in self.histNames:
+            if name in self.histograms: continue # its a var, not a ratio
             # divide the ratio
             ratio = self.histograms['{0}_ratio'.format(name)]
             denom = self.histograms['{0}_denominator'.format(name)]
@@ -163,9 +164,22 @@ class Efficiency(object):
             self.histograms['{0}_denominator'.format(name)] = ROOT.TH1F('h_{0}_denominator'.format(name),'',len(binning)-1,array('d',binning))
             self.histograms['{0}_ratio'.format(name)] = ROOT.TH1F('h_{0}_ratio'.format(name),'',len(binning)-1,array('d',binning))
 
+    def addVariable(self,name,binning):
+        '''Add histograms to file'''
+        # check binning
+        self.histNames += [name]
+        if len(binning)==3: # its a standard thing
+            self.histograms[name] = ROOT.TH1F('h_{0}'.format(name),'',*binning)
+        else: # we need to do variable binning
+            self.histograms[name] = ROOT.TH1F('h_{0}'.format(name),'',len(binning)-1,array('d',binning))
+
     def fillEfficiency(self,name,varValue,passing,weight=1.):
         '''Fill the efficiency'''
         self.histograms['{0}_denominator'.format(name)].Fill(varValue,weight)
         if passing:
             self.histograms['{0}_numerator'.format(name)].Fill(varValue,weight)
             self.histograms['{0}_ratio'.format(name)].Fill(varValue,weight) # for dividing later
+
+    def fillVariable(self,name,varValue,weight=1.):
+        '''Fill the variable'''
+        self.histograms[name].Fill(varValue,weight)
