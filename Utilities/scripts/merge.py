@@ -24,6 +24,8 @@ def main(argv=None):
 
     args = parse_command_line(argv)
 
+    os.system('mkdir -p {0}'.format(args.destination))
+
     for directory in glob.glob('{0}/*'.format(args.directory)):
         if not os.path.isdir(directory): continue
         destname = os.path.basename(os.path.normpath(directory))
