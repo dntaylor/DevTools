@@ -96,6 +96,17 @@ def customizeElectrons(process,coll,**kwargs):
     process.electronCustomization *= process.egmGsfElectronIDSequence
     process.electronCustomization *= process.eidEmbedder
 
+    ##########################
+    ### embed missing hits ###
+    ##########################
+    process.eMissingHits = cms.EDProducer(
+        "ElectronMissingHitsEmbedder",
+        src = cms.InputTag(eSrc),
+    )
+    eSrc = 'eMissingHits'
+
+    process.electronCustomization *= process.eMissingHits
+
     ###################
     ### embed ww id ###
     ###################

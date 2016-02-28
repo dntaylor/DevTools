@@ -266,6 +266,7 @@ electronBranches = commonPatCandidates.clone(
     scE1x5                         = cms.vstring('scE1x5','F'),
     scE2x5Max                      = cms.vstring('scE2x5Max','F'),
     scE5x5                         = cms.vstring('scE5x5','F'),
+    missingHits                    = cms.vstring('userInt("missingHits")','I'),
     # charge id
     isGsfCtfScPixChargeConsistent  = cms.vstring('isGsfCtfScPixChargeConsistent','I'),
     isGsfScPixChargeConsistent     = cms.vstring('isGsfScPixChargeConsistent','I'),
