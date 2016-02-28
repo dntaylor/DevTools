@@ -31,7 +31,7 @@ def main(argv=None):
         destname = os.path.basename(os.path.normpath(directory))
         destfile = '{0}/{1}.root'.format(args.destination,destname)
         sourcefiles = '{0}/*.root'.format(directory)
-        command = 'hadd {0} {1}'.format(destfile,sourcefiles)
+        command = 'hadd -f {0} {1}'.format(destfile,sourcefiles)
         os.system(command)
     
 
