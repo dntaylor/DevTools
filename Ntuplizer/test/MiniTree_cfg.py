@@ -144,7 +144,7 @@ collections = {
 selections = {
     'electrons' : 'pt>7 && abs(eta)<3.0',
     'muons'     : 'pt>4 && abs(eta)<2.5',
-    'taus'      : 'pt>17 && abs(eta)<2.3 && tauID("decayModeFinding")>0.5', # remove 2 prong taus
+    'taus'      : 'pt>17 && abs(eta)<2.3',
     'photons'   : 'pt>10 && abs(eta)<3.0',
     'jets'      : 'pt>15 && abs(eta)<4.7',
 }
