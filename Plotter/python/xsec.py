@@ -16,6 +16,13 @@ xsecs = {
     'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'  :  18610.       * PB,
     'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'      :   6025.2      * PB,
 
+    'DY1JetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' :    421.5      * PB,
+    'DY2JetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8' :    184.3      * PB,
+    'DY1JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'      :   1016.       * PB,
+    'DY2JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'      :    331.4      * PB,
+    'DY3JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'      :     96.36     * PB,
+    'DY4JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'      :     51.4      * PB,
+
     'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'               :    831.76     * PB,
     'TTTo2L2Nu_13TeV-powheg'                                       :     87.31     * PB,
     'TT_TuneCUETP8M1_13TeV-powheg-pythia8'                         :    831.76     * PB,
@@ -64,6 +71,9 @@ xsecs = {
     'GluGluToContinToZZTo4e_13TeV_MCFM701_pythia8'                 :      0.001586 * PB * 1.7,
     'GluGluToContinToZZTo4mu_13TeV_MCFM701_pythia8'                :      0.001586 * PB * 1.7,
     'GluGluToContinToZZTo4tau_13TeV_MCFM701_pythia8'               :      0.001586 * PB * 1.7,
+    'GluGluToContinToZZTo2e2nu_13TeV_MCFM701_pythia8'              :      0.00172  * PB * 1.7,
+    'GluGluToContinToZZTo2mu2nu_13TeV_MCFM701_pythia8'             :      0.00172  * PB * 1.7,
+    'GluGluToContinToZZTo2tau2nu_13TeV_MCFM701_pythia8'            :      0.00172  * PB * 1.7,
 
     'WWW_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                      :      0.1651   * PB,
     'WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                      :      0.1651   * PB,

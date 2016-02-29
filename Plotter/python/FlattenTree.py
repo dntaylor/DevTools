@@ -12,23 +12,12 @@ class FlattenTree(object):
     '''Produces flat histograms'''
 
     def __init__(self,**kwargs):
-        self.ntupleDirectory = kwargs.pop('ntupleDirectory','ntuples/WZ')
-        self.treeName = kwargs.pop('treeName','WZTree')
+        self.ntupleDirectory = kwargs.pop('ntupleDirectory','ntuples/Analysis')
+        self.treeName = kwargs.pop('treeName','AnalysisTree')
         # dictionaries to hold the sample information
         self.intLumi = getLumi()
         self.sampleLumi = 0
         self.sampleTree = None
-        # add variables
-        self.histParameters = {
-            'zMass'               : {'variable': 'z_mass',  'binning': [60, 60, 120]},
-            'zLeadingLeptonPt'    : {'variable': 'z1_pt',   'binning': [50, 0, 500]},
-            'zSubLeadingLeptonPt' : {'variable': 'z2_pt',   'binning': [50, 0, 500]},
-            'wLeptonPt'           : {'variable': 'w1_pt',   'binning': [50, 0, 500]},
-            'met'                 : {'variable': 'met_pt',  'binning': [50, 0, 500]},
-            'mass'                : {'variable': '3l_mass', 'binning': [50, 0, 500]},
-        }
-        # data samples
-        self.dataSamples = ['DoubleMuon','DoubleEG','MuonEG','SingleMuon','SingleElectron','Tau']
 
     def __initializeSample(self,sample):
         tchain = ROOT.TChain(self.treeName)
@@ -47,14 +36,21 @@ class FlattenTree(object):
 
     def flatten(self,sample,outputFileName,selection,**kwargs):
         '''Produce flat histograms for a given selection.'''
+        logging.info('Flattening {0}'.format(sample))
         scalefactor = kwargs.pop('scalefactor','1' if isData(sample) else 'genWeight')
+        # initialize sample
         self.__initializeSample(sample)
+        # copy try from selection
+        tree = self.sampleTree.CopyTree(selection)
+        if not tree: return
+        # setup outputs
         os.system('mkdir -p {0}'.format(os.path.dirname(outputFileName)))
         outfile = ROOT.TFile(outputFileName,'recreate')
         if not isData(sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
+        # make each histogram
         for histName, params in self.histParameters.iteritems():
             drawString = '{0}>>{1}({2})'.format(params['variable'],histName,', '.join([str(x) for x in params['binning']]))
-            selectionString = '{0}*({1})'.format(scalefactor,selection)
-            self.sampleTree.Draw(drawString,selectionString,'goff')
+            selectionString = '{0}*({1})'.format(scalefactor,'1')
+            tree.Draw(drawString,selectionString,'goff')
         outfile.Write()
         outfile.Close()
