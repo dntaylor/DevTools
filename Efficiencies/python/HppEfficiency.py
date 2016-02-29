@@ -44,20 +44,20 @@ class HppEfficiency(Efficiency):
         self.addEfficiency('electron_mvaTrigWP80_fake',   [100,0,500])
         self.addEfficiency('electron_mvaTrigWP90_fake',   [100,0,500])
 
-        # matched to hadron TODO: need new ntuples
-        #self.addEfficiency('electron_cbidVeto_jet',      [100,0,500])
-        #self.addEfficiency('electron_cbidLoose_jet',     [100,0,500])
-        #self.addEfficiency('electron_cbidMedium_jet',    [100,0,500])
-        #self.addEfficiency('electron_cbidTight_jet',     [100,0,500])
-        #self.addEfficiency('electron_wzLoose_jet',       [100,0,500])
-        #self.addEfficiency('electron_wzMedium_jet',      [100,0,500])
-        #self.addEfficiency('electron_wzTight_jet',       [100,0,500])
-        #self.addEfficiency('electron_heepV60_jet',       [100,0,500])
-        #self.addEfficiency('electron_mvaNonTrigWP80_jet',[100,0,500])
-        #self.addEfficiency('electron_mvaNonTrigWP90_jet',[100,0,500])
-        #self.addEfficiency('electron_mvaTrigPre_jet',    [100,0,500])
-        #self.addEfficiency('electron_mvaTrigWP80_jet',   [100,0,500])
-        #self.addEfficiency('electron_mvaTrigWP90_jet',   [100,0,500])
+        # matched to hadron 
+        self.addEfficiency('electron_cbidVeto_jet',      [100,0,500])
+        self.addEfficiency('electron_cbidLoose_jet',     [100,0,500])
+        self.addEfficiency('electron_cbidMedium_jet',    [100,0,500])
+        self.addEfficiency('electron_cbidTight_jet',     [100,0,500])
+        self.addEfficiency('electron_wzLoose_jet',       [100,0,500])
+        self.addEfficiency('electron_wzMedium_jet',      [100,0,500])
+        self.addEfficiency('electron_wzTight_jet',       [100,0,500])
+        self.addEfficiency('electron_heepV60_jet',       [100,0,500])
+        self.addEfficiency('electron_mvaNonTrigWP80_jet',[100,0,500])
+        self.addEfficiency('electron_mvaNonTrigWP90_jet',[100,0,500])
+        self.addEfficiency('electron_mvaTrigPre_jet',    [100,0,500])
+        self.addEfficiency('electron_mvaTrigWP80_jet',   [100,0,500])
+        self.addEfficiency('electron_mvaTrigWP90_jet',   [100,0,500])
 
         # add variables
         self.addVariable('electron_pt_barrel',             [100,0,500])
@@ -107,54 +107,53 @@ class HppEfficiency(Efficiency):
         self.addEfficiency('muon_wzLoose_fake',           [100,0,500])
         self.addEfficiency('muon_wzMedium_fake',          [100,0,500])
 
-        # matched to gen decay from hadron TODO: need new ntuples
-        #self.addEfficiency('muon_loose_jet',             [100,0,500])
-        #self.addEfficiency('muon_medium_jet',            [100,0,500])
-        #self.addEfficiency('muon_tight_jet',             [100,0,500])
-        #self.addEfficiency('muon_highPt_jet',            [100,0,500])
-        #self.addEfficiency('muon_loose_tightiso_jet',    [100,0,500])
-        #self.addEfficiency('muon_medium_tightiso_jet',   [100,0,500])
-        #self.addEfficiency('muon_tight_tightiso_jet',    [100,0,500])
-        #self.addEfficiency('muon_highPt_tightiso_jet',   [100,0,500])
-        #self.addEfficiency('muon_wzLoose_jet',           [100,0,500])
-        #self.addEfficiency('muon_wzMedium_jet',          [100,0,500])
+        # matched to gen decay from hadron
+        self.addEfficiency('muon_loose_jet',             [100,0,500])
+        self.addEfficiency('muon_medium_jet',            [100,0,500])
+        self.addEfficiency('muon_tight_jet',             [100,0,500])
+        self.addEfficiency('muon_highPt_jet',            [100,0,500])
+        self.addEfficiency('muon_loose_tightiso_jet',    [100,0,500])
+        self.addEfficiency('muon_medium_tightiso_jet',   [100,0,500])
+        self.addEfficiency('muon_tight_tightiso_jet',    [100,0,500])
+        self.addEfficiency('muon_highPt_tightiso_jet',   [100,0,500])
+        self.addEfficiency('muon_wzLoose_jet',           [100,0,500])
+        self.addEfficiency('muon_wzMedium_jet',          [100,0,500])
 
-        ## TODO need new ntuples with matching and newDMs
-        ## taus
-        #self.addEfficiency('tau_vlooseElectronLooseMuonOld_tightIso', [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronTightMuonOld_tightIso', [100,0,500])
-        #self.addEfficiency('tau_tightElectronLooseMuonOld_tightIso',  [100,0,500])
-        #self.addEfficiency('tau_tightElectronTightMuonOld_tightIso',  [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronLooseMuonNew_tightIso', [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronTightMuonNew_tightIso', [100,0,500])
-        #self.addEfficiency('tau_tightElectronLooseMuonNew_tightIso',  [100,0,500])
-        #self.addEfficiency('tau_tightElectronTightMuonNew_tightIso',  [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronLooseMuonOld_vtightIso', [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronTightMuonOld_vtightIso', [100,0,500])
-        #self.addEfficiency('tau_tightElectronLooseMuonOld_vtightIso',  [100,0,500])
-        #self.addEfficiency('tau_tightElectronTightMuonOld_vtightIso',  [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronLooseMuonNew_vtightIso', [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronTightMuonNew_vtightIso', [100,0,500])
-        #self.addEfficiency('tau_tightElectronLooseMuonNew_vtightIso',  [100,0,500])
-        #self.addEfficiency('tau_tightElectronTightMuonNew_vtightIso',  [100,0,500])
+        # taus
+        self.addEfficiency('tau_vlooseElectronLooseMuonOld_tightIso', [100,0,500])
+        self.addEfficiency('tau_vlooseElectronTightMuonOld_tightIso', [100,0,500])
+        self.addEfficiency('tau_tightElectronLooseMuonOld_tightIso',  [100,0,500])
+        self.addEfficiency('tau_tightElectronTightMuonOld_tightIso',  [100,0,500])
+        self.addEfficiency('tau_vlooseElectronLooseMuonNew_tightIso', [100,0,500])
+        self.addEfficiency('tau_vlooseElectronTightMuonNew_tightIso', [100,0,500])
+        self.addEfficiency('tau_tightElectronLooseMuonNew_tightIso',  [100,0,500])
+        self.addEfficiency('tau_tightElectronTightMuonNew_tightIso',  [100,0,500])
+        self.addEfficiency('tau_vlooseElectronLooseMuonOld_vtightIso', [100,0,500])
+        self.addEfficiency('tau_vlooseElectronTightMuonOld_vtightIso', [100,0,500])
+        self.addEfficiency('tau_tightElectronLooseMuonOld_vtightIso',  [100,0,500])
+        self.addEfficiency('tau_tightElectronTightMuonOld_vtightIso',  [100,0,500])
+        self.addEfficiency('tau_vlooseElectronLooseMuonNew_vtightIso', [100,0,500])
+        self.addEfficiency('tau_vlooseElectronTightMuonNew_vtightIso', [100,0,500])
+        self.addEfficiency('tau_tightElectronLooseMuonNew_vtightIso',  [100,0,500])
+        self.addEfficiency('tau_tightElectronTightMuonNew_vtightIso',  [100,0,500])
 
-        ## not matched to gen tau jet
-        #self.addEfficiency('tau_vlooseElectronLooseMuonOld_tightIso_fake', [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronTightMuonOld_tightIso_fake', [100,0,500])
-        #self.addEfficiency('tau_tightElectronLooseMuonOld_tightIso_fake',  [100,0,500])
-        #self.addEfficiency('tau_tightElectronTightMuonOld_tightIso_fake',  [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronLooseMuonNew_tightIso_fake', [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronTightMuonNew_tightIso_fake', [100,0,500])
-        #self.addEfficiency('tau_tightElectronLooseMuonNew_tightIso_fake',  [100,0,500])
-        #self.addEfficiency('tau_tightElectronTightMuonNew_tightIso_fake',  [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronLooseMuonOld_vtightIso_fake', [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronTightMuonOld_vtightIso_fake', [100,0,500])
-        #self.addEfficiency('tau_tightElectronLooseMuonOld_vtightIso_fake',  [100,0,500])
-        #self.addEfficiency('tau_tightElectronTightMuonOld_vtightIso_fake',  [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronLooseMuonNew_vtightIso_fake', [100,0,500])
-        #self.addEfficiency('tau_vlooseElectronTightMuonNew_vtightIso_fake', [100,0,500])
-        #self.addEfficiency('tau_tightElectronLooseMuonNew_vtightIso_fake',  [100,0,500])
-        #self.addEfficiency('tau_tightElectronTightMuonNew_vtightIso_fake',  [100,0,500])
+        # not matched to gen tau jet
+        self.addEfficiency('tau_vlooseElectronLooseMuonOld_tightIso_fake', [100,0,500])
+        self.addEfficiency('tau_vlooseElectronTightMuonOld_tightIso_fake', [100,0,500])
+        self.addEfficiency('tau_tightElectronLooseMuonOld_tightIso_fake',  [100,0,500])
+        self.addEfficiency('tau_tightElectronTightMuonOld_tightIso_fake',  [100,0,500])
+        self.addEfficiency('tau_vlooseElectronLooseMuonNew_tightIso_fake', [100,0,500])
+        self.addEfficiency('tau_vlooseElectronTightMuonNew_tightIso_fake', [100,0,500])
+        self.addEfficiency('tau_tightElectronLooseMuonNew_tightIso_fake',  [100,0,500])
+        self.addEfficiency('tau_tightElectronTightMuonNew_tightIso_fake',  [100,0,500])
+        self.addEfficiency('tau_vlooseElectronLooseMuonOld_vtightIso_fake', [100,0,500])
+        self.addEfficiency('tau_vlooseElectronTightMuonOld_vtightIso_fake', [100,0,500])
+        self.addEfficiency('tau_tightElectronLooseMuonOld_vtightIso_fake',  [100,0,500])
+        self.addEfficiency('tau_tightElectronTightMuonOld_vtightIso_fake',  [100,0,500])
+        self.addEfficiency('tau_vlooseElectronLooseMuonNew_vtightIso_fake', [100,0,500])
+        self.addEfficiency('tau_vlooseElectronTightMuonNew_vtightIso_fake', [100,0,500])
+        self.addEfficiency('tau_tightElectronLooseMuonNew_vtightIso_fake',  [100,0,500])
+        self.addEfficiency('tau_tightElectronTightMuonNew_vtightIso_fake',  [100,0,500])
 
 
     def fill(self,rtrow):
@@ -268,23 +267,23 @@ class HppEfficiency(Efficiency):
                 self.fillEfficiency('electron_mvaTrigWP80_fake',pt,passMVATrigWP80 and passMVATrigPre)
                 self.fillEfficiency('electron_mvaTrigWP90_fake',pt,passMVATrigWP90 and passMVATrigPre)
             # match to jet
-            #if (self.getObjectVariable(rtrow,cand,'genMatch')>0.5
-            #    and self.getObjectVariable(rtrow,cand,'genStatus')==1
-            #    and self.getObjectVariable(rtrow,cand,'genIsFromHadron')>0.5):
-            #    # fill efficiencies
-            #    self.fillEfficiency('electron_cbidVeto_jet',pt,passCutBasedVeto)
-            #    self.fillEfficiency('electron_cbidLoose_jet',pt,passCutBasedLoose)
-            #    self.fillEfficiency('electron_cbidMedium_jet',pt,passCutBasedMedium)
-            #    self.fillEfficiency('electron_cbidTight_jet',pt,passCutBasedTight)
-            #    self.fillEfficiency('electron_wzLoose_jet',pt,passWWLoose)
-            #    self.fillEfficiency('electron_wzMedium_jet',pt,passCutBasedMedium and passWWLoose)
-            #    self.fillEfficiency('electron_wzTight_jet',pt,passCutBasedTight and passWWLoose)
-            #    self.fillEfficiency('electron_heepV60_jet',pt,passHEEPV60)
-            #    self.fillEfficiency('electron_mvaNonTrigWP80_jet',pt,passMVANonTrigWP80)
-            #    self.fillEfficiency('electron_mvaNonTrigWP90_jet',pt,passMVANonTrigWP90)
-            #    self.fillEfficiency('electron_mvaTrigPre_jet',pt,passMVATrigPre)
-            #    self.fillEfficiency('electron_mvaTrigWP80_jet',pt,passMVATrigWP80 and passMVATrigPre)
-            #    self.fillEfficiency('electron_mvaTrigWP90_jet',pt,passMVATrigWP90 and passMVATrigPre)
+            if (self.getObjectVariable(rtrow,cand,'genMatch')>0.5
+                and self.getObjectVariable(rtrow,cand,'genStatus')==1
+                and self.getObjectVariable(rtrow,cand,'genIsFromHadron')>0.5):
+                # fill efficiencies
+                self.fillEfficiency('electron_cbidVeto_jet',pt,passCutBasedVeto)
+                self.fillEfficiency('electron_cbidLoose_jet',pt,passCutBasedLoose)
+                self.fillEfficiency('electron_cbidMedium_jet',pt,passCutBasedMedium)
+                self.fillEfficiency('electron_cbidTight_jet',pt,passCutBasedTight)
+                self.fillEfficiency('electron_wzLoose_jet',pt,passWWLoose)
+                self.fillEfficiency('electron_wzMedium_jet',pt,passCutBasedMedium and passWWLoose)
+                self.fillEfficiency('electron_wzTight_jet',pt,passCutBasedTight and passWWLoose)
+                self.fillEfficiency('electron_heepV60_jet',pt,passHEEPV60)
+                self.fillEfficiency('electron_mvaNonTrigWP80_jet',pt,passMVANonTrigWP80)
+                self.fillEfficiency('electron_mvaNonTrigWP90_jet',pt,passMVANonTrigWP90)
+                self.fillEfficiency('electron_mvaTrigPre_jet',pt,passMVATrigPre)
+                self.fillEfficiency('electron_mvaTrigWP80_jet',pt,passMVATrigWP80 and passMVATrigPre)
+                self.fillEfficiency('electron_mvaTrigWP90_jet',pt,passMVATrigWP90 and passMVATrigPre)
         # next muons
         for i in xrange(rtrow.muons_count):
             cand = ('muons',i)
@@ -331,73 +330,73 @@ class HppEfficiency(Efficiency):
                 self.fillEfficiency('muon_wzLoose_fake',pt,passMedium and iso<0.4 and trackRelIso<0.4)
                 self.fillEfficiency('muon_wzMedium_fake',pt,passMedium and iso<0.15 and trackRelIso<0.4 and dz<0.1 and (dxy<0.01 if pt<20 else dxy<0.02))
             # match to jet
-            #if (self.getObjectVariable(rtrow,cand,'genMatch')>0.5
-            #    and self.getObjectVariable(rtrow,cand,'genStatus')==1
-            #    and self.getObjectVariable(rtrow,cand,'genIsFromHadron')>0.5):
-            #    # fill efficiencies
-            #    self.fillEfficiency('muon_loose_jet',pt,passLoose)
-            #    self.fillEfficiency('muon_medium_jet',pt,passMedium)
-            #    self.fillEfficiency('muon_tight_jet',pt,passTight)
-            #    self.fillEfficiency('muon_highPt_jet',pt,passHighPt)
-            #    self.fillEfficiency('muon_loose_tightiso_jet',pt,passLoose and iso<0.15)
-            #    self.fillEfficiency('muon_medium_tightiso_jet',pt,passMedium and iso<0.15)
-            #    self.fillEfficiency('muon_tight_tightiso_jet',pt,passTight and iso<0.15)
-            #    self.fillEfficiency('muon_highPt_tightiso_jet',pt,passHighPt and iso<0.15)
-            #    self.fillEfficiency('muon_wzLoose_jet',pt,passMedium and iso<0.4 and trackRelIso<0.4)
-            #    self.fillEfficiency('muon_wzMedium_jet',pt,passMedium and iso<0.15 and trackRelIso<0.4 and dz<0.1 and (dxy<0.01 if pt<20 else dxy<0.02))
-        # taus TODO new ntuples
-        #for i in xrange(rtrow.taus_count):
-        #    cand = ('taus',i)
-        #    # get the ids
-        #    pt = self.getObjectVariable(rtrow,cand,'pt')
-        #    # muon
-        #    againstMuonLoose3 = self.getObjectVariable(rtrow,cand,'againstMuonLoose3')
-        #    againstMuonTight3 = self.getObjectVariable(rtrow,cand,'againstMuonTight3')
-        #    # electron
-        #    againstElectronVLooseMVA6 = self.getObjectVariable(rtrow,cand,'againstElectronVLooseMVA6')
-        #    againstElectronTightMVA6 = self.getObjectVariable(rtrow,cand,'againstElectronTightMVA6')
-        #    # old
-        #    decayModeFinding = self.getObjectVariable(rtrow,cand,'decayModeFinding')
-        #    byTightIsolationMVArun2v1DBoldDMwLT = self.getObjectVariable(rtrow,cand,'byTightIsolationMVArun2v1DBoldDMwLT')
-        #    byVTightIsolationMVArun2v1DBoldDMwLT = self.getObjectVariable(rtrow,cand,'byVTightIsolationMVArun2v1DBoldDMwLT')
-        #    # new
-        #    decayModeFindingNewDMs = self.getObjectVariable(rtrow,cand,'decayModeFindingNewDMs')
-        #    byTightIsolationMVArun2v1DBnewDMwLT = self.getObjectVariable(rtrow,cand,'byTightIsolationMVArun2v1DBnewDMwLT')
-        #    byVTightIsolationMVArun2v1DBnewDMwLT = self.getObjectVariable(rtrow,cand,'byVTightIsolationMVArun2v1DBnewDMwLT')
-        #    # match to gen jet
-        #    if (self.getObjectVariable(rtrow,cand,'genJetMatch')>0.5):
-        #        # fill efficiencies
-        #        self.fillEfficiency('tau_vlooseElectronLooseMuonOld_tightIso', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronTightMuonOld_tightIso', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronLooseMuonOld_tightIso',  pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronTightMuonOld_tightIso',  pt, decayModeFinding>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronLooseMuonOld_vtightIso',pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronTightMuonOld_vtightIso',pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronLooseMuonOld_vtightIso', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronTightMuonOld_vtightIso', pt, decayModeFinding>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronLooseMuonNew_tightIso', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronTightMuonNew_tightIso', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronLooseMuonNew_tightIso',  pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronTightMuonNew_tightIso',  pt, decayModeFindingNewDMs>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronLooseMuonNew_vtightIso',pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronTightMuonNew_vtightIso',pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronLooseMuonNew_vtightIso', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronTightMuonNew_vtightIso', pt, decayModeFindingNewDMs>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #    if (self.getObjectVariable(rtrow,cand,'genJetMatch')<0.5):
-        #        # fill efficiencies
-        #        self.fillEfficiency('tau_vlooseElectronLooseMuonOld_tightIso_fake', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronTightMuonOld_tightIso_fake', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronLooseMuonOld_tightIso_fake',  pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronTightMuonOld_tightIso_fake',  pt, decayModeFinding>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronLooseMuonOld_vtightIso_fake',pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronTightMuonOld_vtightIso_fake',pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronLooseMuonOld_vtightIso_fake', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronTightMuonOld_vtightIso_fake', pt, decayModeFinding>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronLooseMuonNew_tightIso_fake', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronTightMuonNew_tightIso_fake', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronLooseMuonNew_tightIso_fake',  pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronTightMuonNew_tightIso_fake',  pt, decayModeFindingNewDMs>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronLooseMuonNew_vtightIso_fake',pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_vlooseElectronTightMuonNew_vtightIso_fake',pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronLooseMuonNew_vtightIso_fake', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
-        #        self.fillEfficiency('tau_tightElectronTightMuonNew_vtightIso_fake', pt, decayModeFindingNewDMs>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
+            if (self.getObjectVariable(rtrow,cand,'genMatch')>0.5
+                and self.getObjectVariable(rtrow,cand,'genStatus')==1
+                and self.getObjectVariable(rtrow,cand,'genIsFromHadron')>0.5):
+                # fill efficiencies
+                self.fillEfficiency('muon_loose_jet',pt,passLoose)
+                self.fillEfficiency('muon_medium_jet',pt,passMedium)
+                self.fillEfficiency('muon_tight_jet',pt,passTight)
+                self.fillEfficiency('muon_highPt_jet',pt,passHighPt)
+                self.fillEfficiency('muon_loose_tightiso_jet',pt,passLoose and iso<0.15)
+                self.fillEfficiency('muon_medium_tightiso_jet',pt,passMedium and iso<0.15)
+                self.fillEfficiency('muon_tight_tightiso_jet',pt,passTight and iso<0.15)
+                self.fillEfficiency('muon_highPt_tightiso_jet',pt,passHighPt and iso<0.15)
+                self.fillEfficiency('muon_wzLoose_jet',pt,passMedium and iso<0.4 and trackRelIso<0.4)
+                self.fillEfficiency('muon_wzMedium_jet',pt,passMedium and iso<0.15 and trackRelIso<0.4 and dz<0.1 and (dxy<0.01 if pt<20 else dxy<0.02))
+        # taus
+        for i in xrange(rtrow.taus_count):
+            cand = ('taus',i)
+            # get the ids
+            pt = self.getObjectVariable(rtrow,cand,'pt')
+            # muon
+            againstMuonLoose3 = self.getObjectVariable(rtrow,cand,'againstMuonLoose3')
+            againstMuonTight3 = self.getObjectVariable(rtrow,cand,'againstMuonTight3')
+            # electron
+            againstElectronVLooseMVA6 = self.getObjectVariable(rtrow,cand,'againstElectronVLooseMVA6')
+            againstElectronTightMVA6 = self.getObjectVariable(rtrow,cand,'againstElectronTightMVA6')
+            # old
+            decayModeFinding = self.getObjectVariable(rtrow,cand,'decayModeFinding')
+            byTightIsolationMVArun2v1DBoldDMwLT = self.getObjectVariable(rtrow,cand,'byTightIsolationMVArun2v1DBoldDMwLT')
+            byVTightIsolationMVArun2v1DBoldDMwLT = self.getObjectVariable(rtrow,cand,'byVTightIsolationMVArun2v1DBoldDMwLT')
+            # new
+            decayModeFindingNewDMs = self.getObjectVariable(rtrow,cand,'decayModeFindingNewDMs')
+            byTightIsolationMVArun2v1DBnewDMwLT = self.getObjectVariable(rtrow,cand,'byTightIsolationMVArun2v1DBnewDMwLT')
+            byVTightIsolationMVArun2v1DBnewDMwLT = self.getObjectVariable(rtrow,cand,'byVTightIsolationMVArun2v1DBnewDMwLT')
+            # match to gen jet
+            if (self.getObjectVariable(rtrow,cand,'genJetMatch')>0.5):
+                # fill efficiencies
+                self.fillEfficiency('tau_vlooseElectronLooseMuonOld_tightIso', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronTightMuonOld_tightIso', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronLooseMuonOld_tightIso',  pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronTightMuonOld_tightIso',  pt, decayModeFinding>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronLooseMuonOld_vtightIso',pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronTightMuonOld_vtightIso',pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronLooseMuonOld_vtightIso', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronTightMuonOld_vtightIso', pt, decayModeFinding>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronLooseMuonNew_tightIso', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronTightMuonNew_tightIso', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronLooseMuonNew_tightIso',  pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronTightMuonNew_tightIso',  pt, decayModeFindingNewDMs>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronLooseMuonNew_vtightIso',pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronTightMuonNew_vtightIso',pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronLooseMuonNew_vtightIso', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronTightMuonNew_vtightIso', pt, decayModeFindingNewDMs>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
+            if (self.getObjectVariable(rtrow,cand,'genJetMatch')<0.5):
+                # fill efficiencies
+                self.fillEfficiency('tau_vlooseElectronLooseMuonOld_tightIso_fake', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronTightMuonOld_tightIso_fake', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronLooseMuonOld_tightIso_fake',  pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronTightMuonOld_tightIso_fake',  pt, decayModeFinding>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronLooseMuonOld_vtightIso_fake',pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronTightMuonOld_vtightIso_fake',pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronLooseMuonOld_vtightIso_fake', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronTightMuonOld_vtightIso_fake', pt, decayModeFinding>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronLooseMuonNew_tightIso_fake', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronTightMuonNew_tightIso_fake', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronLooseMuonNew_tightIso_fake',  pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronTightMuonNew_tightIso_fake',  pt, decayModeFindingNewDMs>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronLooseMuonNew_vtightIso_fake',pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_vlooseElectronTightMuonNew_vtightIso_fake',pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronLooseMuonNew_vtightIso_fake', pt, decayModeFindingNewDMs>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
+                self.fillEfficiency('tau_tightElectronTightMuonNew_vtightIso_fake', pt, decayModeFindingNewDMs>0.5 and againstElectronTightMVA6>0.5 and againstMuonTight3>0.5 and byVTightIsolationMVArun2v1DBnewDMwLT>0.5)
