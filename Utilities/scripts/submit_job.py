@@ -130,8 +130,8 @@ def submit_das_crab(args):
     for sample in sampleList:
         _, primaryDataset, datasetTag, dataFormat = sample.split('/')
         config.General.requestName = '{0}'.format(primaryDataset)
-        if dataFormat in ['MINIAOD','AOD','RAW']: # its data, also specify the aquisition period
-            config.General.requestName += '_' + datasetTag
+        maxDatasetTagSize = 97-len(primaryDataset)
+        config.General.requestName += '_' + datasetTag[-maxDatasetTagSize:]
         # make it only 100 characters
         config.General.requestName = config.General.requestName[:99] # Warning: may not be unique now
         config.Data.inputDataset   = sample
