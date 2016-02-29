@@ -119,6 +119,27 @@ class HppEfficiency(Efficiency):
         #self.addEfficiency('muon_wzLoose_jet',           [100,0,500])
         #self.addEfficiency('muon_wzMedium_jet',          [100,0,500])
 
+        ## TODO need new ntuples with matching and newDMs
+        ## taus
+        #self.addEfficiency('tau_vlooseElectronLooseMuonOld', [100,0,500])
+        #self.addEfficiency('tau_vlooseElectronTightMuonOld', [100,0,500])
+        #self.addEfficiency('tau_tightElectronLooseMuonOld',  [100,0,500])
+        #self.addEfficiency('tau_tightElectronTightMuonOld',  [100,0,500])
+        #self.addEfficiency('tau_vlooseElectronLooseMuonNew', [100,0,500])
+        #self.addEfficiency('tau_vlooseElectronTightMuonNew', [100,0,500])
+        #self.addEfficiency('tau_tightElectronLooseMuonNew',  [100,0,500])
+        #self.addEfficiency('tau_tightElectronTightMuonNew',  [100,0,500])
+
+        ## not matched to gen tau jet
+        #self.addEfficiency('tau_vlooseElectronLooseMuonOld_fake', [100,0,500])
+        #self.addEfficiency('tau_vlooseElectronTightMuonOld_fake', [100,0,500])
+        #self.addEfficiency('tau_tightElectronLooseMuonOld_fake',  [100,0,500])
+        #self.addEfficiency('tau_tightElectronTightMuonOld_fake',  [100,0,500])
+        #self.addEfficiency('tau_vlooseElectronLooseMuonNew_fake', [100,0,500])
+        #self.addEfficiency('tau_vlooseElectronTightMuonNew_fake', [100,0,500])
+        #self.addEfficiency('tau_tightElectronLooseMuonNew_fake',  [100,0,500])
+        #self.addEfficiency('tau_tightElectronTightMuonNew_fake',  [100,0,500])
+
 
     def fill(self,rtrow):
         # first electrons
