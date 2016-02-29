@@ -510,7 +510,7 @@ tauBranches = commonPatCandidates.clone(
     byTightIsolationMVArun2v1PWnewDMwLT             = cms.vstring('tauID("byTightIsolationMVArun2v1PWnewDMwLT")','I'),
     byVTightIsolationMVArun2v1PWnewDMwLT            = cms.vstring('tauID("byVTightIsolationMVArun2v1PWnewDMwLT")','I'),
     # DecayModeFinding
-    decayModeFinding                                = cms.vstring('tauID("decayModeFinding")','I'),
+    decayModeFindingOldDMs                          = cms.vstring('tauID("decayModeFindingOldDMs")','I'),
     decayModeFindingNewDMs                          = cms.vstring('tauID("decayModeFindingNewDMs")','I'),
     # pv
     dz                                              = cms.vstring('userFloat("dz")','F'),
