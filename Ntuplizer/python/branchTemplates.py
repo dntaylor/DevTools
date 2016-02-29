@@ -48,6 +48,23 @@ commonPatCandidates = commonCandidates.clone(
     genFromHardProcessTau     = cms.vstring('? (genParticleRef.isNonnull() ) ? genParticleRef().isDirectHardProcessTauDecayProductFinalState() : 0', 'I'),
 )
 
+commonJetCandidates = commonPatCandidates.clone(
+    genJetMatch               = cms.vstring('userCand("genJet").isNonnull()','I'),
+    genJetPdgId               = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").pdgId() : 0', 'I'),
+    genJetPt                  = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").pt() : 0', 'F'),
+    genJetEta                 = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").eta() : 0', 'F'),
+    genJetPhi                 = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").phi() : 0', 'F'),
+    genJetMass                = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").mass() : 0', 'F'),
+    genJetEnergy              = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").energy() : 0', 'F'),
+    genJetCharge              = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").charge() : 0', 'F'),
+    genJetVZ                  = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").vz() : 0', 'F'),
+    genJetStatus              = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").status() : 0', 'I'),
+    genJetEMEnergy            = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").emEnergy() : 0', 'F'),
+    genJetHadEnergy           = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").hadEnergy() : 0', 'F'),
+    genJetInvisibleEnergy     = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").invisibleEnergy() : 0', 'F'),
+    genJetNConstituents       = cms.vstring('? (userCand("genJet").isNonnull() ) ? userCand("genJet").nConstituents() : 0', 'I'),
+)
+
 #statusOneCandidates = commonGenCandidates.clone(
 #    isPrompt               = cms.vstring('isPromptFinalState()','I'),
 #    isFromTau              = cms.vstring('isDirectPromptTauDecayProductFinalState()','I'),
@@ -419,7 +436,7 @@ muonBranches = commonPatCandidates.clone(
 )
 
 # taus
-tauBranches = commonPatCandidates.clone(
+tauBranches = commonJetCandidates.clone(
     # Against Electron
     # mva5
     againstElectronVLooseMVA5                       = cms.vstring('tauID("againstElectronVLooseMVA5")','I'), 
@@ -510,7 +527,7 @@ tauBranches = commonPatCandidates.clone(
     byTightIsolationMVArun2v1PWnewDMwLT             = cms.vstring('tauID("byTightIsolationMVArun2v1PWnewDMwLT")','I'),
     byVTightIsolationMVArun2v1PWnewDMwLT            = cms.vstring('tauID("byVTightIsolationMVArun2v1PWnewDMwLT")','I'),
     # DecayModeFinding
-    decayModeFindingOldDMs                          = cms.vstring('tauID("decayModeFindingOldDMs")','I'),
+    decayModeFinding                                = cms.vstring('tauID("decayModeFinding")','I'),
     decayModeFindingNewDMs                          = cms.vstring('tauID("decayModeFindingNewDMs")','I'),
     # pv
     dz                                              = cms.vstring('userFloat("dz")','F'),

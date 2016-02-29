@@ -5,6 +5,7 @@ def customizeTaus(process,coll,**kwargs):
     tSrc = coll['taus']
     rhoSrc = coll['rho']
     pvSrc = coll['vertices']
+    genSrc = coll['genParticles']
 
     # customization path
     process.tauCustomization = cms.Path()
@@ -69,6 +70,24 @@ def customizeTaus(process,coll,**kwargs):
     tSrc = 'tTrig'
 
     process.tauCustomization *= process.tTrig
+
+    ##########################
+    ### embed tau gen jets ###
+    ##########################
+    from PhysicsTools.JetMCAlgos.TauGenJets_cfi import tauGenJets
+    process.tauGenJets = tauGenJets.clone(GenParticles = cms.InputTag(genSrc))
+    process.tauCustomization *= process.tauGenJets
+
+    process.tGenJetMatching = cms.EDProducer(
+        "TauGenJetEmbedder",
+        src = cms.InputTag(tSrc),
+        genJets = cms.InputTag("tauGenJets"),
+        excludeLeptons = cms.bool(True),
+        deltaR = cms.double(0.5),
+    )
+    tSrc = "tGenJetMatching"
+    process.tauCustomization *= process.tGenJetMatching
+
 
     # add to schedule
     process.schedule.append(process.tauCustomization)
