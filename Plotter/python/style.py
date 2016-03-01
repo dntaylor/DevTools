@@ -18,9 +18,11 @@ colors = {
     'LightGreen' : {'color' : ROOT.TColor.GetColor('#66FF99'), 'accent' : ROOT.TColor.GetColor('#52CC7A')},
     'Lime'       : {'color' : ROOT.TColor.GetColor('#9ED54C'), 'accent' : ROOT.TColor.GetColor('#59A80F')},
     'Aqua'       : {'color' : ROOT.TColor.GetColor('#66FFFF'), 'accent' : ROOT.TColor.GetColor('#52CCCC')},
+    'Pink'       : {'color' : ROOT.TColor.GetColor('#FF99DD'), 'accent' : ROOT.TColor.GetColor('#FFCCEE')},
 }
 
 colorMap = {
+    'QCD'       : 'Pink',
     'datadriven': 'Gray',
     'ZZ'        : 'Blue',
     'ZG'        : 'Red',
@@ -41,6 +43,7 @@ colorMap = {
 }
 
 labelMap = {
+    'QCD'       : 'QCD',
     'datadriven': 'Non-Prompt',
     'ZZ'        : 'ZZ',
     'ZG'        : 'Z#gamma',

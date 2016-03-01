@@ -7,6 +7,8 @@ effPlotter = Plotter(
 )
 
 sigMap = {
+    #'QCD' : ['QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8'],
+    'QCD' : ['QCD_Pt-15to3000_TuneCUETP8M1_Flat_13TeV_pythia8'],
     'WZ'  : ['WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8'],
     'ZZ'  : ['ZZTo4L_13TeV_powheg_pythia8',
              'GluGluToContinToZZTo2e2mu_13TeV_MCFM701_pythia8',
@@ -33,7 +35,20 @@ sigMap = {
 
 effPlotter.addHistogram('WZ',sigMap['WZ'])
 effPlotter.addHistogram('TT',sigMap['TT'])
+effPlotter.addHistogram('QCD',sigMap['QCD'])
 effPlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'])
+
+# taus
+for varname in ['vlooseElectronLooseMuonOld_tightIso','tightElectronTightMuonOld_tightIso','vlooseElectronLooseMuonNew_tightIso','tightElectronLooseMuonNew_tightIso']:
+    plotname = 'tau_{0}'.format(varname)
+    num = 'h_{0}_numerator'.format(plotname)
+    numFake = 'h_{0}_fake_numerator'.format(plotname)
+    denom = 'h_{0}_denominator'.format(plotname)
+    denomFake = 'h_{0}_fake_denominator'.format(plotname)
+    numMap = {'WZ':num, 'TT': numFake, 'QCD': numFake, 'HppHmm500GeV':num}
+    denomMap = {'WZ':denom, 'TT': denomFake, 'QCD': denomFake, 'HppHmm500GeV':denom}
+    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.2,ymin=0.,yaxis='Efficiency',xaxis='p_{T} (GeV)')
+
 
 xaxisMap = {
     'pt'            : 'p_{T} (GeV)',
@@ -53,11 +68,13 @@ for varname in ['wzLoose','wzMedium','wzTight','heepV60','mvaTrigWP80','mvaTrigW
     plotname = 'electron_{0}'.format(varname)
     num = 'h_{0}_numerator'.format(plotname)
     numFake = 'h_{0}_fake_numerator'.format(plotname)
+    numJet = 'h_{0}_jet_numerator'.format(plotname)
     denom = 'h_{0}_denominator'.format(plotname)
+    denomJet = 'h_{0}_jet_denominator'.format(plotname)
     denomFake = 'h_{0}_fake_denominator'.format(plotname)
-    numMap = {'WZ':num, 'TT':numFake, 'HppHmm500GeV':num}
-    denomMap = {'WZ':denom, 'TT':denomFake, 'HppHmm500GeV':denom}
-    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=3,legendpos=34,ymax=1.2,ymin=0.,yaxis='Efficiency',xaxis='p_{T} (GeV)')
+    numMap = {'WZ':num, 'TT':numJet, 'QCD': numFake, 'HppHmm500GeV':num}
+    denomMap = {'WZ':denom, 'TT':denomJet, 'QCD': denomFake, 'HppHmm500GeV':denom}
+    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.2,ymin=0.,yaxis='Efficiency',xaxis='p_{T} (GeV)')
 for region in ['barrel','endcap']:
     for var in ['pt','sigmaIEtaIEta','absDEtaIn','absDPhiIn','hOverE','relIsoEA','ooEmooP','absDxy','absDz','conversionVeto']:
         varname = 'h_electron_{0}_{1}'.format(var,region)
@@ -69,8 +86,11 @@ for varname in ['wzLoose','wzMedium','highPt_tightiso','tight_tightiso']:
     plotname = 'muon_{0}'.format(varname)
     num = 'h_{0}_numerator'.format(plotname)
     numFake = 'h_{0}_fake_numerator'.format(plotname)
+    numJet = 'h_{0}_jet_numerator'.format(plotname)
     denom = 'h_{0}_denominator'.format(plotname)
     denomFake = 'h_{0}_fake_denominator'.format(plotname)
-    numMap = {'WZ':num, 'TT':numFake, 'HppHmm500GeV':num}
-    denomMap = {'WZ':denom, 'TT':denomFake, 'HppHmm500GeV':denom}
-    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=3,legendpos=34,ymax=1.2,ymin=0.,yaxis='Efficiency',xaxis='p_{T} (GeV)')
+    denomJet = 'h_{0}_jet_denominator'.format(plotname)
+    numMap = {'WZ':num, 'TT':numJet, 'QCD': numFake, 'HppHmm500GeV':num}
+    denomMap = {'WZ':denom, 'TT':denomJet, 'QCD': denomFake, 'HppHmm500GeV':denom}
+    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.2,ymin=0.,yaxis='Efficiency',xaxis='p_{T} (GeV)')
+
