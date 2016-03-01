@@ -9,6 +9,7 @@ Script to submit jobs to crab or condor.
 import argparse
 import logging
 import os
+import math
 import sys
 import glob
 import subprocess
@@ -314,36 +315,48 @@ def submit_untracked_condor(args):
     '''Submit to condor using an input directory'''
     uname = os.environ['USER']
     # get samples
-    sampleList = hdfs_ls_directory(args.inputDirectory)
-    scratchDir = 'data' if 'uwlogin' in gethostname() else 'nfs_scratch'
+    for inputDirectories in args.inputDirectory:
+        for inputDirectory in glob.glob(inputDirectories):
+            sampleList = hdfs_ls_directory(inputDirectory)
+            scratchDir = 'data' if 'uwlogin' in gethostname() else 'nfs_scratch'
 
-    workArea = get_condor_workArea(args)
-    os.system('mkdir -p {0}'.format(workArea))
+            workArea = get_condor_workArea(args)
+            os.system('mkdir -p {0}'.format(workArea))
 
-    submitMap = {}
-    # iterate over samples
-    for sample in sampleList:
-        # farmout config
-        command = 'farmoutAnalysisJobs --infer-cmssw-path'
-        if args.scriptExe:
-            command += ' --fwklite'
-        # submit dir
-        submitDir = '{0}/{1}'.format(workArea, sample)
-        command += ' --submit-dir={0}'.format(submitDir)
-        # input files
-        inputFiles = get_hdfs_root_files(args.inputDirectory,sample)
-        fileList = '{0}_inputs.txt'.format(submitDir)
-        with open(fileList,'w') as f:
-            f.write('\n'.join(inputFiles))
-        command += ' --input-file-list={0} --assume-input-files-exist --input-files-per-job={1}'.format(fileList,args.filesPerJob)
-        # output directory
-        outputDir = 'srm://cmssrm2.hep.wisc.edu:8443/srm/v2/server?SFN=/hdfs/store/user/{0}/{1}/{2}'.format(uname,args.jobName,sample)
-        command += ' --output-dir={0}'.format(outputDir)
-        command += ' {0} {1} {2}'.format(args.jobName, args.cfg, ' '.join(args.cmsRunArgs))
-        if args.dryrun:
-            logging.info(command)
-        else:
-            os.system(command)
+            submitMap = {}
+            # iterate over samples
+            for sample in sampleList:
+                # farmout config
+                command = 'farmoutAnalysisJobs --infer-cmssw-path'
+                if args.scriptExe:
+                    command += ' --fwklite'
+                # submit dir
+                submitDir = '{0}/{1}'.format(workArea, sample)
+                command += ' --submit-dir={0}'.format(submitDir)
+                # input files
+                inputFiles = get_hdfs_root_files(inputDirectory,sample)
+                totalFiles = len(inputFiles)
+                if totalFiles==0:
+                    logging.warning('{0} {1} has no files.'.format(inputDirectory,sample))
+                    continue
+                fileList = '{0}_inputs.txt'.format(submitDir)
+                with open(fileList,'w') as f:
+                    f.write('\n'.join(inputFiles))
+                filesPerJob = args.filesPerJob
+                if args.gigabytesPerJob:
+                    totalSize = sum([os.path.getsize('/hdfs/{0}'.format(f)) for f in inputFiles])
+                    averageSize = totalSize/totalFiles
+                    GB = 1000000000.
+                    filesPerJob = int(math.ceil(args.gigabytesPerJob*GB/averageSize))
+                command += ' --input-file-list={0} --assume-input-files-exist --input-files-per-job={1}'.format(fileList,filesPerJob)
+                # output directory
+                outputDir = 'srm://cmssrm2.hep.wisc.edu:8443/srm/v2/server?SFN=/hdfs/store/user/{0}/{1}/{2}'.format(uname,args.jobName,sample)
+                command += ' --output-dir={0}'.format(outputDir)
+                command += ' {0} {1} {2}'.format(args.jobName, args.cfg, ' '.join(args.cmsRunArgs))
+                if args.dryrun:
+                    logging.info(command)
+                else:
+                    os.system(command)
         
 
 def submit_condor(args):
@@ -441,8 +454,8 @@ def parse_command_line(argv):
     parser_condorSubmit_inputs.add_argument('--sampleList', type=str,
         help='Text file list of DAS samples to submit, one per line'
     )
-    parser_condorSubmit_inputs.add_argument('--inputDirectory', type=str,
-        help='Top level directory to submit. Each subdirectory will create one crab job.'
+    parser_condorSubmit_inputs.add_argument('--inputDirectory', type=str, nargs='*',
+        help='Top level directory to submit (unix wildcards allowed). Each subdirectory will create one crab job.'
     )
 
     parser_condorSubmit.add_argument('--applyLumiMask',action='store_true',
@@ -456,6 +469,10 @@ def parse_command_line(argv):
 
     parser_condorSubmit.add_argument('--filesPerJob', type=int, default=1,
         help='Number of files per job'
+    )
+
+    parser_condorSubmit.add_argument('--gigabytesPerJob', type=float, default=0,
+        help='Average jobs to process a given number of gigabytes'
     )
 
     parser_condorSubmit.add_argument('--dryrun', action='store_true', help='Do not submit jobs')
