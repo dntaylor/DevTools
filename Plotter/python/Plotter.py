@@ -80,6 +80,7 @@ class Plotter(object):
         '''Read the histogram from file'''
         if self.sampleFiles[sampleName].GetListOfKeys().Contains(variable):
             hist = self.sampleFiles[sampleName].Get(variable)
+            hist.Sumw2()
             return hist
         else:
             logging.error('Variable {0} does not exist for {1}'.format(variable,sampleName))
@@ -87,6 +88,8 @@ class Plotter(object):
 
     def __getHistogram(self,histName,variable,**kwargs):
         '''Get a styled histogram'''
+        customLabels = kwargs.pop('customLabels',{})
+        rebin = kwargs.pop('rebin',0)
         # check if it is a variable map
         varName = variable if isinstance(variable,basestring) else variable[histName]
         nofill = kwargs.pop('nofill',False)
@@ -99,9 +102,13 @@ class Plotter(object):
             hist = hists[0].Clone('{0}_{1}'.format(histName,varName))
             hist.Reset()
             hist.Merge(hists)
+            if rebin: hist = hist.Rebin(rebin)
             style = getStyle(histName)
-            hist.SetTitle(style['name'])
-            if 'linecolor' in style: hist.SetLineColor(style['linecolor'])
+            name = customLabels[histName] if histName in customLabels else style['name']
+            hist.SetTitle(name)
+            if 'linecolor' in style:
+                hist.SetLineColor(style['linecolor'])
+                hist.SetMarkerColor(style['linecolor'])
             if not nofill:
                 if 'fillstyle' in style: hist.SetFillStyle(style['fillstyle'])
                 if 'fillcolor' in style: hist.SetFillColor(style['fillcolor'])
@@ -110,11 +117,37 @@ class Plotter(object):
             logging.error('{0} not defined.'.format(histName))
             return 0
 
-    def __getStack(self,variable):
+    def __get2DHistogram(self,histName,variable,**kwargs):
+        '''Get a styled histogram'''
+        customLabels = kwargs.pop('customLabels',{})
+        rebinx = kwargs.pop('rebinx',0)
+        rebiny = kwargs.pop('rebiny',0)
+        # check if it is a variable map
+        varName = variable if isinstance(variable,basestring) else variable[histName]
+        if histName in self.histDict:
+            hists = ROOT.TList()
+            for sampleName in self.histDict[histName]:
+                hist = self.__readSampleVariable(sampleName,varName)
+                if hist: hists.Add(hist)
+            if hists.IsEmpty(): return 0
+            hist = hists[0].Clone('{0}_{1}'.format(histName,varName))
+            hist.Reset()
+            hist.Merge(hists)
+            if rebinx: hist = hist.RebinX(rebinx)
+            if rebiny: hist = hist.RebinY(rebiny)
+            style = getStyle(histName)
+            name = customLabels[histName] if histName in customLabels else style['name']
+            hist.SetTitle(name)
+            return hist
+        else:
+            logging.error('{0} not defined.'.format(histName))
+            return 0
+
+    def __getStack(self,variable,**kwargs):
         '''Get a stack of histograms'''
         stack = ROOT.THStack('stack_{0}'.format(variable),'stack_{0}'.format(variable))
         for histName in self.stackOrder:
-            hist = self.__getHistogram(histName,variable)
+            hist = self.__getHistogram(histName,variable,**kwargs)
             if hist: stack.Add(hist)
         return stack
 
@@ -167,11 +200,11 @@ class Plotter(object):
         if stack:
             for hist,name in zip(reversed(stack.GetHists()),reversed(self.stackOrder)):
                 style = getStyle(name)
-                legend.AddEntry(hist,style['name'],style['legendstyle'])
+                legend.AddEntry(hist,hist.GetTitle(),style['legendstyle'])
         if hists:
             for hist,name in zip(hists,self.histOrder):
                 style = getStyle(name)
-                legend.AddEntry(hist,style['name'],style['legendstyle'])
+                legend.AddEntry(hist,hist.GetTitle(),style['legendstyle'])
         return legend
 
     def __setStyle(self,pad,preliminary=True):
@@ -222,7 +255,7 @@ class Plotter(object):
         # TODO: add ratio
         stack = ROOT.THStack()
         if self.stackOrder:
-            stack = self.__getStack(variable)
+            stack = self.__getStack(variable,**kwargs)
             stack.Draw("hist")
             stack.GetXaxis().SetTitle(xaxis)
             stack.GetYaxis().SetTitle(yaxis)
@@ -234,7 +267,7 @@ class Plotter(object):
         hists = []
         for histName in self.histOrder:
             # TODO: poisson errors for data
-            hist = self.__getHistogram(histName,variable,nofill=True)
+            hist = self.__getHistogram(histName,variable,nofill=True,**kwargs)
             hist.SetLineWidth(3)
             style = getStyle(histName)
             hist.Draw(style['drawstyle']+' same')
@@ -259,6 +292,7 @@ class Plotter(object):
         legendpos = kwargs.pop('legendpos',33)
         logy = kwargs.pop('logy',False)
         logx = kwargs.pop('logx',False)
+        customOrder = kwargs.pop('customOrder',[])
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
         canvas.SetLogy(logy)
@@ -267,21 +301,22 @@ class Plotter(object):
         highestMax = 0.
 
         hists = []
-        for i,histName in enumerate(self.histOrder):
-            num = self.__getHistogram(histName,numerator,nofill=True)
-            denom = self.__getHistogram(histName,denominator,nofill=True)
+        histOrder = customOrder if customOrder else self.histOrder
+        for i,histName in enumerate(histOrder):
+            num = self.__getHistogram(histName,numerator,nofill=True,**kwargs)
+            denom = self.__getHistogram(histName,denominator,nofill=True,**kwargs)
             num.Divide(denom)
             num.SetLineWidth(3)
             style = getStyle(histName)
             if i==0:
-                num.Draw(style['drawstyle'])
+                num.Draw('e0')
                 num.GetXaxis().SetTitle(xaxis)
                 num.GetYaxis().SetTitle(yaxis)
                 num.GetYaxis().SetTitleOffset(1.5)
                 if ymax!=None: num.SetMaximum(ymax)
                 if ymin!=None: num.SetMinimum(ymin)
             else:
-                num.Draw(style['drawstyle']+' same')
+                num.Draw('e0 same')
             highestMax = max(highestMax,num.GetMaximum())
             if ymax==None: num.SetMaximum(1.2*highestMax)
             hists += [num]
@@ -303,6 +338,7 @@ class Plotter(object):
         legendpos = kwargs.pop('legendpos',33)
         logy = kwargs.pop('logy',False)
         logx = kwargs.pop('logx',False)
+        customOrder = kwargs.pop('customOrder',[])
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
         canvas.SetLogy(logy)
@@ -311,8 +347,9 @@ class Plotter(object):
         highestMax = 0.
 
         hists = []
-        for i,histName in enumerate(self.histOrder):
-            hist = self.__getHistogram(histName,variable,nofill=True)
+        histOrder = customOrder if customOrder else self.histOrder
+        for i,histName in enumerate(histOrder):
+            hist = self.__getHistogram(histName,variable,nofill=True,**kwargs)
             hist.Scale(1./hist.Integral())
             hist.SetLineWidth(3)
             style = getStyle(histName)

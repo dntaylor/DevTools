@@ -76,8 +76,8 @@ class HppEfficiency(Efficiency):
         self.addVariable('electron_ooEmooP_endcap',        [100,0,0.3])
         self.addVariable('electron_absDxy_barrel',         [100,0,0.3])
         self.addVariable('electron_absDxy_endcap',         [100,0,0.3])
-        self.addVariable('electron_absDz_barrel',          [100,0,1.0])
-        self.addVariable('electron_absDz_endcap',          [100,0,1.0])
+        self.addVariable('electron_absDz_barrel',          [100,0,0.5])
+        self.addVariable('electron_absDz_endcap',          [100,0,0.5])
         self.addVariable('electron_missingHits_barrel',    [5,0,5])
         self.addVariable('electron_missingHits_endcap',    [5,0,5])
         self.addVariable('electron_conversionVeto_barrel', [2,0,2])
@@ -119,6 +119,13 @@ class HppEfficiency(Efficiency):
         self.addEfficiency('muon_wzLoose_jet',           [100,0,500])
         self.addEfficiency('muon_wzMedium_jet',          [100,0,500])
 
+        # add variables
+        self.addVariable('muon_pt',           [100,0,500])
+        self.addVariable('muon_absDxy',       [100,0,0.3])
+        self.addVariable('muon_absDz',        [100,0,0.5])
+        self.addVariable('muon_relIsoDB',     [100,0,0.25])
+        self.addVariable('muon_trackRelIso',  [100,0,0.5])
+
         # taus
         self.addEfficiency('tau_vlooseElectronLooseMuonOld_tightIso', [100,0,500])
         self.addEfficiency('tau_vlooseElectronTightMuonOld_tightIso', [100,0,500])
@@ -155,6 +162,10 @@ class HppEfficiency(Efficiency):
         self.addEfficiency('tau_tightElectronLooseMuonNew_vtightIso_fake',  [100,0,500])
         self.addEfficiency('tau_tightElectronTightMuonNew_vtightIso_fake',  [100,0,500])
 
+        # add tau variables
+        self.addVariable('tau_pt',           [100,0,500])
+        self.addVariable('tau_absDxy',       [100,0,0.3])
+        self.addVariable('tau_absDz',        [100,0,0.5])
 
     def fill(self,rtrow):
         # first electrons
@@ -302,6 +313,12 @@ class HppEfficiency(Efficiency):
                 and self.getObjectVariable(rtrow,cand,'genStatus')==1
                 and self.getObjectVariable(rtrow,cand,'genIsPrompt')>0.5
                 and self.getObjectVariable(rtrow,cand,'genIsFromTau')<0.5):
+                # fill variables
+                self.fillVariable('muon_pt',pt)
+                self.fillVariable('muon_absDxy',abs(dxy))
+                self.fillVariable('muon_absDz',abs(dz))
+                self.fillVariable('muon_relIsoDB',iso)
+                self.fillVariable('muon_trackRelIso',trackRelIso)
                 # fill efficiencies
                 self.fillEfficiency('muon_loose',pt,passLoose)
                 self.fillEfficiency('muon_medium',pt,passMedium)
@@ -349,6 +366,8 @@ class HppEfficiency(Efficiency):
             cand = ('taus',i)
             # get the ids
             pt = self.getObjectVariable(rtrow,cand,'pt')
+            dz = self.getObjectVariable(rtrow,cand,'dz')
+            dxy = self.getObjectVariable(rtrow,cand,'dxy')
             # muon
             againstMuonLoose3 = self.getObjectVariable(rtrow,cand,'againstMuonLoose3')
             againstMuonTight3 = self.getObjectVariable(rtrow,cand,'againstMuonTight3')
@@ -365,6 +384,10 @@ class HppEfficiency(Efficiency):
             byVTightIsolationMVArun2v1DBnewDMwLT = self.getObjectVariable(rtrow,cand,'byVTightIsolationMVArun2v1DBnewDMwLT')
             # match to gen jet
             if (self.getObjectVariable(rtrow,cand,'genJetMatch')>0.5):
+                # fill variables
+                self.fillVariable('tau_pt',pt)
+                self.fillVariable('tau_absDxy',abs(dxy))
+                self.fillVariable('tau_absDz',abs(dz))
                 # fill efficiencies
                 self.fillEfficiency('tau_vlooseElectronLooseMuonOld_tightIso', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonLoose3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)
                 self.fillEfficiency('tau_vlooseElectronTightMuonOld_tightIso', pt, decayModeFinding>0.5 and againstElectronVLooseMVA6>0.5 and againstMuonTight3>0.5 and byTightIsolationMVArun2v1DBoldDMwLT>0.5)

@@ -5,7 +5,7 @@ colors = {
     'Gray'       : {'color' : ROOT.TColor.GetColor('#B8B8B8'), 'accent' : ROOT.TColor.GetColor('#C8C8C8')},
     'Purple'     : {'color' : ROOT.TColor.GetColor('#AD33FF'), 'accent' : ROOT.TColor.GetColor('#7924B2')},
     'Yellow'     : {'color' : ROOT.TColor.GetColor('#FFFF00'), 'accent' : ROOT.TColor.GetColor('#FFCC26')},
-    'Gold'       : {'color' : ROOT.TColor.GetColor('#CCCC00'), 'accent' : ROOT.TColor.GetColor('#D1D119')},
+    'Gold'       : {'color' : ROOT.TColor.GetColor('#FFCC00'), 'accent' : ROOT.TColor.GetColor('#FFD633')},
     'DarkYellow' : {'color' : ROOT.TColor.GetColor('#FFCC00'), 'accent' : ROOT.TColor.GetColor('#E6B800')},
     'Orange'     : {'color' : ROOT.TColor.GetColor('#DC7612'), 'accent' : ROOT.TColor.GetColor('#BD3200')},
     'Blue'       : {'color' : ROOT.TColor.GetColor('#107FC9'), 'accent' : ROOT.TColor.GetColor('#0E4EAD')},
@@ -22,6 +22,7 @@ colors = {
 }
 
 colorMap = {
+    'EWK'       : 'Blue',
     'QCD'       : 'Pink',
     'datadriven': 'Gray',
     'ZZ'        : 'Blue',
@@ -36,13 +37,14 @@ colorMap = {
     'TTV'       : 'BlueGreen', 
     'TTZ'       : 'BlueGreen', 
     'TTW'       : 'BlueGreen', 
-    'Z'         : 'Yellow',
+    'Z'         : 'Blue',
     'TT'        : 'Green',
     'HppHmm'    : 'Orange',
     'HppHm'     : 'Orange',
 }
 
 labelMap = {
+    'EWK'       : 'Electroweak',
     'QCD'       : 'QCD',
     'datadriven': 'Non-Prompt',
     'ZZ'        : 'ZZ',
@@ -57,7 +59,7 @@ labelMap = {
     'TTV'       : 't#bar{t}V',
     'TTZ'       : 't#bar{t}Z',
     'TTW'       : 't#bar{t}W',
-    'Z'         : 'Z',
+    'Z'         : 'Drell-Yan',
     'TT'        : 't#bar{t}',
     'HppHmm'    : '#Phi^{++}#Phi^{--}',
     'HppHm'     : '#Phi^{#pm#pm}#Phi^{#mp}',

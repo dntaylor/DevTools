@@ -7,47 +7,46 @@ effPlotter = Plotter(
 )
 
 sigMap = {
-    #'QCD' : ['QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8'],
-    'QCD' : ['QCD_Pt-15to3000_TuneCUETP8M1_Flat_13TeV_pythia8'],
-    'WZ'  : ['WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8'],
-    'ZZ'  : ['ZZTo4L_13TeV_powheg_pythia8',
-             'GluGluToContinToZZTo2e2mu_13TeV_MCFM701_pythia8',
-             'GluGluToContinToZZTo2mu2tau_13TeV_MCFM701_pythia8',
-             'GluGluToContinToZZTo4e_13TeV_MCFM701_pythia8',
-             'GluGluToContinToZZTo4mu_13TeV_MCFM701_pythia8',
-             'GluGluToContinToZZTo4tau_13TeV_MCFM701_pythia8',
-             'ZZTo2L2Nu_13TeV_powheg_pythia8',
-             'ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8'],
-    'VVV' : ['WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8'],
-    'TTV' : ['TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8'],
-    'ZG'  : ['ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'],
-    'WW'  : ['WWTo2L2Nu_13TeV-powheg'],
-    'Z'   : ['DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-             'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'],
-    'TT'  : ['TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'],
-    'data': ['DoubleMuon',
+    'QCD' : [
+             'QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8',
+             'QCD_Pt-15to3000_TuneCUETP8M1_Flat_13TeV_pythia8',
+            ],
+    'Z'   : [
+             'DY1JetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+             'DY1JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+             'DY2JetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+             'DY2JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+             'DY3JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+             'DY4JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+             'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+             'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+            ],
+    'TT'  : [
+             'TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+             'TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+             'TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+            ],
+    'data': [
+             'DoubleMuon',
              'DoubleEG',
              'MuonEG',
              'SingleMuon',
-             'SingleElectron'],
+             'SingleElectron',
+            ],
     'HppHmm500GeV' : ['HPlusPlusHMinusMinusHTo4L_M-500_13TeV-pythia8'],
 }
 
-effPlotter.addHistogram('WZ',sigMap['WZ'])
+effPlotter.addHistogram('Z',sigMap['Z'])
 effPlotter.addHistogram('TT',sigMap['TT'])
 effPlotter.addHistogram('QCD',sigMap['QCD'])
 effPlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'])
 
-# taus
-for varname in ['vlooseElectronLooseMuonOld_tightIso','tightElectronTightMuonOld_tightIso','vlooseElectronLooseMuonNew_tightIso','tightElectronLooseMuonNew_tightIso']:
-    plotname = 'tau_{0}'.format(varname)
-    num = 'h_{0}_numerator'.format(plotname)
-    numFake = 'h_{0}_fake_numerator'.format(plotname)
-    denom = 'h_{0}_denominator'.format(plotname)
-    denomFake = 'h_{0}_fake_denominator'.format(plotname)
-    numMap = {'WZ':num, 'TT': numFake, 'QCD': numFake, 'HppHmm500GeV':num}
-    denomMap = {'WZ':denom, 'TT': denomFake, 'QCD': denomFake, 'HppHmm500GeV':denom}
-    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.2,ymin=0.,yaxis='Efficiency',xaxis='p_{T} (GeV)')
+customLabels = {
+    'Z'           : 'DY (prompt)', 
+    'TT'          : 't#bar{t} (from jet)', 
+    'QCD'         : 'QCD (unmatched)', 
+    'HppHmm500GeV': '#Phi^{++}#Phi^{--} (prompt)',
+}
 
 
 xaxisMap = {
@@ -57,6 +56,8 @@ xaxisMap = {
     'absDPhiIn'     : '|#Delta#phi_{in}|',
     'hOverE'        : 'E_{HCAL}/E_{ECAL}',
     'relIsoEA'      : 'Rel. Iso.',
+    'relIsoDB'      : 'Rel. Iso.',
+    'trackRelIso'   : 'Rel. Iso. (tracker)',
     'ooEmooP'       : '1/E-1/p',
     'absDxy'        : '|#Delta_{xy}|',
     'absDz'         : '|#Delta_{z}|',
@@ -72,13 +73,13 @@ for varname in ['wzLoose','wzMedium','wzTight','heepV60','mvaTrigWP80','mvaTrigW
     denom = 'h_{0}_denominator'.format(plotname)
     denomJet = 'h_{0}_jet_denominator'.format(plotname)
     denomFake = 'h_{0}_fake_denominator'.format(plotname)
-    numMap = {'WZ':num, 'TT':numJet, 'QCD': numFake, 'HppHmm500GeV':num}
-    denomMap = {'WZ':denom, 'TT':denomJet, 'QCD': denomFake, 'HppHmm500GeV':denom}
-    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.2,ymin=0.,yaxis='Efficiency',xaxis='p_{T} (GeV)')
+    numMap = {'Z':num, 'TT':numJet, 'QCD': numFake, 'HppHmm500GeV':num}
+    denomMap = {'Z':denom, 'TT':denomJet, 'QCD': denomFake, 'HppHmm500GeV':denom}
+    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.3,ymin=0.,yaxis='Efficiency',xaxis='p^{e}_{T} (GeV)',customLabels=customLabels,rebin=5)
 for region in ['barrel','endcap']:
     for var in ['pt','sigmaIEtaIEta','absDEtaIn','absDPhiIn','hOverE','relIsoEA','ooEmooP','absDxy','absDz','conversionVeto']:
         varname = 'h_electron_{0}_{1}'.format(var,region)
-        effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var])
+        effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var],customOrder=['Z','HppHmm500GeV'])
 
 
 # muons
@@ -90,7 +91,23 @@ for varname in ['wzLoose','wzMedium','highPt_tightiso','tight_tightiso']:
     denom = 'h_{0}_denominator'.format(plotname)
     denomFake = 'h_{0}_fake_denominator'.format(plotname)
     denomJet = 'h_{0}_jet_denominator'.format(plotname)
-    numMap = {'WZ':num, 'TT':numJet, 'QCD': numFake, 'HppHmm500GeV':num}
-    denomMap = {'WZ':denom, 'TT':denomJet, 'QCD': denomFake, 'HppHmm500GeV':denom}
-    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.2,ymin=0.,yaxis='Efficiency',xaxis='p_{T} (GeV)')
+    numMap = {'Z':num, 'TT':numJet, 'QCD': numFake, 'HppHmm500GeV':num}
+    denomMap = {'Z':denom, 'TT':denomJet, 'QCD': denomFake, 'HppHmm500GeV':denom}
+    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.3,ymin=0.,yaxis='Efficiency',xaxis='p^{#mu}_{T} (GeV)',customLabels=customLabels,rebin=5)
+for var in ['pt','relIsoDB','absDxy','absDz','trackRelIso']:
+    varname = 'h_muon_{0}'.format(var)
+    effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var],customOrder=['Z','HppHmm500GeV'])
 
+# taus
+for varname in ['vlooseElectronLooseMuonOld_tightIso','tightElectronTightMuonOld_tightIso','vlooseElectronLooseMuonNew_tightIso','tightElectronLooseMuonNew_tightIso']:
+    plotname = 'tau_{0}'.format(varname)
+    num = 'h_{0}_numerator'.format(plotname)
+    numFake = 'h_{0}_fake_numerator'.format(plotname)
+    denom = 'h_{0}_denominator'.format(plotname)
+    denomFake = 'h_{0}_fake_denominator'.format(plotname)
+    numMap = {'Z':num, 'TT': numFake, 'QCD': numFake, 'HppHmm500GeV':num}
+    denomMap = {'Z':denom, 'TT': denomFake, 'QCD': denomFake, 'HppHmm500GeV':denom}
+    effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.3,ymin=0.,yaxis='Efficiency',xaxis='p^{#tau}_{T} (GeV)',customLabels=customLabels,customOrder=['Z','QCD','HppHmm500GeV'],rebin=5)
+for var in ['pt','absDxy','absDz']:
+    varname = 'h_tau_{0}'.format(var)
+    effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var],customOrder=['Z','HppHmm500GeV'])

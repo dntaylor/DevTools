@@ -18,6 +18,8 @@ class FlattenTree(object):
         self.intLumi = getLumi()
         self.sampleLumi = 0
         self.sampleTree = None
+        self.histParameters = {}
+        self.histParameters2D = {}
 
     def __initializeSample(self,sample):
         tchain = ROOT.TChain(self.treeName)
@@ -33,6 +35,13 @@ class FlattenTree(object):
         
     def addHistogram(self,name,**params):
         self.histParameters[name] = params
+
+    def add2DHistogram(self,name,**params):
+        self.histParameters2D[name] = params
+
+    def clearHistograms(self):
+        self.histParameters = {}
+        self.histParameters2D = {}
 
     def flatten(self,sample,outputFileName,selection,**kwargs):
         '''Produce flat histograms for a given selection.'''
@@ -50,6 +59,27 @@ class FlattenTree(object):
         # make each histogram
         for histName, params in self.histParameters.iteritems():
             drawString = '{0}>>{1}({2})'.format(params['variable'],histName,', '.join([str(x) for x in params['binning']]))
+            selectionString = '{0}*({1})'.format(scalefactor,'1')
+            tree.Draw(drawString,selectionString,'goff')
+        outfile.Write()
+        outfile.Close()
+
+    def flatten2D(self,sample,outputFileName,selection,**kwargs):
+        '''Produce flat 2D histograms for a given selection.'''
+        logging.info('Flattening {0}'.format(sample))
+        scalefactor = kwargs.pop('scalefactor','1' if isData(sample) else 'genWeight')
+        # initialize sample
+        self.__initializeSample(sample)
+        # copy try from selection
+        tree = self.sampleTree.CopyTree(selection)
+        if not tree: return
+        # setup outputs
+        os.system('mkdir -p {0}'.format(os.path.dirname(outputFileName)))
+        outfile = ROOT.TFile(outputFileName,'recreate')
+        if not isData(sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
+        # make each histogram
+        for histName, params in self.histParameters2D.iteritems():
+            drawString = '{0}:{1}>>{2}({3})'.format(params['xVariable'],params['yVariable'],histName,', '.join([str(x) for x in params['xBinning']+params['yBinning']]))
             selectionString = '{0}*({1})'.format(scalefactor,'1')
             tree.Draw(drawString,selectionString,'goff')
         outfile.Write()
