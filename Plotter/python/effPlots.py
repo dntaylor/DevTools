@@ -79,7 +79,7 @@ for varname in ['wzLoose','wzMedium','wzTight','heepV60','mvaTrigWP80','mvaTrigW
 for region in ['barrel','endcap']:
     for var in ['pt','sigmaIEtaIEta','absDEtaIn','absDPhiIn','hOverE','relIsoEA','ooEmooP','absDxy','absDz','conversionVeto']:
         varname = 'h_electron_{0}_{1}'.format(var,region)
-        effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var],customOrder=['Z','HppHmm500GeV'])
+        effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var],customOrder=['Z','HppHmm500GeV'],logy=1)
 
 
 # muons
@@ -96,7 +96,7 @@ for varname in ['wzLoose','wzMedium','highPt_tightiso','tight_tightiso']:
     effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.3,ymin=0.,yaxis='Efficiency',xaxis='p^{#mu}_{T} (GeV)',customLabels=customLabels,rebin=5)
 for var in ['pt','relIsoDB','absDxy','absDz','trackRelIso']:
     varname = 'h_muon_{0}'.format(var)
-    effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var],customOrder=['Z','HppHmm500GeV'])
+    effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var],customOrder=['Z','HppHmm500GeV'],logy=1)
 
 # taus
 for varname in ['vlooseElectronLooseMuonOld_tightIso','tightElectronTightMuonOld_tightIso','vlooseElectronLooseMuonNew_tightIso','tightElectronLooseMuonNew_tightIso']:
@@ -110,4 +110,4 @@ for varname in ['vlooseElectronLooseMuonOld_tightIso','tightElectronTightMuonOld
     effPlotter.plotRatio(numMap,denomMap,plotname,numcol=2,legendpos=34,ymax=1.3,ymin=0.,yaxis='Efficiency',xaxis='p^{#tau}_{T} (GeV)',customLabels=customLabels,customOrder=['Z','QCD','HppHmm500GeV'],rebin=5)
 for var in ['pt','absDxy','absDz']:
     varname = 'h_tau_{0}'.format(var)
-    effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var],customOrder=['Z','HppHmm500GeV'])
+    effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var],customOrder=['Z','HppHmm500GeV'],logy=1)

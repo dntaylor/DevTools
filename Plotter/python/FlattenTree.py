@@ -79,7 +79,7 @@ class FlattenTree(object):
         if not isData(sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
         # make each histogram
         for histName, params in self.histParameters2D.iteritems():
-            drawString = '{0}:{1}>>{2}({3})'.format(params['xVariable'],params['yVariable'],histName,', '.join([str(x) for x in params['xBinning']+params['yBinning']]))
+            drawString = '{0}:{1}>>{2}({3})'.format(params['yVariable'],params['xVariable'],histName,', '.join([str(x) for x in params['xBinning']+params['yBinning']]))
             selectionString = '{0}*({1})'.format(scalefactor,'1')
             tree.Draw(drawString,selectionString,'goff')
         outfile.Write()

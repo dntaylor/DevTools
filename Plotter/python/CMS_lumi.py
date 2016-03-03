@@ -148,7 +148,9 @@ def CMS_lumi(pad,  iPeriod,  iPosX ):
                 latex.DrawLatex(posX_, posY_- relExtraDY*cmsTextSize*t, extraText)
     elif( writeExtraText ):
         if( iPosX==0):
-            posX_ =   l +  relPosX*(1-l-r)
+            relPosX2 = 0.12
+            posX_ =   l +  relPosX2*(1-l-r)
+            #posX_ =   l +  relPosX*(1-l-r)
             posY_ =   1-t+lumiTextOffset*t
 
         latex.SetTextFont(extraTextFont)

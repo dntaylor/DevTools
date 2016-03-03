@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 import math
+from array import array
 
 import ROOT
 
@@ -12,6 +13,21 @@ import DevTools.Plotter.tdrstyle as tdrstyle
 
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 tdrstyle.setTDRStyle()
+ROOT.gStyle.SetPalette(1)
+
+# set a custom style, copied from 6.04, just directly when CMSSW has 6.04
+stops = array('d', [0.0000, 0.1250, 0.2500, 0.3750, 0.5000, 0.6250, 0.7500, 0.8750, 1.0000])
+# rust
+red   = array('d', [  0./255., 30./255., 63./255., 101./255., 143./255., 152./255., 169./255., 187./255., 230./255.])
+green = array('d', [  0./255., 14./255., 28./255.,  42./255.,  58./255.,  61./255.,  67./255.,  74./255.,  91./255.])
+blue  = array('d', [ 39./255., 26./255., 21./255.,  18./255.,  15./255.,  14./255.,  14./255.,  13./255.,  13./255.])
+# solar
+#red   = array('d', [ 99./255., 116./255., 154./255., 174./255., 200./255., 196./255., 201./255., 201./255., 230./255.])
+#green = array('d', [  0./255.,   0./255.,   8./255.,  32./255.,  58./255.,  83./255., 119./255., 136./255., 173./255.])
+#blue  = array('d', [  5./255.,   6./255.,   7./255.,   9./255.,   9./255.,  14./255.,  17./255.,  19./255.,  24./255.])
+Idx = ROOT.TColor.CreateGradientColorTable(9, stops, red, green, blue, 255);
+ROOT.gStyle.SetNumberContours(255)
+
 
 class Plotter(object):
     '''Basic plotter utilities'''
@@ -75,6 +91,16 @@ class Plotter(object):
             self.__openFile(sampleName)
         self.histDict[histName] = histConstituents
         self.histOrder += [histName]
+
+    def clearHistograms(self):
+        samples = self.sampleFiles.keys()
+        for sampleName in samples:
+            tfile = self.sampleFiles.pop(sampleName)
+            tfile.Close()
+        self.sampleFiles = {}
+        self.histDict = {}
+        self.histOrder = []
+        self.stackOrder = []
 
     def __readSampleVariable(self,sampleName,variable):
         '''Read the histogram from file'''
@@ -207,7 +233,7 @@ class Plotter(object):
                 legend.AddEntry(hist,hist.GetTitle(),style['legendstyle'])
         return legend
 
-    def __setStyle(self,pad,preliminary=True):
+    def __setStyle(self,pad,position=11,preliminary=True):
         '''Set style for plots based on the CMS TDR style guidelines.
            https://twiki.cern.ch/twiki/bin/view/CMS/Internal/PubGuidelines#Figures_and_tables
            https://ghm.web.cern.ch/ghm/plots/'''
@@ -217,7 +243,6 @@ class Plotter(object):
         period_int = 4
         # set position
         # 11: upper left, 33 upper right
-        position = 11
         CMS_lumi.wrtieExtraText = preliminary
         CMS_lumi.extraText = "Preliminary"
         CMS_lumi.lumi_13TeV = "%0.1f fb^{-1}" % (float(getLumi())/1000.)
@@ -370,5 +395,43 @@ class Plotter(object):
         legend.Draw()
 
         self.__setStyle(canvas)
+
+        self.__save(canvas,savename)
+
+    def plot2D(self,variable,savename,**kwargs):
+        '''Plot a variable and save'''
+        xaxis = kwargs.pop('xaxis', 'Variable')
+        yaxis = kwargs.pop('yaxis', 'Events')
+        ymin = kwargs.pop('ymax',None)
+        ymax = kwargs.pop('ymax',None)
+        numcol = kwargs.pop('numcol',1)
+        legendpos = kwargs.pop('legendpos',33)
+        logy = kwargs.pop('logy',False)
+        logx = kwargs.pop('logx',False)
+        logz = kwargs.pop('logz',False)
+
+        canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
+        canvas.SetLogy(logy)
+        canvas.SetLogx(logx)
+        canvas.SetLogz(logz)
+        canvas.SetRightMargin(0.14) # for Z axis
+
+
+        highestMax = 0.
+
+        hists = []
+        for i,histName in enumerate(self.histOrder):
+            hist = self.__get2DHistogram(histName,variable,**kwargs)
+            hist.Draw('colz')
+            if i==0:
+                hist.GetXaxis().SetTitle(xaxis)
+                hist.GetYaxis().SetTitle(yaxis)
+                hist.GetYaxis().SetTitleOffset(1.5)
+            hists += [hist]
+
+        #legend = self.__getLegend(stack=stack,hists=hists,numcol=numcol,position=legendpos)
+        #legend.Draw()
+
+        self.__setStyle(canvas,position=0)
 
         self.__save(canvas,savename)

@@ -2,6 +2,8 @@
 
 from Efficiency import Efficiency
 
+from DevTools.Analyzer.utilities import deltaPhi, deltaR
+
 import ROOT
 
 class HppEfficiency(Efficiency):
@@ -167,6 +169,20 @@ class HppEfficiency(Efficiency):
         self.addVariable('tau_absDxy',       [100,0,0.3])
         self.addVariable('tau_absDz',        [100,0,0.5])
 
+    def _matchGen(self,rtrow,cand,dr):
+        eta = self.getObjectVariable(rtrow,cand,'eta')
+        phi = self.getObjectVariable(rtrow,cand,'phi')
+        genEta = self.getObjectVariable(rtrow,cand,'genEta')
+        genPhi = self.getObjectVariable(rtrow,cand,'genPhi')
+        return deltaR(eta,phi,genEta,genPhi)<dr
+
+    def _matchGenJet(self,rtrow,cand,dr):
+        eta = self.getObjectVariable(rtrow,cand,'eta')
+        phi = self.getObjectVariable(rtrow,cand,'phi')
+        genEta = self.getObjectVariable(rtrow,cand,'genJetEta')
+        genPhi = self.getObjectVariable(rtrow,cand,'genJetPhi')
+        return deltaR(eta,phi,genEta,genPhi)<dr
+
     def fill(self,rtrow):
         # first electrons
         for i in xrange(rtrow.electrons_count):
@@ -217,6 +233,7 @@ class HppEfficiency(Efficiency):
                 if trackRelIso>0.18:    passMVATrigPre = False
             # match to gen particle
             if (self.getObjectVariable(rtrow,cand,'genMatch')>0.5
+                and self._matchGen(rtrow,cand,0.1)
                 and self.getObjectVariable(rtrow,cand,'genStatus')==1
                 and self.getObjectVariable(rtrow,cand,'genIsPrompt')>0.5
                 and self.getObjectVariable(rtrow,cand,'genIsFromTau')<0.5):
@@ -260,6 +277,7 @@ class HppEfficiency(Efficiency):
             # not matched to gen or non-prompt non-tau decay TODO: change to fake later
             if ((self.getObjectVariable(rtrow,cand,'genMatch')<0.5)          # not gen matched
                 or (self.getObjectVariable(rtrow,cand,'genMatch')>0.5        # or gen matched
+                and self._matchGen(rtrow,cand,0.1)
                 and self.getObjectVariable(rtrow,cand,'genStatus')==1        # status 1
                 and self.getObjectVariable(rtrow,cand,'genIsPrompt')<0.5     # non-prompt
                 and self.getObjectVariable(rtrow,cand,'genIsFromTau')<0.5)): # non-tau
@@ -279,6 +297,7 @@ class HppEfficiency(Efficiency):
                 self.fillEfficiency('electron_mvaTrigWP90_fake',pt,passMVATrigWP90 and passMVATrigPre)
             # match to jet
             if (self.getObjectVariable(rtrow,cand,'genMatch')>0.5
+                and self._matchGen(rtrow,cand,0.1)
                 and self.getObjectVariable(rtrow,cand,'genStatus')==1
                 and self.getObjectVariable(rtrow,cand,'genIsFromHadron')>0.5):
                 # fill efficiencies
@@ -310,6 +329,7 @@ class HppEfficiency(Efficiency):
             passHighPt = self.getObjectVariable(rtrow,cand,'isHighPtMuon') > 0.5
             # match to gen particle
             if (self.getObjectVariable(rtrow,cand,'genMatch')>0.5
+                and self._matchGen(rtrow,cand,0.1)
                 and self.getObjectVariable(rtrow,cand,'genStatus')==1
                 and self.getObjectVariable(rtrow,cand,'genIsPrompt')>0.5
                 and self.getObjectVariable(rtrow,cand,'genIsFromTau')<0.5):
@@ -333,6 +353,7 @@ class HppEfficiency(Efficiency):
             # not matched to gen or non-prompt non-tau decay TODO: change to be actual fake later
             if ((self.getObjectVariable(rtrow,cand,'genMatch')<0.5)          # not gen matched
                 or (self.getObjectVariable(rtrow,cand,'genMatch')>0.5        # or gen matched
+                and self._matchGen(rtrow,cand,0.1)
                 and self.getObjectVariable(rtrow,cand,'genStatus')==1        # status 1
                 and self.getObjectVariable(rtrow,cand,'genIsPrompt')<0.5     # non-prompt
                 and self.getObjectVariable(rtrow,cand,'genIsFromTau')<0.5)): # non-tau
@@ -348,6 +369,7 @@ class HppEfficiency(Efficiency):
                 self.fillEfficiency('muon_wzMedium_fake',pt,passMedium and iso<0.15 and trackRelIso<0.4 and dz<0.1 and (dxy<0.01 if pt<20 else dxy<0.02))
             # match to jet
             if (self.getObjectVariable(rtrow,cand,'genMatch')>0.5
+                and self._matchGen(rtrow,cand,0.1)
                 and self.getObjectVariable(rtrow,cand,'genStatus')==1
                 and self.getObjectVariable(rtrow,cand,'genIsFromHadron')>0.5):
                 # fill efficiencies
@@ -383,7 +405,8 @@ class HppEfficiency(Efficiency):
             byTightIsolationMVArun2v1DBnewDMwLT = self.getObjectVariable(rtrow,cand,'byTightIsolationMVArun2v1DBnewDMwLT')
             byVTightIsolationMVArun2v1DBnewDMwLT = self.getObjectVariable(rtrow,cand,'byVTightIsolationMVArun2v1DBnewDMwLT')
             # match to gen jet
-            if (self.getObjectVariable(rtrow,cand,'genJetMatch')>0.5):
+            if (self.getObjectVariable(rtrow,cand,'genJetMatch')>0.5
+                and self._matchGenJet(rtrow,cand,0.1)):
                 # fill variables
                 self.fillVariable('tau_pt',pt)
                 self.fillVariable('tau_absDxy',abs(dxy))
