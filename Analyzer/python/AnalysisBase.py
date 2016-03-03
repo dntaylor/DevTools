@@ -12,6 +12,8 @@ from array import array
 from CutTree import CutTree
 from AnalysisTree import AnalysisTree
 
+from PileupWeights import PileupWeights
+
 from utilities import deltaR, deltaPhi
 
 class AnalysisBase(object):
@@ -64,6 +66,12 @@ class AnalysisBase(object):
         # analysis tree
         self.tree = AnalysisTree(outputTreeName)
         self.eventsStored = 0
+
+        # some things we always need:
+        self.pileupWeights = PileupWeights()
+        self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[0], 'pileupWeight', 'F')
+        self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[1], 'pileupWeightUp', 'F')
+        self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[2], 'pileupWeightDown', 'F')
 
     def __exit__(self, type, value, traceback):
         self.finish()
