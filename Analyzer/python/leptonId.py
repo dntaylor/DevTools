@@ -31,7 +31,7 @@ def passWZMedium(self,rtrow,cand):
         dz = self.getObjectVariable(rtrow,cand,'dz')
         if abs(dz)>=0.1: return False
         pt = self.getObjectVariable(rtrow,cand,'pt')
-        dxy = self.getObjectVariable(rtrow,cand,'dxy')
+        dxy = self.getObjectVariable(rtrow,cand,'dB2D')
         if abs(dxy)>=0.01 and pt<20: return False
         if abs(dxy)>=0.02 and pt>=20: return False
         pfRelIsoDB = self.getObjectVariable(rtrow,cand,'relPFIsoDeltaBetaR04')
@@ -90,6 +90,8 @@ def passHppTight(self,rtrow,cand):
     if cand[0]=='electrons':
         return self.getObjectVariable(rtrow,cand,'mvaTrigWP80') > 0.5
     elif cand[0]=='muons':
-        return self.getObjectVariable(rtrow,cand,'isTightMuon') > 0.5
+        iso = self.getObjectVariable(rtrow,cand,'relPFIsoDeltaBetaR04')
+        highPtMuon = self.getObjectVariable(rtrow,cand,'isHighPtMuon')
+        return highPtMuon>0.5 and iso<0.15
     else:
         return False

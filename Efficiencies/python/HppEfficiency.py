@@ -210,7 +210,7 @@ class HppEfficiency(Efficiency):
             dPhiSC = self.getObjectVariable(rtrow,cand,'deltaPhiSuperClusterTrackAtVtx')
             relIsoRho = self.getObjectVariable(rtrow,cand,'relPFIsoRhoR03')
             passConversion = self.getObjectVariable(rtrow,cand,'passConversionVeto')
-            dxy = self.getObjectVariable(rtrow,cand,'dxy')
+            dxy = self.getObjectVariable(rtrow,cand,'dB2D')
             dz = self.getObjectVariable(rtrow,cand,'dz')
             ecalEnergy = self.getObjectVariable(rtrow,cand,'ecalEnergy')
             eSuperClusterOverP = self.getObjectVariable(rtrow,cand,'eSuperClusterOverP')
@@ -322,7 +322,7 @@ class HppEfficiency(Efficiency):
             iso = self.getObjectVariable(rtrow,cand,'relPFIsoDeltaBetaR04')
             trackRelIso = self.getObjectVariable(rtrow,cand,'trackIso')/pt
             dz = self.getObjectVariable(rtrow,cand,'dz')
-            dxy = self.getObjectVariable(rtrow,cand,'dxy')
+            dxy = self.getObjectVariable(rtrow,cand,'dB2D')
             passLoose  = self.getObjectVariable(rtrow,cand,'isLooseMuon') > 0.5
             passMedium = self.getObjectVariable(rtrow,cand,'isMediumMuon') > 0.5
             passTight  = self.getObjectVariable(rtrow,cand,'isTightMuon') > 0.5

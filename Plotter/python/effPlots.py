@@ -99,7 +99,7 @@ for var in ['pt','relIsoDB','absDxy','absDz','trackRelIso']:
     effPlotter.plotNormalized(varname,varname,legendps=34,yaxis='Unit Normalized',xaxis=xaxisMap[var],customOrder=['Z','HppHmm500GeV'],logy=1)
 
 # taus
-for varname in ['vlooseElectronLooseMuonOld_tightIso','tightElectronTightMuonOld_tightIso','vlooseElectronLooseMuonNew_tightIso','tightElectronLooseMuonNew_tightIso']:
+for varname in ['vlooseElectronLooseMuonOld_tightIso','tightElectronTightMuonOld_tightIso','vlooseElectronLooseMuonNew_tightIso','tightElectronTightMuonNew_tightIso']:
     plotname = 'tau_{0}'.format(varname)
     num = 'h_{0}_numerator'.format(plotname)
     numFake = 'h_{0}_fake_numerator'.format(plotname)

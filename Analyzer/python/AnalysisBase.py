@@ -326,8 +326,10 @@ class AnalysisBase(object):
         self.addCandVar(label,'energy','energy','F')
         self.addCandVar(label,'charge','charge','I')
         self.addCandVar(label,'dz','dz','F')
-        self.addCandVar(label,'dxy','dxy','F')
+        #self.addCandVar(label,'dxy','dxy','F')
+        self.addFlavorDependentCandVar(label,'dxy',{'electrons':'dB2D','muons':'dB2D','taus':'dxy','':''},'F')
         self.addCandVar(label,'genMatch','genMatch','I')
+        self.tree.add(lambda rtrow,cands: self.genDeltaR(rtrow,cands[label]), '{0}_genDeltaR'.format(label), 'F')
         self.addCandVar(label,'genStatus','genStatus','I')
         self.addCandVar(label,'genPdgId','genPdgId','I')
         self.addCandVar(label,'genPt','genPt','F')
@@ -338,6 +340,14 @@ class AnalysisBase(object):
         self.addCandVar(label,'genIsPrompt','genIsPrompt','I')
         self.addCandVar(label,'genIsFromTau','genIsFromTau','I')
         self.addFlavorDependentCandVar(label,'isolation',{'electrons':'relPFIsoRhoR03','muons':'relPFIsoDeltaBetaR04','':''},'F')
+
+    def genDeltaR(self,rtrow,cand):
+        '''Get the gen level deltaR'''
+        eta = self.getObjectVariable(rtrow,cand,'eta')
+        genEta = self.getObjectVariable(rtrow,cand,'genEta')
+        phi = self.getObjectVariable(rtrow,cand,'phi')
+        genPhi = self.getObjectVariable(rtrow,cand,'genPhi')
+        return deltaR(eta,phi,genEta,genPhi)
 
     def addCandVar(self,label,varLabel,var,rootType):
         '''Add a variable for a cand'''
