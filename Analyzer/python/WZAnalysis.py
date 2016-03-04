@@ -4,6 +4,7 @@
 from AnalysisBase import AnalysisBase
 from utilities import ZMASS, deltaPhi, deltaR
 from leptonId import passWZLoose, passWZMedium, passWZTight
+from LeptonScales import LeptonScales
 
 import itertools
 import operator
@@ -19,6 +20,9 @@ class WZAnalysis(AnalysisBase):
         outputFileName = kwargs.pop('outputFileName','wzTree.root')
         outputTreeName = kwargs.pop('outputTreeName','WZTree')
         super(WZAnalysis, self).__init__(outputFileName=outputFileName,outputTreeName=outputTreeName,**kwargs)
+
+        # scale factors
+        self.leptonScales = LeptonScales()
 
         # setup cut tree
         self.cutTree.add(self.threeLoose,'threeLooseLeptons')
@@ -88,10 +92,16 @@ class WZAnalysis(AnalysisBase):
         self.addLepton('z1')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z1']), 'z1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z1']), 'z1_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z1']), 'z1_looseScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z1']), 'z1_mediumScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z1']), 'z1_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1']), 'z1_zeppenfeld','F')
         self.addLepton('z2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z2']), 'z2_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z2']), 'z2_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z2']), 'z2_looseScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z2']), 'z2_mediumScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z2']), 'z2_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z2']), 'z2_zeppenfeld','F')
 
         # w lepton
@@ -99,6 +109,9 @@ class WZAnalysis(AnalysisBase):
         self.addLepton('w1')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['w1']), 'w1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['w1']), 'w1_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['w1']), 'w1_looseScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['w1']), 'w1_mediumScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['w1']), 'w1_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['w1']), 'w1_zeppenfeld','F')
 
         # wrong combination
@@ -188,6 +201,30 @@ class WZAnalysis(AnalysisBase):
 
     def passTight(self,rtrow,cand):
         return passWZTight(self,rtrow,cand)
+
+    def looseScale(self,rtrow,cand):
+        if cand[0]=='muons':
+            return self.leptonScales.getScale(rtrow,'MediumIDLooseIso',cand)
+        elif cand[0]=='electrons':
+            return self.leptonScales.getScale(rtrow,'CutbasedVeto',cand) # TODO, fix
+        else:
+            return 1.
+
+    def mediumScale(self,rtrow,cand):
+        if cand[0]=='muons':
+            return self.leptonScales.getScale(rtrow,'MediumIDTightIso',cand)
+        elif cand[0]=='electrons':
+            return self.leptonScales.getScale(rtrow,'CutbasedMedium',cand)
+        else:
+            return 1.
+
+    def tightScale(self,rtrow,cand):
+        if cand[0]=='muons':
+            return self.leptonScales.getScale(rtrow,'MediumIDTightIso',cand)
+        elif cand[0]=='electrons':
+            return self.leptonScales.getScale(rtrow,'CutbasedTight',cand)
+        else:
+            return 1.
 
     def getPassingCands(self,rtrow,mode):
         if mode=='Loose':
