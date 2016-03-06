@@ -26,12 +26,6 @@ class DijetFakeRateAnalysis(AnalysisBase):
         self.tree.add(self.getChannelString, 'channel', ['C',2])
 
         # event counts
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',15), 'numJetsLoose15', 'I')
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',15), 'numJetsTight15', 'I')
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',15), 'numBjetsTight15', 'I')
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',20), 'numJetsLoose20', 'I')
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',20), 'numJetsTight20', 'I')
-        self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',20), 'numBjetsTight20', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',30), 'numJetsLoose30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',30), 'numJetsTight30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',30), 'numBjetsTight30', 'I')
@@ -52,17 +46,13 @@ class DijetFakeRateAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'genWeight'), 'genWeight', 'I')
 
         # trigger
-        triggers = [
-            'Mu8_TrkIsoVVL',
-            'Mu17_TrkIsoVVL',
-            'Mu24_TrkIsoVVL',
-            'Mu34_TrkIsoVVL',
-            'Ele12_CaloIdL_TrackIdL_IsoVL',
-            'Ele17_CaloIdL_TrackIdL_IsoVL',
-            'Ele23_CaloIdL_TrackIdL_IsoVL',
-        ]
-        for trigger in triggers:
-            self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'{0}Pass'.format(trigger)), 'pass{0}'.format(trigger), 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu8_TrkIsoVVLPass'), 'pass_Mu8_TrkIsoVVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVLPass'), 'pass_Mu17_TrkIsoVVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu24_TrkIsoVVLPass'), 'pass_Mu24_TrkIsoVVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu34_TrkIsoVVLPass'), 'pass_Mu34_TrkIsoVVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele12_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele12_CaloIdL_TrackIdL_IsoVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele17_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele17_CaloIdL_TrackIdL_IsoVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele23_CaloIdL_TrackIdL_IsoVL', 'I')
 
         # lead jet
         self.addJet('leadJet')

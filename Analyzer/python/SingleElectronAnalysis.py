@@ -27,12 +27,6 @@ class SingleElectronAnalysis(AnalysisBase):
         # setup analysis tree
 
         # event counts
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',15), 'numJetsLoose15', 'I')
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',15), 'numJetsTight15', 'I')
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',15), 'numBjetsTight15', 'I')
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',20), 'numJetsLoose20', 'I')
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',20), 'numJetsTight20', 'I')
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',20), 'numBjetsTight20', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',30), 'numJetsLoose30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',30), 'numJetsTight30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',30), 'numBjetsTight30', 'I')
@@ -51,14 +45,10 @@ class SingleElectronAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'genWeight'), 'genWeight', 'I')
 
         # trigger
-        triggers = [
-            'Ele12_CaloIdL_TrackIdL_IsoVL',
-            'Ele17_CaloIdL_TrackIdL_IsoVL',
-            'Ele23_CaloIdL_TrackIdL_IsoVL',
-            'Ele23_WPLoose_Gsf',
-        ]
-        for trigger in triggers:
-            self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'{0}Pass'.format(trigger)), 'pass{0}'.format(trigger), 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele12_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele12_CaloIdL_TrackIdL_IsoVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele17_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele17_CaloIdL_TrackIdL_IsoVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele23_CaloIdL_TrackIdL_IsoVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
 
         self.addJet('leadJet')
 
@@ -177,6 +167,8 @@ class SingleElectronAnalysis(AnalysisBase):
                     # it passed the trigger
                     # in data: reject if it corresponds to a higher dataset
                     return False if reject else True
+            # dont check the rest of data
+            if dataset in self.fileNames[0]: break
         return False
 
 

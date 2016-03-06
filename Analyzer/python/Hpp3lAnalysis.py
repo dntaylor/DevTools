@@ -32,12 +32,6 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(self.getWZChannelString, 'wzChannel', ['C',4])
 
         # event counts
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',15), 'numJetsLoose15', 'I')
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',15), 'numJetsTight15', 'I')
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',15), 'numBjetsTight15', 'I')
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',20), 'numJetsLoose20', 'I')
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',20), 'numJetsTight20', 'I')
-        #self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',20), 'numBjetsTight20', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',30), 'numJetsLoose30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',30), 'numJetsTight30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',30), 'numBjetsTight30', 'I')
@@ -56,19 +50,15 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'genWeight'), 'genWeight', 'I')
 
         # trigger
-        triggers = [
-            'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ',
-            'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ',
-            'Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ',
-            'Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL',
-            'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL',
-            'IsoMu20',
-            'IsoTkMu20',
-            'IsoMu27',
-            'Ele23_WPLoose_Gsf',
-        ]
-        for trigger in triggers:
-            self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'{0}Pass'.format(trigger)), 'pass{0}'.format(trigger), 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZPass'), 'pass_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu20Pass'), 'pass_IsoMu20', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoTkMu20Pass'), 'pass_IsoTkMu20', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu27Pass'), 'pass_IsoMu27', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
 
         # vbf
         self.addJet('leadJet')
@@ -357,6 +347,8 @@ class Hpp3lAnalysis(AnalysisBase):
                     # it passed the trigger
                     # in data: reject if it corresponds to a higher dataset
                     return False if reject else True
+            # dont check the rest of data
+            if dataset in self.fileNames[0]: break
         return False
 
 
