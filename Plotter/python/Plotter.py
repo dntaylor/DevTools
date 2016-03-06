@@ -3,6 +3,7 @@ import sys
 import logging
 import math
 from array import array
+from collections import OrderedDict
 
 import ROOT
 
@@ -179,10 +180,44 @@ class Plotter(object):
             if hist: stack.Add(hist)
         return stack
 
+    def __get_ratio_stat_err(self, hist, **kwargs):
+        '''Return a statistical error bars for a ratio plot'''
+        ratiomin = kwargs.pop('ratiomin',0.5)
+        ratiomax = kwargs.pop('ratiomax',1.5)
+        ratiostaterr = hist.Clone("ratiostaterr")
+        ratiostaterr.Sumw2()
+        ratiostaterr.SetStats(0)
+        ratiostaterr.SetTitle("")
+        ratiostaterr.GetYaxis().SetTitle("Data/MC")
+        ratiostaterr.SetMaximum(ratiomax)
+        ratiostaterr.SetMinimum(ratiomin)
+        ratiostaterr.SetMarkerSize(0)
+        ratiostaterr.SetFillColor(ROOT.kGray+3)
+        ratiostaterr.SetFillStyle(3013)
+        ratiostaterr.GetXaxis().SetLabelSize(0.19)
+        ratiostaterr.GetXaxis().SetTitleSize(0.21)
+        ratiostaterr.GetXaxis().SetTitleOffset(1.0)
+        ratiostaterr.GetYaxis().SetLabelSize(0.19)
+        ratiostaterr.GetYaxis().SetTitleSize(0.21)
+        ratiostaterr.GetYaxis().SetTitleOffset(0.27)
+        ratiostaterr.GetYaxis().SetNdivisions(503)
+
+        # bin by bin errors
+        for i in range(hist.GetNbinsX()+2):
+            ratiostaterr.SetBinContent(i, 1.0)
+            if hist.GetBinContent(i)>1e-6:  # not empty
+                binerror = hist.GetBinError(i) / hist.GetBinContent(i)
+                ratiostaterr.SetBinError(i, binerror)
+            else:
+                ratiostaterr.SetBinError(i, 999.)
+
+        return ratiostaterr
+
+
     def __getLegend(self,**kwargs):
         '''Get the legend'''
         stack = kwargs.pop('stack',None)
-        hists = kwargs.pop('hists',[])
+        hists = kwargs.pop('hists',{})
         position = kwargs.pop('position',33)
         numcol = kwargs.pop('numcol',1)
         # programatically decide position
@@ -196,7 +231,7 @@ class Plotter(object):
         # | 11 | 21 | 31 |
         # ----------------
         width = 0.15*numcol+0.1
-        numentries = len(hists)
+        numentries = len(hists.keys())
         if stack: numentries += len(stack.GetHists())
         height = math.ceil(float(numentries)/numcol)*0.06+0.02
         if position % 10 == 1:   # bottom
@@ -230,7 +265,7 @@ class Plotter(object):
                 style = self.styles[name]
                 legend.AddEntry(hist,hist.GetTitle(),style['legendstyle'])
         if hists:
-            for hist,name in zip(hists,self.histOrder):
+            for name,hist in hists.iteritems():
                 style = self.styles[name]
                 legend.AddEntry(hist,hist.GetTitle(),style['legendstyle'])
         return legend
@@ -272,44 +307,98 @@ class Plotter(object):
         legendpos = kwargs.pop('legendpos',33)
         logy = kwargs.pop('logy',False)
         logx = kwargs.pop('logx',False)
+        plotratio = kwargs.pop('plotratio',True)
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
-        canvas.SetLogy(logy)
-        canvas.SetLogx(logx)
 
-        highestMax = 0.
+        # ratio plot
+        if plotratio:
+            plotpad = ROOT.TPad("plotpad", "top pad", 0.0, 0.21, 1.0, 1.0)
+            plotpad.SetBottomMargin(0.04)
+            plotpad.Draw()
+            plotpad.SetLogy(logy)
+            plotpad.SetLogx(logx)
+            ratiopad = ROOT.TPad("ratiopad", "bottom pad", 0.0, 0.0, 1.0, 0.21)
+            ratiopad.SetTopMargin(0.06)
+            ratiopad.SetBottomMargin(0.5)
+            ratiopad.SetTickx(1)
+            ratiopad.SetTicky(1)
+            ratiopad.Draw()
+            ratiopad.SetLogx(logx)
+            if plotpad != ROOT.TVirtualPad.Pad(): plotpad.cd()
+        else:
+            canvas.SetLogy(logy)
+            canvas.SetLogx(logx)
 
-        # TODO: add ratio
+
+        highestMax = -9999999.
+
+        # stack
         stack = ROOT.THStack()
         if self.stackOrder:
             stack = self.__getStack(variable,**kwargs)
-            stack.Draw("hist")
-            stack.GetXaxis().SetTitle(xaxis)
-            stack.GetYaxis().SetTitle(yaxis)
             highestMax = max(highestMax,stack.GetMaximum())
-            if ymax!=None: stack.SetMaximum(ymax)
-            if ymin!=None: stack.SetMinimum(ymin)
 
-        hists = []
+        # overlay histograms
+        hists = OrderedDict()
         for histName in self.histOrder:
-            # TODO: poisson errors for data
             hist = self.__getHistogram(histName,variable,nofill=True,**kwargs)
-            style = self.styles[histName]
             if histName=='data':
                 hist.SetBinErrorOption(ROOT.TH1.kPoisson)
                 hist.SetMarkerStyle(20)
                 hist.SetMarkerSize(1.)
                 hist.SetLineColor(ROOT.kBlack)
-            hist.Draw(style['drawstyle']+' same')
             highestMax = max(highestMax,hist.GetMaximum())
-            if ymax==None: hist.SetMaximum(1.2*highestMax)
-            hists += [hist]
+            hists[histName] = hist
 
+        # now draw them
+        if self.stackOrder:
+            stack.Draw("hist")
+            stack.GetXaxis().SetTitle(xaxis)
+            stack.GetYaxis().SetTitle(yaxis)
+            stack.SetMaximum(1.2*highestMax)
+            if ymax!=None: stack.SetMaximum(ymax)
+            if ymin!=None: stack.SetMinimum(ymin)
+            if plotratio: stack.GetHistogram().GetXaxis().SetLabelOffset(999)
+        for histName,hist in hists.iteritems():
+            style = self.styles[histName]
+            hist.Draw(style['drawstyle']+' same')
+
+        # get the legend
         legend = self.__getLegend(stack=stack,hists=hists,numcol=numcol,position=legendpos)
         legend.Draw()
 
-        self.__setStyle(canvas)
+        # cms lumi styling
+        pad = plotpad if plotratio else canvas
+        if pad != ROOT.TVirtualPad.Pad(): pad.cd()
+        self.__setStyle(pad)
 
+        # the ratio portion
+        if plotratio:
+            denom = stack.GetStack().Last().Clone('stack_{0}_ratio'.format(variable))
+            ratiostaterr = self.__get_ratio_stat_err(denom)
+            ratiostaterr.SetXTitle(xaxis)
+            ratiounity = ROOT.TLine(stack.GetXaxis().GetXmin(),1,stack.GetXaxis().GetXmax(),1)
+            ratiounity.SetLineStyle(2)
+            ratios = OrderedDict()
+            for histName, hist in hists.iteritems():
+                num = hist.Clone('{0}_{1}_ratio'.format(histName,variable))
+                num.Sumw2()
+                num.Divide(denom)
+                ratios[histName] = num
+
+            # and draw
+            if ratiopad != ROOT.TVirtualPad.Pad(): ratiopad.cd()
+            ratiostaterr.Draw("e2")
+            ratiounity.Draw('same')
+            for histName, hist in ratios.iteritems():
+                if histName=='data':
+                    hist.Draw('e0 same')
+                else:
+                    hist.Draw('hist same')
+
+        # save
+        if canvas != ROOT.TVirtualPad.Pad(): canvas.cd()
         self.__save(canvas,savename)
 
     def plotRatio(self,numerator,denominator,savename,**kwargs):
@@ -330,7 +419,7 @@ class Plotter(object):
 
         highestMax = 0.
 
-        hists = []
+        hists = OrderedDict()
         histOrder = customOrder if customOrder else self.histOrder
         for i,histName in enumerate(histOrder):
             num = self.__getHistogram(histName,numerator,nofill=True,**kwargs)
@@ -351,7 +440,7 @@ class Plotter(object):
                 num.Draw('e0 same')
             highestMax = max(highestMax,num.GetMaximum())
             if ymax==None: num.SetMaximum(1.2*highestMax)
-            hists += [num]
+            hists[histName] = num
 
         legend = self.__getLegend(hists=hists,numcol=numcol,position=legendpos)
         legend.Draw()
@@ -378,7 +467,7 @@ class Plotter(object):
 
         highestMax = 0.
 
-        hists = []
+        hists = OrderedDict()
         histOrder = customOrder if customOrder else self.histOrder
         for i,histName in enumerate(histOrder):
             hist = self.__getHistogram(histName,variable,nofill=True,**kwargs)
@@ -396,7 +485,7 @@ class Plotter(object):
                 hist.Draw(style['drawstyle']+' same')
             highestMax = max(highestMax,hist.GetMaximum())
             if ymax==None: hist.SetMaximum(1.2*highestMax)
-            hists += [hist]
+            hists[histName] = hist
 
         legend = self.__getLegend(hists=hists,numcol=numcol,position=legendpos)
         legend.Draw()
@@ -426,7 +515,7 @@ class Plotter(object):
 
         highestMax = 0.
 
-        hists = []
+        hists = OrderedDict()
         for i,histName in enumerate(self.histOrder):
             hist = self.__get2DHistogram(histName,variable,**kwargs)
             hist.Draw('colz')
@@ -434,7 +523,7 @@ class Plotter(object):
                 hist.GetXaxis().SetTitle(xaxis)
                 hist.GetYaxis().SetTitle(yaxis)
                 hist.GetYaxis().SetTitleOffset(1.5)
-            hists += [hist]
+            hists[histName] = hist
 
         #legend = self.__getLegend(stack=stack,hists=hists,numcol=numcol,position=legendpos)
         #legend.Draw()
