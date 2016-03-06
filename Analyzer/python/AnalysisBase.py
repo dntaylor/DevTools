@@ -129,6 +129,7 @@ class AnalysisBase(object):
 
             self.tree.fill(rtrow,cands)
             self.eventsStored += 1
+            self.outfile.Flush()
 
     def selectCandidates(self,rtrow):
         '''
