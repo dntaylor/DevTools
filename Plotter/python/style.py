@@ -37,7 +37,7 @@ colorMap = {
     'TTV'       : 'BlueGreen', 
     'TTZ'       : 'BlueGreen', 
     'TTW'       : 'BlueGreen', 
-    'Z'         : 'Blue',
+    'Z'         : 'DarkYellow',
     'TT'        : 'Green',
     'HppHmm'    : 'Orange',
     'HppHm'     : 'Orange',
@@ -61,7 +61,7 @@ labelMap = {
     'TTW'       : 't#bar{t}W',
     'Z'         : 'Drell-Yan',
     'TT'        : 't#bar{t}',
-    'HppHmm'    : '#Phi^{++}#Phi^{--}',
+    'HppHmm'    : '#Phi^{++}#Phi^{#font[122]{\55}#font[122]{\55}}',
     'HppHm'     : '#Phi^{#pm#pm}#Phi^{#mp}',
 }
 
@@ -80,8 +80,8 @@ for sig in ['HppHmm','HppHm']:
 def getStyle(sample):
     style = {}
     if sample=='data':
-        style['legendstyle'] = 'pe'
-        style['drawstyle'] = 'pe'
+        style['legendstyle'] = 'ep'
+        style['drawstyle'] = 'ex0'
         style['name'] = 'Observed'
     else:
         style['legendstyle'] = 'f'

@@ -112,7 +112,7 @@ class Plotter(object):
         '''Read the histogram from file'''
         if self.sampleFiles[sampleName].GetListOfKeys().Contains(variable):
             hist = self.sampleFiles[sampleName].Get(variable)
-            hist.Sumw2()
+            #hist.Sumw2()
             return hist
         else:
             logging.error('Variable {0} does not exist for {1}'.format(variable,sampleName))
@@ -286,7 +286,6 @@ class Plotter(object):
             stack.Draw("hist")
             stack.GetXaxis().SetTitle(xaxis)
             stack.GetYaxis().SetTitle(yaxis)
-            stack.GetYaxis().SetTitleOffset(1.5)
             highestMax = max(highestMax,stack.GetMaximum())
             if ymax!=None: stack.SetMaximum(ymax)
             if ymin!=None: stack.SetMinimum(ymin)
@@ -295,8 +294,12 @@ class Plotter(object):
         for histName in self.histOrder:
             # TODO: poisson errors for data
             hist = self.__getHistogram(histName,variable,nofill=True,**kwargs)
-            hist.SetLineWidth(3)
             style = self.styles[histName]
+            if histName=='data':
+                hist.SetBinErrorOption(ROOT.TH1.kPoisson)
+                hist.SetMarkerStyle(20)
+                hist.SetMarkerSize(1.)
+                hist.SetLineColor(ROOT.kBlack)
             hist.Draw(style['drawstyle']+' same')
             highestMax = max(highestMax,hist.GetMaximum())
             if ymax==None: hist.SetMaximum(1.2*highestMax)
@@ -332,6 +335,8 @@ class Plotter(object):
         for i,histName in enumerate(histOrder):
             num = self.__getHistogram(histName,numerator,nofill=True,**kwargs)
             denom = self.__getHistogram(histName,denominator,nofill=True,**kwargs)
+            num.Sumw2()
+            denom.Sumw2()
             num.Divide(denom)
             num.SetLineWidth(3)
             style = self.styles[histName]

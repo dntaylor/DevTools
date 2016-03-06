@@ -35,5 +35,9 @@ for s in ['TT','TTV','Z','ZG','WW','VVV','ZZ','WZ']:
 
 wzPlotter.addHistogram('data',sigMap['data'])
 
+plotStyles = {
+    'zMass': {'xaxis': 'm_{l^{+}l^{#font[122]{\55}}}', 'yaxis': 'Events/1 GeV'},
+}
+
 for plot in ['zMass']:
-    wzPlotter.plot(plot,plot)
+    wzPlotter.plot(plot,plot,**plotStyles[plot])
