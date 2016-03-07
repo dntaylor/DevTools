@@ -10,11 +10,12 @@ from DevTools.Analyzer.runHpp3lAnalysis import main as runHpp3l
 from DevTools.Analyzer.runHpp4lAnalysis import main as runHpp4l
 from DevTools.Analyzer.runSingleElectronAnalysis import main as runSingleElectron
 from DevTools.Analyzer.runSingleMuonAnalysis import main as runSingleMuon
+from DevTools.Analyzer.runDijetFakeRateAnalysis import main as runDijetFakeRate
 
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Submit analyzers')
 
-    parser.add_argument('analysis', type=str, choices=['WZ','Hpp3l','Hpp4l','SingleElectron','SingleMuon'], help='Analysis to submit')
+    parser.add_argument('analysis', type=str, choices=['WZ','Hpp3l','Hpp4l','SingleElectron','SingleMuon', 'DijetFakeRate'], help='Analysis to submit')
 
     return parser.parse_args(argv)
 
@@ -40,6 +41,8 @@ def main(argv=None):
         status = runSingleElectron(argv)
     elif args.analysis=='SingleMuon':
         status = runSingleMuon(argv)
+    elif args.analysis=='DijetFakeRate':
+        status = runDijetFakeRate(argv)
     else:
         status = 0
 

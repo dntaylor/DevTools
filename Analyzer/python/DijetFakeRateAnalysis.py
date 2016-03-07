@@ -1,4 +1,5 @@
 from AnalysisBase import AnalysisBase
+from leptonId import passWZLoose, passWZMedium, passWZTight
 from utilities import ZMASS, deltaPhi, deltaR
 
 import itertools
@@ -8,13 +9,13 @@ import ROOT
 
 class DijetFakeRateAnalysis(AnalysisBase):
     '''
-    Select a single lepton to performa dijet control fake rate
+    Select a single lepton to perform a dijet control fake rate
     '''
 
     def __init__(self,**kwargs):
-        outputFileName = kwargs.pop('outputFileName','dijetTree.root')
-        outputTreeName = kwargs.pop('outputTreeName','DijetTree')
-        super(WZAnalysis, self).__init__(outputFileName=outputFileName,outputTreeName=outputTreeName,**kwargs)
+        outputFileName = kwargs.pop('outputFileName','dijetFakeRateTree.root')
+        outputTreeName = kwargs.pop('outputTreeName','DijetFakeRateTree')
+        super(DijetFakeRateAnalysis, self).__init__(outputFileName=outputFileName,outputTreeName=outputTreeName,**kwargs)
 
         # setup cut tree
         self.cutTree.add(self.vetoSecond,'vetoSecond')
@@ -62,6 +63,9 @@ class DijetFakeRateAnalysis(AnalysisBase):
         self.addLepton('l1')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['l1']), 'l1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['l1']), 'l1_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['l1']), 'l1_looseScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['l1']), 'l1_mediumScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['l1']), 'l1_tightScale', 'F')
 
         # met
         self.addMet('met',('pfmet',0))
@@ -103,51 +107,37 @@ class DijetFakeRateAnalysis(AnalysisBase):
     ### lepton IDs ###
     ##################
     def passLoose(self,rtrow,cand):
-        pt = self.getObjectVariable(rtrow,cand,'pt')
-        eta = self.getObjectVariable(rtrow,cand,'eta')
-        if cand[0]=="electrons":
-            if pt<=10: return False
-            if abs(eta)>=2.5: return False
-            if self.getObjectVariable(rtrow,cand,'wwLoose')<0.5: return False
-        elif cand[0]=="muons":
-            if pt<=10: return False
-            if abs(eta)>=2.4: return False
-            isMediumMuon = self.getObjectVariable(rtrow,cand,'isMediumMuon')
-            if isMediumMuon<0.5: return False
-            trackIso = self.getObjectVariable(rtrow,cand,'trackIso')
-            if trackIso/pt>=0.4: return False
-            pfRelIsoDB = self.getObjectVariable(rtrow,cand,'relPFIsoDeltaBetaR04')
-            if pfRelIsoDB>=0.4: return False
-        else:
-            return False
-        return True
+        return passWZLoose(self,rtrow,cand)
 
     def passMedium(self,rtrow,cand):
-        if not self.passLoose(rtrow,cand): return False
-        if cand[0]=="electrons":
-            if self.getObjectVariable(rtrow,cand,'cutBasedMedium')<0.5: return False
-        elif cand[0]=="muons":
-            dz = self.getObjectVariable(rtrow,cand,'dz')
-            if abs(dz)>=0.1: return False
-            pt = self.getObjectVariable(rtrow,cand,'pt')
-            dxy = self.getObjectVariable(rtrow,cand,'dxy')
-            if abs(dxy)>=0.01 and pt<20: return False
-            if abs(dxy)>=0.02 and pt>=20: return False
-            pfRelIsoDB = self.getObjectVariable(rtrow,cand,'relPFIsoDeltaBetaR04')
-            if pfRelIsoDB>=0.15: return False
-        else:
-            return False
-        return True
+        return passWZMedium(self,rtrow,cand)
 
     def passTight(self,rtrow,cand):
-        if not self.passLoose(rtrow,cand): return False
-        if cand[0]=="electrons":
-            if self.getObjectVariable(rtrow,cand,'cutBasedTight')<0.5: return False
-        elif cand[0]=="muons":
-            return self.passMedium(rtrow,cand)
+        return passWZTight(self,rtrow,cand)
+
+    def looseScale(self,rtrow,cand):
+        if cand[0]=='muons':
+            return self.leptonScales.getScale(rtrow,'MediumIDLooseIso',cand)
+        elif cand[0]=='electrons':
+            return self.leptonScales.getScale(rtrow,'CutbasedVeto',cand) # TODO, fix
         else:
-            return False
-        return True
+            return 1.
+
+    def mediumScale(self,rtrow,cand):
+        if cand[0]=='muons':
+            return self.leptonScales.getScale(rtrow,'MediumIDTightIso',cand)
+        elif cand[0]=='electrons':
+            return self.leptonScales.getScale(rtrow,'CutbasedMedium',cand)
+        else:
+            return 1.
+
+    def tightScale(self,rtrow,cand):
+        if cand[0]=='muons':
+            return self.leptonScales.getScale(rtrow,'MediumIDTightIso',cand)
+        elif cand[0]=='electrons':
+            return self.leptonScales.getScale(rtrow,'CutbasedTight',cand)
+        else:
+            return 1.
 
     def getPassingCands(self,rtrow,mode):
         if mode=='Loose':
@@ -190,6 +180,7 @@ class DijetFakeRateAnalysis(AnalysisBase):
         return len(self.getPassingCands(rtrow,'Loose'))==1
 
     def trigger(self,rtrow,cands):
+        if not cands['l1']: return False
         triggerNames = {
             'DoubleMuon'     : [
                 ['Mu8_TrkIsoVVL', 0],
@@ -218,14 +209,4 @@ class DijetFakeRateAnalysis(AnalysisBase):
         passTrigger = self.getTreeVariable(rtrow,'{0}Pass'.format(theTrigger))
         if passTrigger>0.5: return False if reject else True
         return False
-
-
-
-
-
-
-
-
-
-
 
