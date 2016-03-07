@@ -12,21 +12,22 @@ class CutTree(object):
         self.labels = []
         self.selections = {}
         self.results = {}
-        self.tree = ROOT.TTree("CutTree","CutTree")
-        self.results['run'] = array('i',[0])
-        self.results['lumi'] = array('i',[0])
-        self.results['event'] = array('L',[0])
-        self.tree.Branch('run',self.results['run'],'run/I')
-        self.tree.Branch('lumi',self.results['lumi'],'lumi/I')
-        self.tree.Branch('event',self.results['event'],'event/l')
+        #self.tree = ROOT.TTree("CutTree","CutTree")
+        #self.results['run'] = array('i',[0])
+        #self.results['lumi'] = array('i',[0])
+        #self.results['event'] = array('L',[0])
+        #self.tree.Branch('run',self.results['run'],'run/I')
+        #self.tree.Branch('lumi',self.results['lumi'],'lumi/I')
+        #self.tree.Branch('event',self.results['event'],'event/l')
         self.filled = set()
 
     def add(self, fun, label):
         if label not in self.results:
             self.labels += [label]
             self.selections[label] = fun
-            self.results[label] = array('i',[0])
-            self.tree.Branch(label,self.results[label],'{0}/I'.format(label))
+            #self.results[label] = array('i',[0])
+            self.results[label] = 0
+            #self.tree.Branch(label,self.results[label],'{0}/I'.format(label))
         else:
             logging.warning("{0} already in CutTree.".format(label))
 
@@ -39,17 +40,19 @@ class CutTree(object):
             logging.warning("Event {0} already filled.".format(eventkey))
             return False
         else:
-            self.results['run'][0] = int(rtrow.run)
-            self.results['lumi'][0] = int(rtrow.lumi)
-            self.results['event'][0] = long(rtrow.event)
+            #self.results['run'][0] = int(rtrow.run)
+            #self.results['lumi'][0] = int(rtrow.lumi)
+            #self.results['event'][0] = long(rtrow.event)
             passAll = True
             # verify each cut
             for label in self.selections:
                 cut = self.selections[label]
-                self.results[label][0] = int(cut(rtrow,cands))
-                if not self.results[label][0]: passAll = False
-            self.tree.Fill()
-            self.filled.add(eventkey)
+                #self.results[label][0] = int(cut(rtrow,cands))
+                self.results[label] = int(cut(rtrow,cands))
+                if not self.results[label]: passAll = False
+                #if not self.results[label][0]: passAll = False
+            #self.tree.Fill()
+            #self.filled.add(eventkey)
             # verify we have a candidate
             if passAll:
                 for cname,cand in cands.iteritems():

@@ -4,7 +4,6 @@
 from AnalysisBase import AnalysisBase
 from utilities import ZMASS, deltaPhi, deltaR
 from leptonId import passWZLoose, passWZMedium, passWZTight
-from LeptonScales import LeptonScales
 
 import itertools
 import operator
@@ -20,9 +19,6 @@ class WZAnalysis(AnalysisBase):
         outputFileName = kwargs.pop('outputFileName','wzTree.root')
         outputTreeName = kwargs.pop('outputTreeName','WZTree')
         super(WZAnalysis, self).__init__(outputFileName=outputFileName,outputTreeName=outputTreeName,**kwargs)
-
-        # scale factors
-        self.leptonScales = LeptonScales()
 
         # setup cut tree
         self.cutTree.add(self.threeLoose,'threeLooseLeptons')

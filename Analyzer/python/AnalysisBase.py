@@ -13,6 +13,7 @@ from CutTree import CutTree
 from AnalysisTree import AnalysisTree
 
 from PileupWeights import PileupWeights
+from LeptonScales import LeptonScales
 
 from utilities import deltaR, deltaPhi
 
@@ -44,19 +45,19 @@ class AnalysisBase(object):
             outputFileName = outputFileName.value()
         # input tchain
         self.tchain = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputTreeName))
-        self.tchainLumi = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputLumiName))
+        tchainLumi = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputLumiName))
         for fName in self.fileNames:
             if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
             self.tchain.Add(fName)
-            self.tchainLumi.Add(fName)
+            tchainLumi.Add(fName)
         # get the lumi info
-        self.numLumis = self.tchainLumi.GetEntries()
+        self.numLumis = tchainLumi.GetEntries()
         self.numEvents = 0
         self.summedWeights = 0
         for entry in xrange(self.numLumis):
-            self.tchainLumi.GetEntry(entry)
-            self.numEvents += self.tchainLumi.nevents
-            self.summedWeights += self.tchainLumi.summedWeights
+            tchainLumi.GetEntry(entry)
+            self.numEvents += tchainLumi.nevents
+            self.summedWeights += tchainLumi.summedWeights
         logging.info("Will process {0} lumi sections with {1} events ({2}).".format(self.numLumis,self.numEvents,self.summedWeights))
         self.flush()
         # tfile
@@ -68,10 +69,15 @@ class AnalysisBase(object):
         self.eventsStored = 0
 
         # some things we always need:
+        # pileup
         self.pileupWeights = PileupWeights()
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[0], 'pileupWeight', 'F')
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[1], 'pileupWeightUp', 'F')
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[2], 'pileupWeightDown', 'F')
+
+        # scale factors
+        self.leptonScales = LeptonScales()
+
 
     def __exit__(self, type, value, traceback):
         self.finish()
@@ -86,6 +92,7 @@ class AnalysisBase(object):
         cutflowHist.SetBinContent(1,self.summedWeights)
         self.outfile.Write()
         self.outfile.Close()
+        self.leptonScales.finish()
 
     def flush(self):
         sys.stdout.flush()

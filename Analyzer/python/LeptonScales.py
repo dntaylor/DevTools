@@ -37,12 +37,12 @@ class LeptonScales(object):
                 self.muon_pog_scales[name] = self.muon_pog_iso_rootfile.Get('MC_NUM_{0}_DEN_{1}_PAR_pt_spliteta_bin1/abseta_pt_ratio'.format(iso,mid))
 
     def __exit__(self, type, value, traceback):
-        self.__finish()
+        self.finish()
 
     def __del__(self):
-        self.__finish()
+        self.finish()
 
-    def __finish(self):
+    def finish(self):
         for name,rootfile in self.egamma_pog_rootfiles.iteritems():
             rootfile.Close()
         self.muon_pog_id_rootfile.Close()
