@@ -88,12 +88,14 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     Float_t summedWeightsBranch_;
 
     // one off tree branches
-    Int_t     isDataBranch_;
-    Float_t   genWeightBranch_;
-    ULong64_t eventBranch_;
-    Float_t   rhoBranch_;
-    Float_t   nTrueVerticesBranch_;
-    Int_t     nupBranch_;
+    Int_t                 isDataBranch_;
+    Float_t               genWeightBranch_;
+    Int_t                 numWeightsBranch_;
+    std::vector<Float_t>  genWeightsBranch_;
+    ULong64_t             eventBranch_;
+    Float_t               rhoBranch_;
+    Float_t               nTrueVerticesBranch_;
+    Int_t                 nupBranch_;
 
     // trigger
     std::vector<std::string>                 triggerNames_;
