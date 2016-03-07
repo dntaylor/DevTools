@@ -54,6 +54,8 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("lumi", &lumiBranch_, "lumi/I");
     tree_->Branch("event", &eventBranch_, "event/l");
     tree_->Branch("genWeight", &genWeightBranch_, "genWeight/F");
+    tree_->Branch("numWeights", &numWeightsBranch_, "numWeights/I");
+    tree_->Branch("genWeights", &genWeightsBranch_);
     tree_->Branch("rho", &rhoBranch_, "rho/F");
     tree_->Branch("nTrueVertices", &nTrueVerticesBranch_, "nTrueVertices/F");
     tree_->Branch("NUP", &nupBranch_, "NUP/I");
@@ -168,9 +170,14 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     iEvent.getByToken(lheEventProductToken_, lheInfo);
 
     nupBranch_ = 0;
+    genWeightsBranch_.clear();
     if (lheInfo.isValid()) {
         nupBranch_ = lheInfo->hepeup().NUP;
+        for ( size_t i=0; i<lheInfo->weights().size(); ++i) {
+            genWeightsBranch_.push_back(lheInfo->weights()[i].wgt);
+        }
     }
+    numWeightsBranch_ = genWeightsBranch_.size();
 
     // triggers
     iEvent.getByToken(triggerBitsToken_, triggerBits_);
