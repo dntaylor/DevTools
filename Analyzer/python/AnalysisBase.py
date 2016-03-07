@@ -60,6 +60,9 @@ class AnalysisBase(object):
             self.summedWeights += tchainLumi.summedWeights
         logging.info("Will process {0} lumi sections with {1} events ({2}).".format(self.numLumis,self.numEvents,self.summedWeights))
         self.flush()
+        # other input files
+        self.pileupWeights = PileupWeights()
+        self.leptonScales = LeptonScales()
         # tfile
         self.outfile = ROOT.TFile(outputFileName,"recreate")
         # cut tree
@@ -70,13 +73,9 @@ class AnalysisBase(object):
 
         # some things we always need:
         # pileup
-        self.pileupWeights = PileupWeights()
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[0], 'pileupWeight', 'F')
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[1], 'pileupWeightUp', 'F')
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[2], 'pileupWeightDown', 'F')
-
-        # scale factors
-        self.leptonScales = LeptonScales()
 
 
     def __exit__(self, type, value, traceback):
@@ -88,6 +87,7 @@ class AnalysisBase(object):
     def finish(self):
         logging.info('Finishing')
         logging.info('Writing {0} events'.format(self.eventsStored))
+        self.outfile.cd()
         cutflowHist = ROOT.TH1F('summedWeights','summedWeights',1,0,1)
         cutflowHist.SetBinContent(1,self.summedWeights)
         self.outfile.Write()
@@ -136,7 +136,7 @@ class AnalysisBase(object):
 
             self.tree.fill(rtrow,cands)
             self.eventsStored += 1
-            self.outfile.Flush()
+            #self.outfile.Flush()
 
     def selectCandidates(self,rtrow):
         '''

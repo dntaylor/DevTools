@@ -5,6 +5,8 @@ import glob
 
 import ROOT
 
+ROOT.gROOT.SetBatch(ROOT.kTRUE)
+
 from DevTools.Plotter.xsec import getXsec
 from DevTools.Plotter.utilities import getLumi, isData
 
@@ -45,8 +47,9 @@ class FlattenTree(object):
 
     def flatten(self,sample,outputFileName,selection,**kwargs):
         '''Produce flat histograms for a given selection.'''
-        logging.info('Flattening {0}'.format(sample))
         scalefactor = kwargs.pop('scalefactor','1' if isData(sample) else 'genWeight')
+        postfix = kwargs.pop('postfix','')
+        logging.info('Flattening {0} {1}'.format(sample,postfix))
         # initialize sample
         self.__initializeSample(sample)
         # copy try from selection
@@ -54,14 +57,16 @@ class FlattenTree(object):
         if not tree: return
         # setup outputs
         os.system('mkdir -p {0}'.format(os.path.dirname(outputFileName)))
-        outfile = ROOT.TFile(outputFileName,'recreate')
+        outfile = ROOT.TFile(outputFileName,'update')
         if not isData(sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
         # make each histogram
         for histName, params in self.histParameters.iteritems():
-            drawString = '{0}>>{1}({2})'.format(params['variable'],histName,', '.join([str(x) for x in params['binning']]))
+            name = histName
+            if postfix: name += '_{0}'.format(postfix)
+            drawString = '{0}>>{1}({2})'.format(params['variable'],name,', '.join([str(x) for x in params['binning']]))
             selectionString = '{0}*({1})'.format(scalefactor,'1')
             tree.Draw(drawString,selectionString,'goff')
-        outfile.Write()
+        outfile.Write('',ROOT.TObject.kOverwrite)
         outfile.Close()
 
     def flatten2D(self,sample,outputFileName,selection,**kwargs):
@@ -75,12 +80,12 @@ class FlattenTree(object):
         if not tree: return
         # setup outputs
         os.system('mkdir -p {0}'.format(os.path.dirname(outputFileName)))
-        outfile = ROOT.TFile(outputFileName,'recreate')
+        outfile = ROOT.TFile(outputFileName,'update')
         if not isData(sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
         # make each histogram
         for histName, params in self.histParameters2D.iteritems():
             drawString = '{0}:{1}>>{2}({3})'.format(params['yVariable'],params['xVariable'],histName,', '.join([str(x) for x in params['xBinning']+params['yBinning']]))
             selectionString = '{0}*({1})'.format(scalefactor,'1')
             tree.Draw(drawString,selectionString,'goff')
-        outfile.Write()
+        outfile.Write('',ROOT.TObject.kOverwrite)
         outfile.Close()
