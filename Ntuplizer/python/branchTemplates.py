@@ -341,7 +341,12 @@ electronBranches = commonPatCandidates.clone(
     eta_electronEnDown                                  = cms.vstring('userCand("ElectronEnDown").eta()','F'),
     phi_electronEnDown                                  = cms.vstring('userCand("ElectronEnDown").phi()','F'),
     energy_electronEnDown                               = cms.vstring('userCand("ElectronEnDown").energy()','F'),
-
+    # uncorrected objects
+    pt_uncorrected                                      = cms.vstring('userCand("uncorrected").pt()','F'),
+    eta_uncorrected                                     = cms.vstring('userCand("uncorrected").eta()','F'),
+    phi_uncorrected                                     = cms.vstring('userCand("uncorrected").phi()','F'),
+    energy_uncorrected                                  = cms.vstring('userCand("uncorrected").energy()','F'),
+    
 )
 
 # muons
