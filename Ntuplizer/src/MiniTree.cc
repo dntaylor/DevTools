@@ -59,6 +59,8 @@ MiniTree::MiniTree(const edm::ParameterSet &iConfig) :
     tree_->Branch("rho", &rhoBranch_, "rho/F");
     tree_->Branch("nTrueVertices", &nTrueVerticesBranch_, "nTrueVertices/F");
     tree_->Branch("NUP", &nupBranch_, "NUP/I");
+    tree_->Branch("numGenJets", &numGenJetsBranch_, "numGenJets/I");
+    tree_->Branch("genHT", &genHTBranch_, "genHT/I");
     tree_->Branch("isData", &isDataBranch_, "isData/I");
 
     // add triggers
@@ -170,10 +172,24 @@ void MiniTree::analyze(const edm::Event &iEvent, const edm::EventSetup &iSetup) 
     iEvent.getByToken(lheEventProductToken_, lheInfo);
 
     nupBranch_ = 0;
+    numGenJetsBranch_ = 0;
+    genHTBranch_ = 0;
     genWeightsBranch_.clear();
     if (lheInfo.isValid()) {
         nupBranch_ = lheInfo->hepeup().NUP;
-        for ( size_t i=0; i<lheInfo->weights().size(); ++i) {
+        for (int i =0; i<lheInfo->hepeup().NUP; ++i) {
+            int absPdgId = TMath::Abs(lheInfo->hepeup().IDUP[i]);
+            int status = lheInfo->hepeup().ISTUP[i];
+            if (status == 1 && ((absPdgId >= 1 && absPdgId <= 6) || absPdgId == 21)) { // quarks/gluons
+                ++numGenJetsBranch_;
+            }
+            if (lheInfo->hepeup().ISTUP[i] <0 || (absPdgId>5 && absPdgId!=21))  continue;
+            double px=lheInfo->hepeup().PUP.at(i)[0];
+            double py=lheInfo->hepeup().PUP.at(i)[1];
+            double pt=sqrt(px*px+py*py);
+            genHTBranch_ += (Float_t)pt;
+        }
+        for (size_t i=0; i<lheInfo->weights().size(); ++i) {
             genWeightsBranch_.push_back(lheInfo->weights()[i].wgt);
         }
     }

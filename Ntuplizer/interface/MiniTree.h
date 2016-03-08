@@ -96,6 +96,8 @@ class MiniTree : public edm::one::EDAnalyzer<edm::one::SharedResources,edm::one:
     Float_t               rhoBranch_;
     Float_t               nTrueVerticesBranch_;
     Int_t                 nupBranch_;
+    Int_t                 numGenJetsBranch_;
+    Float_t               genHTBranch_;
 
     // trigger
     std::vector<std::string>                 triggerNames_;
