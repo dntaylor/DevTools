@@ -186,7 +186,7 @@ class DijetFakeRateAnalysis(AnalysisBase):
                 ['Mu8_TrkIsoVVL', 0],
                 ['Mu17_TrkIsoVVL', 20],
                 ['Mu24_TrkIsoVVL', 30],
-                ['Mu34_TrkIsoVVL', 40],
+                #['Mu34_TrkIsoVVL', 40],
             ],
             'DoubleEG'       : [
                 ['Ele12_CaloIdL_TrackIdL_IsoVL', 0],
