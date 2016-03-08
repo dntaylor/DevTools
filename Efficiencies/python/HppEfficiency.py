@@ -64,6 +64,7 @@ class HppEfficiency(Efficiency):
         # add variables
         self.addVariable('electron_pt_barrel',             [100,0,500])
         self.addVariable('electron_pt_endcap',             [100,0,500])
+        self.addVariable('electron_eta',                   [100,-5,5])
         self.addVariable('electron_sigmaIEtaIEta_barrel',  [100,0,0.05])
         self.addVariable('electron_sigmaIEtaIEta_endcap',  [100,0,0.05])
         self.addVariable('electron_absDEtaIn_barrel',      [100,0,0.02])
@@ -123,6 +124,7 @@ class HppEfficiency(Efficiency):
 
         # add variables
         self.addVariable('muon_pt',           [100,0,500])
+        self.addVariable('muon_eta',          [100,-5,5])
         self.addVariable('muon_absDxy',       [100,0,0.3])
         self.addVariable('muon_absDz',        [100,0,0.5])
         self.addVariable('muon_relIsoDB',     [100,0,0.25])
@@ -166,6 +168,7 @@ class HppEfficiency(Efficiency):
 
         # add tau variables
         self.addVariable('tau_pt',           [100,0,500])
+        self.addVariable('tau_eta',          [100,-5,5])
         self.addVariable('tau_absDxy',       [100,0,0.3])
         self.addVariable('tau_absDz',        [100,0,0.5])
 
@@ -189,6 +192,7 @@ class HppEfficiency(Efficiency):
             cand = ('electrons',i)
             # get ids
             pt = self.getObjectVariable(rtrow,cand,'pt')
+            eta = self.getObjectVariable(rtrow,cand,'eta')
             passCutBasedVeto   = self.getObjectVariable(rtrow,cand,'cutBasedVeto') > 0.5
             passCutBasedLoose  = self.getObjectVariable(rtrow,cand,'cutBasedLoose') > 0.5
             passCutBasedMedium = self.getObjectVariable(rtrow,cand,'cutBasedMedium') > 0.5
@@ -238,6 +242,7 @@ class HppEfficiency(Efficiency):
                 and self.getObjectVariable(rtrow,cand,'genIsPrompt')>0.5
                 and self.getObjectVariable(rtrow,cand,'genIsFromTau')<0.5):
                 # fill efficiencies
+                self.fillVariable('electron_eta',eta)
                 self.fillEfficiency('electron_cbidVeto',pt,passCutBasedVeto)
                 self.fillEfficiency('electron_cbidLoose',pt,passCutBasedLoose)
                 self.fillEfficiency('electron_cbidMedium',pt,passCutBasedMedium)
@@ -319,6 +324,7 @@ class HppEfficiency(Efficiency):
             cand = ('muons',i)
             # get ids
             pt = self.getObjectVariable(rtrow,cand,'pt')
+            eta = self.getObjectVariable(rtrow,cand,'eta')
             iso = self.getObjectVariable(rtrow,cand,'relPFIsoDeltaBetaR04')
             trackRelIso = self.getObjectVariable(rtrow,cand,'trackIso')/pt
             dz = self.getObjectVariable(rtrow,cand,'dz')
@@ -335,6 +341,7 @@ class HppEfficiency(Efficiency):
                 and self.getObjectVariable(rtrow,cand,'genIsFromTau')<0.5):
                 # fill variables
                 self.fillVariable('muon_pt',pt)
+                self.fillVariable('muon_eta',eta)
                 self.fillVariable('muon_absDxy',abs(dxy))
                 self.fillVariable('muon_absDz',abs(dz))
                 self.fillVariable('muon_relIsoDB',iso)
@@ -388,6 +395,7 @@ class HppEfficiency(Efficiency):
             cand = ('taus',i)
             # get the ids
             pt = self.getObjectVariable(rtrow,cand,'pt')
+            eta = self.getObjectVariable(rtrow,cand,'eta')
             dz = self.getObjectVariable(rtrow,cand,'dz')
             dxy = self.getObjectVariable(rtrow,cand,'dxy')
             # muon
@@ -409,6 +417,7 @@ class HppEfficiency(Efficiency):
                 and self._matchGenJet(rtrow,cand,0.1)):
                 # fill variables
                 self.fillVariable('tau_pt',pt)
+                self.fillVariable('tau_eta',eta)
                 self.fillVariable('tau_absDxy',abs(dxy))
                 self.fillVariable('tau_absDz',abs(dz))
                 # fill efficiencies
