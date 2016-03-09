@@ -2,6 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 def customizeJets(process,coll,**kwargs):
     '''Customize jets'''
+    isMC = kwargs.pop('isMC',False)
     jSrc = coll['jets']
     rhoSrc = coll['rho']
 
@@ -52,6 +53,21 @@ def customizeJets(process,coll,**kwargs):
     jSrc = 'jRho'
 
     process.jetCustomization *= process.jRho
+
+    ##########################
+    ### embed jet gen jets ###
+    ##########################
+    if isMC:
+        process.jGenJetMatching = cms.EDProducer(
+            "JetGenJetEmbedder",
+            src = cms.InputTag(jSrc),
+            genJets = cms.InputTag("slimmedGenJets"),
+            excludeLeptons = cms.bool(False),
+            deltaR = cms.double(0.5),
+        )
+        jSrc = "jGenJetMatching"
+        process.jetCustomization *= process.jGenJetMatching
+
 
     # add to schedule
     process.schedule.append(process.jetCustomization)

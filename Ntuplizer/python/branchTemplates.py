@@ -564,7 +564,7 @@ photonBranches = commonPatCandidates.clone(
 )
 
 # jets
-jetBranches = commonPatCandidates.clone(
+jetBranches = commonJetCandidates.clone(
     # btagging
     pfJetProbabilityBJetTags                     = cms.vstring('bDiscriminator("pfJetProbabilityBJetTags")','F'),
     pfCombinedInclusiveSecondaryVertexV2BJetTags = cms.vstring('bDiscriminator("pfCombinedInclusiveSecondaryVertexV2BJetTags")','F'),
