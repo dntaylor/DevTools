@@ -59,6 +59,14 @@ void MuonIdEmbedder::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     newObj.addUserInt("isTightMuon", obj.isTightMuon(pv));
     newObj.addUserInt("isSoftMuon", obj.isSoftMuon(pv));
     newObj.addUserInt("isHighPtMuon", obj.isHighPtMuon(pv));
+    newObj.addUserFloat("segmentCompatibility", muon::segmentCompatibility(obj));
+    newObj.addUserInt("isGoodMuon", muon::isGoodMuon(obj, muon::TMOneStationTight));
+    int highPurity = 0;
+    if (obj.innerTrack().isNonnull()) {
+        highPurity = obj.innerTrack()->quality(reco::TrackBase::highPurity);
+    }
+    newObj.addUserInt("highPurityTrack",highPurity);
+    
     out->push_back(newObj);
   }
 
