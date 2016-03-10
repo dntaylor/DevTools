@@ -352,10 +352,12 @@ electronBranches = commonPatCandidates.clone(
 # muons
 muonBranches = commonPatCandidates.clone(
     # type
-    isPFMuon              = cms.vstring('isPFMuon','I'),
-    isGlobalMuon          = cms.vstring('isGlobalMuon','I'),
-    isTrackerMuon         = cms.vstring('isTrackerMuon','I'),
-    muonBestTrackType     = cms.vstring('muonBestTrackType','I'),
+    isPFMuon                = cms.vstring('isPFMuon','I'),
+    isGlobalMuon            = cms.vstring('isGlobalMuon','I'),
+    isTrackerMuon           = cms.vstring('isTrackerMuon','I'),
+    muonBestTrackType       = cms.vstring('muonBestTrackType','I'),
+    pt_tuneP                = cms.vstring('? tunePMuonBestTrack.isNonnull ? tunePMuonBestTrack().pt : -1','F'),
+    muonBestTrackType_tuneP = cms.vstring('tunePMuonBestTrackType','I'),
     # isolation
     sumChargedHadronPtR03 = cms.vstring('pfIsolationR03().sumChargedHadronPt','F'),
     sumNeutralHadronEtR03 = cms.vstring('pfIsolationR03().sumNeutralHadronEt','F'),
