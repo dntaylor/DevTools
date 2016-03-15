@@ -14,7 +14,7 @@ xsecs = {
     'Tau'                                                              : 1.,
 
     'QCD_Pt-15to3000_TuneCUETP8M1_Flat_13TeV_pythia8'                  : 1.,
-    'QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8'         : 1.,
+    'QCD_Pt-20toInf_MuEnrichedPt15_TuneCUETP8M1_13TeV_pythia8'         : 720648000 * PB,
 
     'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'      :  18610.       * PB, # already NNLO
     'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'          :   6025.2      * PB,
@@ -25,6 +25,14 @@ xsecs = {
     'DY2JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'          :    331.4      * PB * 1.216,
     'DY3JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'          :     96.36     * PB * 1.216,
     'DY4JetsToLL_M-50_TuneCUETP8M1_13TeV-madgraphMLM-pythia8'          :     51.4      * PB * 1.216,
+
+    'ST_s-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1'                    :   3.36 * PB,
+    'ST_t-channel_4f_leptonDecays_13TeV-amcatnlo-pythia8_TuneCUETP8M1'                    : 216.99 * PB,
+    'ST_t-channel_antitop_4f_inclusiveDecays_13TeV-powhegV2-madspin-pythia8_TuneCUETP8M1' :  80.95 * PB,
+    'ST_t-channel_antitop_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1'              :  26.38 * PB,
+    'ST_t-channel_top_4f_leptonDecays_13TeV-powheg-pythia8_TuneCUETP8M1'                  :  44.33 * PB,
+    'ST_tW_antitop_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1'                  :  35.6  * PB,
+    'ST_tW_top_5f_inclusiveDecays_13TeV-powheg-pythia8_TuneCUETP8M1'                      :  35.6  * PB,
 
     'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'                   :    831.76     * PB,
     'TTTo2L2Nu_13TeV-powheg'                                           :     87.31     * PB,
@@ -85,8 +93,17 @@ xsecs = {
     'WWZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                          :      0.1651   * PB,
     'WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                          :      0.05565  * PB,
     'ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                          :      0.01398  * PB,
+    'WWG_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                          :      0.2147   * PB,
 
+    'HPlusPlusHMinusMinusHTo4L_M-200_13TeV-pythia8'                    :      1.605    * FB,
+    'HPlusPlusHMinusMinusHTo4L_M-300_13TeV-pythia8'                    :      1.605    * FB,
+    'HPlusPlusHMinusMinusHTo4L_M-400_13TeV-pythia8'                    :      1.605    * FB,
     'HPlusPlusHMinusMinusHTo4L_M-500_13TeV-pythia8'                    :      1.605    * FB, # LO output from pythia8
+    'HPlusPlusHMinusMinusHTo4L_M-600_13TeV-pythia8'                    :      1.605    * FB,
+    'HPlusPlusHMinusMinusHTo4L_M-700_13TeV-pythia8'                    :      1.605    * FB,
+    'HPlusPlusHMinusMinusHTo4L_M-800_13TeV-pythia8'                    :      1.605    * FB,
+    'HPlusPlusHMinusMinusHTo4L_M-900_13TeV-pythia8'                    :      1.605    * FB,
+    'HPlusPlusHMinusMinusHTo4L_M-1000_13TeV-pythia8'                   :      1.605    * FB,
 }
 
 

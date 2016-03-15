@@ -72,7 +72,7 @@ class Plotter(object):
             if sampleName not in self.sampleFiles:
                 self.sampleFiles[sampleName] = ROOT.TFile.Open(fname)
             else:
-                logging.error('Sample {0} already added to plot.'.format(sampleName))
+                logging.warning('Sample {0} already added to plot.'.format(sampleName))
         else:
             logging.error('{0} does not exist.'.format(fname))
 
@@ -90,6 +90,7 @@ class Plotter(object):
     def addHistogram(self,histName,histConstituents,style={}):
         '''
         Add histogram to plot. histConstituents is a list.
+        Style is a custom styling.
         '''
         for sampleName in histConstituents:
             self.__openFile(sampleName)
@@ -441,6 +442,61 @@ class Plotter(object):
             highestMax = max(highestMax,num.GetMaximum())
             if ymax==None: num.SetMaximum(1.2*highestMax)
             hists[histName] = num
+
+        legend = self.__getLegend(hists=hists,numcol=numcol,position=legendpos)
+        legend.Draw()
+
+        self.__setStyle(canvas)
+
+        self.__save(canvas,savename)
+
+    def plotROC(self,signalVariable,backgroundVariable,savename,**kwargs):
+        '''Plot ROC curve'''
+        xaxis = kwargs.pop('xaxis', 'Signal Efficiency')
+        yaxis = kwargs.pop('yaxis', 'Background Rejection')
+        numcol = kwargs.pop('numcol',1)
+        legendpos = kwargs.pop('legendpos',33)
+        logy = kwargs.pop('logy',False)
+        logx = kwargs.pop('logx',False)
+        customOrder = kwargs.pop('customOrder',[])
+        invert = kwargs.pop('invert',False)
+        ymin = kwargs.pop('ymin',0)
+        ymax = kwargs.pop('ymax',1.2)
+
+        canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
+        canvas.SetLogy(logy)
+        canvas.SetLogx(logx)
+
+        hists = OrderedDict()
+        histOrder = customOrder if customOrder else self.histOrder
+        for i,histName in enumerate(histOrder):
+            sig = self.__getHistogram(histName,signalVariable,nofill=True,**kwargs)
+            bg = self.__getHistogram(histName,backgroundVariable,nofill=True,**kwargs)
+            numBins = sig.GetNbinsX()
+            sigEff = [0]*numBins
+            bgEff = [0]*numBins
+            totSig = sig.Integral()
+            totBg = bg.Integral()
+            for b in range(numBins):
+                sigEff[b] = sig.Integral(1,b+1)/totSig if invert else sig.Integral(b+1,numBins)/totSig
+                bgEff[b] = (totBg-bg.Integral(1,b+1))/totBg if invert else (totBg-bg.Integral(b+1,numBins))/totBg
+            roc = ROOT.TGraph(numBins,array('f',sigEff),array('f',bgEff))
+            style = self.styles[histName]
+            roc.SetLineWidth(2)
+            roc.SetLineColor(style['linecolor'])
+            roc.SetMarkerColor(style['linecolor'])
+            roc.SetFillColor(0)
+            if i==0:
+                roc.Draw('AL')
+                roc.GetXaxis().SetTitle(xaxis)
+                roc.GetYaxis().SetTitle(yaxis)
+                roc.GetYaxis().SetTitleOffset(1.2)
+                roc.SetMaximum(ymax)
+                roc.SetMinimum(ymin)
+            else:
+                roc.Draw('L same')
+            roc.SetTitle(style['name'])
+            hists[histName] = roc
 
         legend = self.__getLegend(hists=hists,numcol=numcol,position=legendpos)
         legend.Draw()

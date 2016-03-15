@@ -66,9 +66,10 @@ class AnalysisTree(object):
             else:
                 self.branches[label]['var'][0] = pyType(self.branches[label]['function'](rtrow,cands))
 
-    def fill(self,rtrow,cands):
+    def fill(self,rtrow,cands,**kwargs):
+        allowDuplicates = kwargs.pop('allowDuplicates',False)
         eventkey = '{0}:{1}:{2}'.format(rtrow.run, rtrow.lumi, rtrow.event)
-        if eventkey in self.filled:
+        if eventkey in self.filled and not allowDuplicates:
             logging.warning("Event {0} already filled.".format(eventkey))
         else:
             for label in self.branches:

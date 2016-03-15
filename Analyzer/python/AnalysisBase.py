@@ -17,6 +17,12 @@ from LeptonScales import LeptonScales
 
 from utilities import deltaR, deltaPhi
 
+try:
+    from progressbar import ProgressBar, ETA, Percentage, Bar, SimpleProgress
+    hasProgress = True
+except:
+    hasProgress = False
+
 class AnalysisBase(object):
     '''
     Analysis Tree
@@ -29,6 +35,8 @@ class AnalysisBase(object):
         inputLumiName = kwargs.pop('inputTreeName','LumiTree')
         outputFileName = kwargs.pop('outputFileName','analysisTree.root')
         outputTreeName = kwargs.pop('outputTreeName','AnalysisTree')
+        if hasProgress:
+            self.pbar = kwargs.pop('progressbar',ProgressBar(widgets=['{0}: '.format(outputTreeName),' ',SimpleProgress(),' events ',Percentage(),' ',Bar(),' ',ETA()]))
         # input files
         self.fileNames = []
         if isinstance(inputFileNames, basestring): # inputFiles is a file name
@@ -111,32 +119,41 @@ class AnalysisBase(object):
         old = start
         treeEvents = self.tchain.GetEntries()
         rtrow = self.tchain
-        for r in xrange(treeEvents):
-            if r==2: start = time.time() # just ignore first event for timing
-            rtrow.GetEntry(r)
-            if r % 1000 == 1:
-                cur = time.time()
-                elapsed = cur-start
-                remaining = float(elapsed)/r * float(treeEvents) - float(elapsed)
-                mins, secs = divmod(int(remaining),60)
-                hours, mins = divmod(mins,60)
-                logging.info('Processing event {0}/{1} - {2}:{3:02d}:{4:02d} remaining'.format(r,treeEvents,hours,mins,secs))
-                self.flush()
+        if hasProgress:
+            for r in self.pbar(xrange(treeEvents)):
+                rtrow.GetEntry(r)
+                self.perRowAction(rtrow)
+        else:
+            for r in xrange(treeEvents):
+                if r==2: start = time.time() # just ignore first event for timing
+                rtrow.GetEntry(r)
+                if r % 1000 == 1:
+                    cur = time.time()
+                    elapsed = cur-start
+                    remaining = float(elapsed)/r * float(treeEvents) - float(elapsed)
+                    mins, secs = divmod(int(remaining),60)
+                    hours, mins = divmod(mins,60)
+                    logging.info('Processing event {0}/{1} - {2}:{3:02d}:{4:02d} remaining'.format(r,treeEvents,hours,mins,secs))
+                    self.flush()
 
-            self.cache = {} # cache variables so you dont read from tree as much
+                self.perRowAction(rtrow)
 
-            # select candidates
-            cands = self.selectCandidates(rtrow)
+    def perRowAction(self,rtrow):
+        '''Per row action, can be overridden'''
+        self.cache = {} # cache variables so you dont read from tree as much
 
-            # store event?
-            goodToStore = self.cutTree.evaluate(rtrow,cands)
+        # select candidates
+        cands = self.selectCandidates(rtrow)
 
-            # do we store the tree?
-            if not goodToStore: continue
+        # store event?
+        goodToStore = self.cutTree.evaluate(rtrow,cands)
 
-            self.tree.fill(rtrow,cands)
-            self.eventsStored += 1
-            #self.outfile.Flush()
+        # do we store the tree?
+        if not goodToStore: return
+
+        self.tree.fill(rtrow,cands)
+        self.eventsStored += 1
+        #self.outfile.Flush()
 
     def selectCandidates(self,rtrow):
         '''
@@ -355,6 +372,7 @@ class AnalysisBase(object):
         self.addCandVar(label,'genCharge','genCharge','I')
         self.addCandVar(label,'genIsPrompt','genIsPrompt','I')
         self.addCandVar(label,'genIsFromTau','genIsFromTau','I')
+        self.addCandVar(label,'genIsFromHadron','genIsFromHadron','I')
         self.addFlavorDependentCandVar(label,'isolation',{'electrons':'relPFIsoRhoR03','muons':'relPFIsoDeltaBetaR04','':''},'F')
 
     def genDeltaR(self,rtrow,cand):

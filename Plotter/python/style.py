@@ -87,7 +87,14 @@ def getStyle(sample):
         style['legendstyle'] = 'f'
         style['drawstyle'] = 'hist'
         style['fillstyle'] = 1001
-        style['linecolor'] = colors[colorMap[sample]]['accent']
-        style['fillcolor'] = colors[colorMap[sample]]['color']
-        style['name'] = labelMap[sample]
+        if sample in colorMap:
+            style['linecolor'] = colors[colorMap[sample]]['accent']
+            style['fillcolor'] = colors[colorMap[sample]]['color']
+        else:
+            style['linecolor'] = ROOT.kBlack
+            style['fillcolor'] = ROOT.kBlack
+        if sample in labelMap:
+            style['name'] = labelMap[sample]
+        else:
+            style['name'] = sample
     return style
