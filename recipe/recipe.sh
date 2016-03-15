@@ -11,7 +11,9 @@ pushd $CMSSW_BASE/src/DevTools/recipe/virtualenv
 python virtualenv.py $CMSSW_BASE/src/venv
 popd
 
+export VIRTUAL_ENV_DISABLE_PROMPT=1
 source $CMSSW_BASE/src/venv/bin/activate
+export PYTHONPATH=$CMSSW_BASE/src/venv/lib/python2.7/site-packages/:$PYTHONPATH
 
 pip install progressbar # nice progressbars
 pip install blessings   # simple terminal styling

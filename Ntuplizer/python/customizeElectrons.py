@@ -171,6 +171,7 @@ def customizeElectrons(process,coll,**kwargs):
         "ElectronIpEmbedder",
         src = cms.InputTag(eSrc),
         vertexSrc = cms.InputTag(pvSrc),
+        beamspotSrc = cms.InputTag("offlineBeamSpot"),
     )
     eSrc = 'ePV'
 
