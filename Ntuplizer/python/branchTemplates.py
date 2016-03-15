@@ -352,10 +352,12 @@ electronBranches = commonPatCandidates.clone(
 # muons
 muonBranches = commonPatCandidates.clone(
     # type
-    isPFMuon              = cms.vstring('isPFMuon','I'),
-    isGlobalMuon          = cms.vstring('isGlobalMuon','I'),
-    isTrackerMuon         = cms.vstring('isTrackerMuon','I'),
-    muonBestTrackType     = cms.vstring('muonBestTrackType','I'),
+    isPFMuon                = cms.vstring('isPFMuon','I'),
+    isGlobalMuon            = cms.vstring('isGlobalMuon','I'),
+    isTrackerMuon           = cms.vstring('isTrackerMuon','I'),
+    muonBestTrackType       = cms.vstring('muonBestTrackType','I'),
+    pt_tuneP                = cms.vstring('? tunePMuonBestTrack.isNonnull ? tunePMuonBestTrack().pt : -1','F'),
+    muonBestTrackType_tuneP = cms.vstring('tunePMuonBestTrackType','I'),
     # isolation
     sumChargedHadronPtR03 = cms.vstring('pfIsolationR03().sumChargedHadronPt','F'),
     sumNeutralHadronEtR03 = cms.vstring('pfIsolationR03().sumNeutralHadronEt','F'),
@@ -390,6 +392,20 @@ muonBranches = commonPatCandidates.clone(
     isSoftMuon            = cms.vstring('userInt("isSoftMuon")','I'),
     isMediumMuon          = cms.vstring('isMediumMuon','I'),
     isLooseMuon           = cms.vstring('isLooseMuon','I'),
+    segmentCompatibility  = cms.vstring('userFloat("segmentCompatibility")','F'),
+    isGoodMuon            = cms.vstring('userInt("isGoodMuon")','I'),
+    highPurityTrack       = cms.vstring('userInt("highPurityTrack")','I'),
+    matchedStations       = cms.vstring('numberOfMatchedStations','I'),
+    validMuonHits         = cms.vstring('? globalTrack.isNonnull ? globalTrack().hitPattern().numberOfValidMuonHits : -1','I'),
+    normalizedChi2        = cms.vstring('? globalTrack.isNonnull ? globalTrack().normalizedChi2 : -1','F'),
+    validPixelHits        = cms.vstring('? innerTrack.isNonnull ? innerTrack().hitPattern().numberOfValidPixelHits : -1','I'),
+    trackerLayers         = cms.vstring('? innerTrack.isNonnull ? innerTrack().hitPattern().trackerLayersWithMeasurement : -1','I'),
+    pixelLayers           = cms.vstring('? innerTrack.isNonnull ? innerTrack().hitPattern().pixelLayersWithMeasurement : -1','I'),
+    validTrackerFraction  = cms.vstring('? innerTrack.isNonnull ? innerTrack().validFraction : -1','F'),
+    bestTrackPtError      = cms.vstring('? muonBestTrack.isNonnull ? muonBestTrack().ptError : -1','F'),
+    bestTrackPt           = cms.vstring('? muonBestTrack.isNonnull ? muonBestTrack().pt : -1','F'),
+    trackerStandaloneMatch= cms.vstring('combinedQuality().chi2LocalPosition','F'),
+    trackKink             = cms.vstring('combinedQuality().trkKink','F'),
     # pv
     dz                    = cms.vstring('userFloat("dz")','F'),
     dxy                   = cms.vstring('userFloat("dxy")','F'),
