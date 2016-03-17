@@ -297,7 +297,9 @@ void rochcor2015::momcor_mc( TLorentzVector& mu, float charge, int ntrk, float& 
     
   }
   
-  mu.SetPtEtaPhiM(mupt,mueta,muphi,mu_mass);
+  if (mupt==mupt && mupt>0) { // prevent NaN and negative
+      mu.SetPtEtaPhiM(mupt,mueta,muphi,mu_mass);
+  }
 }
 
 
@@ -341,7 +343,9 @@ void rochcor2015::momcor_data( TLorentzVector& mu, float charge, int runopt, flo
     
   }
   
-  mu.SetPtEtaPhiM(mupt,mueta,muphi,mu_mass);
+  if (mupt==mupt && mupt>0) { // prevent NaN and negative
+      mu.SetPtEtaPhiM(mupt,mueta,muphi,mu_mass);
+  }
   
 }
 
