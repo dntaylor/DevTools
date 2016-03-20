@@ -3,6 +3,7 @@ import argparse
 import logging
 import sys
 
+from DevTools.Analyzer.utilities import getTestFile
 from DevTools.Analyzer.ElectronAnalysis import ElectronAnalysis
 
 logger = logging.getLogger("ElectronAnalysis")
@@ -12,7 +13,7 @@ logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Run analyzer')
 
-    parser.add_argument('--inputFiles', type=str, nargs='*', default=['/store/user/dntaylor/2016-03-09_DevTools_v1/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/2016-03-09_DevTools_v1/160309_122822/0000/miniTree_1.root'], help='Input files')
+    parser.add_argument('--inputFiles', type=str, nargs='*', default=[getTestFile('MC')], help='Input files')
     parser.add_argument('--inputFileList', type=str, default='', help='Input file list')
     parser.add_argument('--outputFile', type=str, default='eTree.root', help='Output file')
 
