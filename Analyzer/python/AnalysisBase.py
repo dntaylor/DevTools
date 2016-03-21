@@ -6,7 +6,9 @@ import sys
 import math
 import time
 
+sys.argv.append('-b')
 import ROOT
+sys.argv.pop()
 from array import array
 
 from CutTree import CutTree

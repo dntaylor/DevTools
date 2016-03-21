@@ -3,7 +3,7 @@
 
 from AnalysisBase import AnalysisBase
 from utilities import ZMASS, deltaPhi, deltaR
-from leptonId import passHppLoose, passHppTight
+from leptonId import passWZLoose, passWZMedium, passWZTight
 
 import itertools
 import operator
@@ -75,20 +75,36 @@ class Hpp4lAnalysis(AnalysisBase):
         self.addDiLepton('hpp','hpp1','hpp2')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp1'],cands['hpp2']), 'hpp_zeppenfeld','F')
         self.addLepton('hpp1')
+        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hpp1']), 'hpp1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hpp1']), 'hpp1_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hpp1']), 'hpp1_looseScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hpp1']), 'hpp1_mediumScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hpp1']), 'hpp1_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp1']), 'hpp1_zeppenfeld','F')
         self.addLepton('hpp2')
+        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hpp2']), 'hpp2_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hpp2']), 'hpp2_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hpp2']), 'hpp2_looseScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hpp2']), 'hpp2_mediumScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hpp2']), 'hpp2_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp2']), 'hpp2_zeppenfeld','F')
 
         # hmm leptons
         self.addDiLepton('hmm','hmm1','hmm2')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hmm1'],cands['hmm2']), 'hmm_zeppenfeld','F')
         self.addLepton('hmm1')
+        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hmm1']), 'hmm1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hmm1']), 'hmm1_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hmm1']), 'hmm1_looseScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hmm1']), 'hmm1_mediumScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hmm1']), 'hmm1_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hmm1']), 'hmm1_zeppenfeld','F')
         self.addLepton('hmm2')
+        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hmm2']), 'hmm2_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hmm2']), 'hmm2_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hmm2']), 'hmm2_looseScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hmm2']), 'hmm2_mediumScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hmm2']), 'hmm2_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hmm2']), 'hmm2_zeppenfeld','F')
 
         # wrong combination
@@ -101,10 +117,18 @@ class Hpp4lAnalysis(AnalysisBase):
         self.addDiLepton('z','z1','z2')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1'],cands['z2']), 'z_zeppenfeld','F')
         self.addLepton('z1')
+        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z1']), 'z1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z1']), 'z1_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z1']), 'z1_looseScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z1']), 'z1_mediumScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z1']), 'z1_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1']), 'z1_zeppenfeld','F')
         self.addLepton('z2')
+        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z2']), 'z2_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z2']), 'z2_passTight', 'I')
+        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z2']), 'z2_looseScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z2']), 'z2_mediumScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z2']), 'z2_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z2']), 'z2_zeppenfeld','F')
 
         # met
@@ -205,16 +229,44 @@ class Hpp4lAnalysis(AnalysisBase):
     ##################
     ### lepton IDs ###
     ##################
-    # TODO: these are still WZ
     def passLoose(self,rtrow,cand):
-        return passHppLoose(self,rtrow,cand)
+        return passWZLoose(self,rtrow,cand)
+
+    def passMedium(self,rtrow,cand):
+        return passWZMedium(self,rtrow,cand)
 
     def passTight(self,rtrow,cand):
-        return passHppTight(self,rtrow,cand)
+        return passWZTight(self,rtrow,cand)
+
+    def looseScale(self,rtrow,cand):
+        if cand[0]=='muons':
+            return self.leptonScales.getScale(rtrow,'MediumIDLooseIso',cand)
+        elif cand[0]=='electrons':
+            return self.leptonScales.getScale(rtrow,'CutbasedVeto',cand) # TODO, fix
+        else:
+            return 1.
+
+    def mediumScale(self,rtrow,cand):
+        if cand[0]=='muons':
+            return self.leptonScales.getScale(rtrow,'MediumIDTightIso',cand)
+        elif cand[0]=='electrons':
+            return self.leptonScales.getScale(rtrow,'CutbasedMedium',cand)
+        else:
+            return 1.
+
+    def tightScale(self,rtrow,cand):
+        if cand[0]=='muons':
+            return self.leptonScales.getScale(rtrow,'MediumIDTightIso',cand)
+        elif cand[0]=='electrons':
+            return self.leptonScales.getScale(rtrow,'CutbasedTight',cand)
+        else:
+            return 1.
 
     def getPassingCands(self,rtrow,mode):
         if mode=='Loose':
             passMode = self.passLoose
+        elif mode=='Medium':
+            passMode = self.passMedium
         elif mode=='Tight':
             passMode = self.passTight
         else:

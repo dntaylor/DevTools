@@ -24,8 +24,8 @@ def getLumi():
 
 
 latestNtuples = {
-    'Hpp3l'          : '',
-    'Hpp4l'          : '',
+    'Hpp3l'          : '2016-03-21_Hpp3lAnalysis_v1',
+    'Hpp4l'          : '2016-03-21_Hpp4lAnalysis_v1',
     'WZ'             : '2016-03-20_WZAnalysis_v1',
     'Electron'       : '2016-03-20_ElectronAnalysis_v2',
     'Muon'           : '2016-03-20_MuonAnalysis_v2',
@@ -35,6 +35,11 @@ latestNtuples = {
 }
 
 def getNtupleDirectory(analysis):
+    # first grad the local one
+    ntupleDir = 'ntuples/{0}'.format(analysis)
+    if os.path.exists(ntupleDir):
+        return ntupleDir
+    # if not read from hdfs
     baseDir = '/hdfs/store/user/dntaylor'
     if analysis in latestNtuples and latestNtuples[analysis]:
         return os.path.join(baseDir,latestNtuples[analysis])

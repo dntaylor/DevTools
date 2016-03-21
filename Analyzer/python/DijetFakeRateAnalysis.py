@@ -2,10 +2,13 @@ from AnalysisBase import AnalysisBase
 from leptonId import passWZLoose, passWZMedium, passWZTight
 from utilities import ZMASS, deltaPhi, deltaR
 
+import sys
 import itertools
 import operator
 
+sys.argv.append('-b')
 import ROOT
+sys.argv.pop()
 
 class DijetFakeRateAnalysis(AnalysisBase):
     '''

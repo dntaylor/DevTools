@@ -38,9 +38,14 @@ class FlattenTree(object):
     def __initializeSample(self,sample):
         self.sample = sample
         tchain = ROOT.TChain(self.treeName)
-        sampleDirectory = '{0}/{1}'.format(self.ntupleDirectory,sample)
+        sampleFile = '{0}/{1}.root'.format(self.ntupleDirectory,sample)
+        if os.path.isfile(sampleFile):
+            allFiles = [sampleFile]
+        else:
+            sampleDirectory = '{0}/{1}'.format(self.ntupleDirectory,sample)
+            allFiles = glob.glob('{0}/*.root'.format(sampleDirectory))
         summedWeights = 0.
-        for f in glob.glob('{0}/*.root'.format(sampleDirectory)):
+        for f in allFiles:
             tfile = ROOT.TFile.Open(f)
             summedWeights += tfile.Get("summedWeights").GetBinContent(1)
             tfile.Close()

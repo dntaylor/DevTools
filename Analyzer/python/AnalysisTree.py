@@ -1,7 +1,9 @@
 # AnalysisTree.py
-
+import sys
 import logging
+sys.argv.append('-b')
 import ROOT
+sys.argv.pop()
 from array import array
 
 

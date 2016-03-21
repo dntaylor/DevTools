@@ -25,6 +25,7 @@ logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%
 
 def flatten(directory,**kwargs):
     sample = directory.split('/')[-1]
+    if sample.endswith('.root'): sample = sample[:-5]
     analysis = kwargs.pop('analysis')
     histParams = kwargs.pop('histParams',{})
     histSelections = kwargs.pop('histSelections',{})
@@ -107,11 +108,14 @@ def main(argv=None):
     else:
         for directory in directories:
             sample = directory.split('/')[-1]
+            if sample.endswith('.root'): sample = sample[:-5]
             flatten(directory,
                     analysis=args.analysis,
                     histParams=histParams,
                     histSelections=histSelections,
                     )
+
+    logging.info('Finished')
 
 if __name__ == "__main__":
     status = main()

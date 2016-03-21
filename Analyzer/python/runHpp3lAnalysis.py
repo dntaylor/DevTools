@@ -3,6 +3,7 @@ import argparse
 import logging
 import sys
 
+from DevTools.Analyzer.utilities import getTestFile
 from DevTools.Analyzer.Hpp3lAnalysis import Hpp3lAnalysis
 
 logger = logging.getLogger("Hpp3lAnalysis")
@@ -12,7 +13,7 @@ logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Run analyzer')
 
-    parser.add_argument('--inputFiles', type=str, nargs='*', default=['/store/user/dntaylor/2016-02-27_DevTools_v1/HPlusPlusHMinusMinusHTo4L_M-500_13TeV-pythia8/2016-02-27_DevTools_v1/160227_142623/0000/miniTree_1.root'], help='Input files')
+    parser.add_argument('--inputFiles', type=str, nargs='*', default=[getTestFile('hpp')], help='Input files')
     parser.add_argument('--inputFileList', type=str, default='', help='Input file list')
     parser.add_argument('--outputFile', type=str, default='hpp3lTree.root', help='Output file')
 

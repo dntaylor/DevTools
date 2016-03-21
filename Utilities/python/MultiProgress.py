@@ -55,14 +55,15 @@ class MultiProgress(object):
         '''
         Execute the jobs
         '''
-        print term.enter_fullscreen
         try:
+            print term.enter_fullscreen
             theResult = [r.get(9999999999) for r in self.results]
         except:
             self.pool.terminate()
+            print term.exit_fullscreen
             theResult = []
         else:
+            print term.exit_fullscreen
             self.pool.close()
         self.pool.join()
-        print term.exit_fullscreen
         return theResult
