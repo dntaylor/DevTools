@@ -34,7 +34,6 @@ class MultiProgress(object):
     A class to print multiple progress bars from a pool.
     '''
     def __init__(self,numCores,**kwargs):
-        print term.enter_fullscreen
         self.numCores = numCores
         term.move(0,term.height-self.numCores-1)
         self.orig_sigint_handler = signal.signal(signal.SIGINT, signal.SIG_IGN)
@@ -56,6 +55,7 @@ class MultiProgress(object):
         '''
         Execute the jobs
         '''
+        print term.enter_fullscreen
         try:
             theResult = [r.get(9999999999) for r in self.results]
         except:

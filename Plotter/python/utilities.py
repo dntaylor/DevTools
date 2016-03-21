@@ -22,3 +22,32 @@ def getLumi():
     #return 2263 # december jamboree golden json
     return 2318 # moriond golden json
 
+
+latestNtuples = {
+    'Hpp3l'          : '',
+    'Hpp4l'          : '',
+    'WZ'             : '2016-03-20_WZAnalysis_v1',
+    'Electron'       : '2016-03-20_ElectronAnalysis_v2',
+    'Muon'           : '2016-03-20_MuonAnalysis_v2',
+    'SingleElectron' : '',
+    'SingleMuon'     : '',
+    'DijetFakeRate'  : '2016-03-20_DijetFakeRateAnalysis_v1',
+}
+
+def getNtupleDirectory(analysis):
+    baseDir = '/hdfs/store/user/dntaylor'
+    if analysis in latestNtuples and latestNtuples[analysis]:
+        return os.path.join(baseDir,latestNtuples[analysis])
+
+treeMap = {
+    'Electron'       : 'ETree',
+    'Muon'           : 'MTree',
+    'SingleElectron' : 'ETree',
+    'SingleMuon'     : 'MTree',
+    'WZ'             : 'WZTree',
+    'Hpp3l'          : 'Hpp3lTree',
+    'Hpp4l'          : 'Hpp4lTree',
+}
+
+def getTreeName(analysis):
+    return treeMap[analysis] if analysis in treeMap else ''
