@@ -43,6 +43,7 @@ class MultiProgress(object):
         signal.signal(signal.SIGINT, self.orig_sigint_handler)
         self.total = 0
         self.results = []
+        print term.enter_fullscreen
 
     def addJob(self,name,func,args=[],kwargs={}):
         '''
@@ -64,7 +65,6 @@ class MultiProgress(object):
         '''
         Execute the jobs
         '''
-        print term.enter_fullscreen
         numleft = self.total
         writer = Writer((0,self.numCores))
         width = int(math.floor(term.width/3))
@@ -81,8 +81,10 @@ class MultiProgress(object):
                time.sleep(0.1)
             theResult = [r.get(9999999999) for r in self.results]
         except:
+            e = sys.exc_info()[0]
             self.pool.terminate()
             print term.exit_fullscreen
+            print e
             theResult = []
         else:
             print term.exit_fullscreen

@@ -53,6 +53,7 @@ class Plotter(object):
         self.histOrder = []
         self.sampleFiles = {}
         self.styles = {}
+        self.signals = []
 
     def __exit__(self, type, value, traceback):
         self.finish()
@@ -87,7 +88,7 @@ class Plotter(object):
         self.styles[histName] = getStyle(histName)
         self.styles[histName].update(style)
 
-    def addHistogram(self,histName,histConstituents,style={}):
+    def addHistogram(self,histName,histConstituents,style={},signal=False):
         '''
         Add histogram to plot. histConstituents is a list.
         Style is a custom styling.
@@ -98,6 +99,7 @@ class Plotter(object):
         self.histOrder += [histName]
         self.styles[histName] = getStyle(histName)
         self.styles[histName].update(style)
+        if signal: self.signals += [histName]
 
     def clearHistograms(self):
         samples = self.sampleFiles.keys()
@@ -109,6 +111,7 @@ class Plotter(object):
         self.histOrder = []
         self.stackOrder = []
         self.styles = {}
+        self.signals = []
 
     def __readSampleVariable(self,sampleName,variable):
         '''Read the histogram from file'''
@@ -186,7 +189,7 @@ class Plotter(object):
         ratiomin = kwargs.pop('ratiomin',0.5)
         ratiomax = kwargs.pop('ratiomax',1.5)
         ratiostaterr = hist.Clone("ratiostaterr")
-        ratiostaterr.Sumw2()
+        #ratiostaterr.Sumw2()
         ratiostaterr.SetStats(0)
         ratiostaterr.SetTitle("")
         ratiostaterr.GetYaxis().SetTitle("Data/MC")
@@ -306,9 +309,12 @@ class Plotter(object):
         ymax = kwargs.pop('ymax',None)
         numcol = kwargs.pop('numcol',1)
         legendpos = kwargs.pop('legendpos',33)
+        lumipos = kwargs.pop('lumipos',11)
+        isprelim = kwargs.pop('preliminary',True)
         logy = kwargs.pop('logy',False)
         logx = kwargs.pop('logx',False)
         plotratio = kwargs.pop('plotratio',True)
+        blinder = kwargs.pop('blinder',[])
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
 
@@ -345,10 +351,15 @@ class Plotter(object):
         for histName in self.histOrder:
             hist = self.__getHistogram(histName,variable,nofill=True,**kwargs)
             if histName=='data':
-                hist.SetBinErrorOption(ROOT.TH1.kPoisson)
                 hist.SetMarkerStyle(20)
                 hist.SetMarkerSize(1.)
                 hist.SetLineColor(ROOT.kBlack)
+                if len(blinder)==2:
+                    lowbin = hist.FindBin(blinder[0])
+                    highbin = hist.FindBin(blinder[1])
+                    for b in range(highbin-lowbin+1):
+                        hist.SetBinContent(b+lowbin,0.)
+                hist.SetBinErrorOption(ROOT.TH1.kPoisson)
             highestMax = max(highestMax,hist.GetMaximum())
             hists[histName] = hist
 
@@ -372,7 +383,7 @@ class Plotter(object):
         # cms lumi styling
         pad = plotpad if plotratio else canvas
         if pad != ROOT.TVirtualPad.Pad(): pad.cd()
-        self.__setStyle(pad)
+        self.__setStyle(pad,position=lumipos,preliminary=isprelim)
 
         # the ratio portion
         if plotratio:
@@ -383,9 +394,24 @@ class Plotter(object):
             ratiounity.SetLineStyle(2)
             ratios = OrderedDict()
             for histName, hist in hists.iteritems():
-                num = hist.Clone('{0}_{1}_ratio'.format(histName,variable))
-                num.Sumw2()
-                num.Divide(denom)
+                if histName in self.signals:
+                    hists = ROOT.TList()
+                    hists.Add(hist)
+                    hists.Add(denom)
+                    num = hists[0].Clone('{0}_{1}_ratio'.format(histName,variable))
+                    num.Reset()
+                    num.Merge(hists)
+                else:
+                    num = hist.Clone('{0}_{1}_ratio'.format(histName,variable))
+                if histName=='data':
+                    num.SetBinErrorOption(ROOT.TH1.kPoisson)
+                    num.Divide(denom)
+                    #nbins = num.GetNbinsX()
+                    #errs = ROOT.TGraphAsymmErrors(nbins)
+                    #errs.Divide(num,denom,'pois')
+                    #num = errs
+                else:
+                    num.Divide(denom)
                 ratios[histName] = num
 
             # and draw
@@ -395,6 +421,7 @@ class Plotter(object):
             for histName, hist in ratios.iteritems():
                 if histName=='data':
                     hist.Draw('e0 same')
+                    #hist.Draw('0P same')
                 else:
                     hist.Draw('hist same')
 

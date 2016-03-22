@@ -34,6 +34,7 @@ class FlattenTree(object):
         self.preinitialized = False
         self.selections = []
         self.sample = ''
+        self.j = 0
 
     def __initializeSample(self,sample):
         self.sample = sample
@@ -161,11 +162,22 @@ class FlattenTree(object):
         if not isData(self.sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
         name = histName
         if postfix: name += '_{0}'.format(postfix)
-        drawString = '{0}>>{1}({2})'.format(params['variable'],name,', '.join([str(x) for x in params['binning']]))
+        self.j += 1
+        tempName = '{0}_{1}_{2}'.format(name,self.sample,self.j)
+        drawString = '{0}>>{1}({2})'.format(params['variable'],tempName,', '.join([str(x) for x in params['binning']]))
         selectionString = '{0}*({1})'.format(scalefactor,selection)
         tree.Draw(drawString,selectionString,'goff')
-        if ROOT.gDirectory.Get(name):
-            hist = ROOT.gDirectory.Get(name)
+        # see if hist exists
+        if ROOT.gDirectory.Get(tempName):
+            hist = ROOT.gDirectory.Get(tempName)
+            hist.SetTitle(name)
+            hist.SetName(name)
+            self.__write(hist)
+        else:
+            bins = params['binning']
+            hist = ROOT.TH1F(tempName,tempName,*bins)
+            hist.SetTitle(name)
+            hist.SetName(name)
             self.__write(hist)
 
     def __flatten2D(self,selection,histName,params,**kwargs):
@@ -185,9 +197,22 @@ class FlattenTree(object):
         if not tree: return
         os.system('mkdir -p {0}'.format(os.path.dirname(self.outputFileName)))
         if not isData(self.sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
-        drawString = '{0}:{1}>>{2}({3})'.format(params['yVariable'],params['xVariable'],histName,', '.join([str(x) for x in params['xBinning']+params['yBinning']]))
+        name = histName
+        if postfix: name += '_{0}'.format(postfix)
+        self.j += 1
+        tempName = '{0}_{1}_{2}'.format(name,self.sample,self.j)
+        drawString = '{0}:{1}>>{2}({3})'.format(params['yVariable'],params['xVariable'],tempName,', '.join([str(x) for x in params['xBinning']+params['yBinning']]))
         selectionString = '{0}*({1})'.format(scalefactor,selection)
         tree.Draw(drawString,selectionString,'goff')
-        if ROOT.gDirectory.Get(name):
-            hist = ROOT.gDirectory.Get(name)
+        # see if hist exists
+        if ROOT.gDirectory.Get(tempName):
+            hist = ROOT.gDirectory.Get(tempName)
+            hist.SetTitle(name)
+            hist.SetName(name)
+            self.__write(hist)
+        else:
+            bins = params['xBinning']+params['yBinning']
+            hist = ROOT.TH2F(tempName,tempName,*bins)
+            hist.SetTitle(name)
+            hist.SetName(name)
             self.__write(hist)

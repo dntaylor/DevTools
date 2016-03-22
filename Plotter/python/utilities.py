@@ -3,6 +3,8 @@ import os
 import sys
 import errno
 
+from DevTools.Analyzer.utilities import ZMASS
+
 def python_mkdir(dir):
     '''A function to make a unix directory as well as subdirectories'''
     try:
