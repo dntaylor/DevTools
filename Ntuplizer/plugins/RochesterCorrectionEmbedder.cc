@@ -10,7 +10,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 
 #include "DevTools/Ntuplizer/plugins/rochcor2015.h"
-#include "DevTools/Ntuplizer/plugins/muresolution_run2.h"
+//#include "DevTools/Ntuplizer/plugins/RoccoR.h"
 
 class RochesterCorrectionEmbedder : public edm::stream::EDProducer<>
 {
