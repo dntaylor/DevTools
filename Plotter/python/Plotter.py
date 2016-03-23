@@ -42,10 +42,10 @@ class Plotter(object):
         self.outputDirectory = kwargs.pop('outputDirectory','plots/WZ')
 
         # file to hold all plots
-        saveFileName = kwargs.pop('saveFileName','plots.root')
-        fullSaveFileName = '{0}/{1}'.format(self.outputDirectory,saveFileName)
-        python_mkdir(os.path.dirname(fullSaveFileName))
-        self.saveFile = ROOT.TFile(fullSaveFileName,"recreate")
+        #saveFileName = kwargs.pop('saveFileName','plots.root')
+        #fullSaveFileName = '{0}/{1}'.format(self.outputDirectory,saveFileName)
+        #python_mkdir(os.path.dirname(fullSaveFileName))
+        #self.saveFile = ROOT.TFile(fullSaveFileName,"recreate")
 
         # empty initialization
         self.histDict = {}
@@ -54,6 +54,8 @@ class Plotter(object):
         self.sampleFiles = {}
         self.styles = {}
         self.signals = []
+        self.histScales = {}
+        self.sampleVars = {}
 
     def __exit__(self, type, value, traceback):
         self.finish()
@@ -64,18 +66,22 @@ class Plotter(object):
     def finish(self):
         '''Cleanup stuff'''
         logging.info('Finished plotting')
-        self.saveFile.Close()
+        #self.saveFile.Close()
 
     def __openFile(self,sampleName):
         '''Verify and open a sample'''
         fname = '{0}/{1}.root'.format(self.inputDirectory,sampleName)
         if os.path.isfile(fname):
             if sampleName not in self.sampleFiles:
-                self.sampleFiles[sampleName] = ROOT.TFile.Open(fname)
+                self.sampleFiles[sampleName] = ROOT.TFile.Open(fname,'READ')
+                self.sampleVars[sampleName] = self.sampleFiles[sampleName].GetListOfKeys()
+                #self.saveFile.cd()
+                ROOT.gROOT.cd()
             else:
                 logging.warning('Sample {0} already added to plot.'.format(sampleName))
         else:
             logging.error('{0} does not exist.'.format(fname))
+            self.sampleVars[sampleName] = ROOT.TList()
 
     def addHistogramToStack(self,histName,histConstituents,style={}):
         '''
@@ -88,7 +94,7 @@ class Plotter(object):
         self.styles[histName] = getStyle(histName)
         self.styles[histName].update(style)
 
-    def addHistogram(self,histName,histConstituents,style={},signal=False):
+    def addHistogram(self,histName,histConstituents,style={},signal=False,scale=1):
         '''
         Add histogram to plot. histConstituents is a list.
         Style is a custom styling.
@@ -100,6 +106,7 @@ class Plotter(object):
         self.styles[histName] = getStyle(histName)
         self.styles[histName].update(style)
         if signal: self.signals += [histName]
+        if scale!=1: self.histScales[histName] = scale
 
     def clearHistograms(self):
         samples = self.sampleFiles.keys()
@@ -112,15 +119,17 @@ class Plotter(object):
         self.stackOrder = []
         self.styles = {}
         self.signals = []
+        self.histScales = {}
+        self.sampleVars = {}
 
     def __readSampleVariable(self,sampleName,variable):
         '''Read the histogram from file'''
-        if self.sampleFiles[sampleName].GetListOfKeys().Contains(variable):
-            hist = self.sampleFiles[sampleName].Get(variable)
+        if self.sampleVars[sampleName].Contains(variable):
+            hist = self.sampleFiles[sampleName].Get(variable).Clone('h_{0}_{1}'.format(sampleName,variable))
             #hist.Sumw2()
             return hist
         else:
-            logging.error('Variable {0} does not exist for {1}'.format(variable,sampleName))
+            #logging.error('Variable {0} does not exist for {1}'.format(variable,sampleName))
             return 0
 
     def __getHistogram(self,histName,variable,**kwargs):
@@ -135,7 +144,7 @@ class Plotter(object):
                 hist = self.__readSampleVariable(sampleName,varName)
                 if hist: hists.Add(hist)
             if hists.IsEmpty(): return 0
-            hist = hists[0].Clone('{0}_{1}'.format(histName,varName))
+            hist = hists[0].Clone('h_{0}_{1}'.format(histName,varName))
             hist.Reset()
             hist.Merge(hists)
             if rebin: hist = hist.Rebin(rebin)
@@ -164,7 +173,7 @@ class Plotter(object):
                 hist = self.__readSampleVariable(sampleName,varName)
                 if hist: hists.Add(hist)
             if hists.IsEmpty(): return 0
-            hist = hists[0].Clone('{0}_{1}'.format(histName,varName))
+            hist = hists[0].Clone('h_{0}_{1}'.format(histName,varName))
             hist.Reset()
             hist.Merge(hists)
             if rebinx: hist = hist.RebinX(rebinx)
@@ -188,7 +197,7 @@ class Plotter(object):
         '''Return a statistical error bars for a ratio plot'''
         ratiomin = kwargs.pop('ratiomin',0.5)
         ratiomax = kwargs.pop('ratiomax',1.5)
-        ratiostaterr = hist.Clone("ratiostaterr")
+        ratiostaterr = hist.Clone("{0}_ratiostaterr".format(hist.GetName))
         #ratiostaterr.Sumw2()
         ratiostaterr.SetStats(0)
         ratiostaterr.SetTitle("")
@@ -299,7 +308,7 @@ class Plotter(object):
             name = '{0}/{1}/{2}.{1}'.format(self.outputDirectory, type, savename)
             python_mkdir(os.path.dirname(name))
             canvas.Print(name)
-        self.saveFile.WriteTObject(canvas)
+        #self.saveFile.WriteTObject(canvas)
 
     def plot(self,variable,savename,**kwargs):
         '''Plot a variable and save'''
@@ -315,24 +324,31 @@ class Plotter(object):
         logx = kwargs.pop('logx',False)
         plotratio = kwargs.pop('plotratio',True)
         blinder = kwargs.pop('blinder',[])
+        rangex = kwargs.pop('rangex',[])
+
+        ROOT.gDirectory.Delete('h_*')
+        ROOT.gDirectory.ls()
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
 
         # ratio plot
         if plotratio:
             plotpad = ROOT.TPad("plotpad", "top pad", 0.0, 0.21, 1.0, 1.0)
+            ROOT.SetOwnership(plotpad,False)
             plotpad.SetBottomMargin(0.04)
             plotpad.Draw()
             plotpad.SetLogy(logy)
             plotpad.SetLogx(logx)
             ratiopad = ROOT.TPad("ratiopad", "bottom pad", 0.0, 0.0, 1.0, 0.21)
+            ROOT.SetOwnership(ratiopad,False)
             ratiopad.SetTopMargin(0.06)
             ratiopad.SetBottomMargin(0.5)
             ratiopad.SetTickx(1)
             ratiopad.SetTicky(1)
             ratiopad.Draw()
             ratiopad.SetLogx(logx)
-            if plotpad != ROOT.TVirtualPad.Pad(): plotpad.cd()
+            #if plotpad != ROOT.TVirtualPad.Pad(): plotpad.cd()
+            plotpad.cd()
         else:
             canvas.SetLogy(logy)
             canvas.SetLogx(logx)
@@ -360,6 +376,13 @@ class Plotter(object):
                     for b in range(highbin-lowbin+1):
                         hist.SetBinContent(b+lowbin,0.)
                 hist.SetBinErrorOption(ROOT.TH1.kPoisson)
+            else:
+                hist.SetLineWidth(3)
+            if histName in self.histScales:
+                hist.Scale(self.histScales[histName])
+                name = hist.GetTitle()
+                name += ' (x{0})'.format(self.histScales[histName])
+                hist.SetTitle(name)
             highestMax = max(highestMax,hist.GetMaximum())
             hists[histName] = hist
 
@@ -369,6 +392,7 @@ class Plotter(object):
             stack.GetXaxis().SetTitle(xaxis)
             stack.GetYaxis().SetTitle(yaxis)
             stack.SetMaximum(1.2*highestMax)
+            if len(rangex)==2: stack.GetXaxis().SetRangeUser(*rangex)
             if ymax!=None: stack.SetMaximum(ymax)
             if ymin!=None: stack.SetMinimum(ymin)
             if plotratio: stack.GetHistogram().GetXaxis().SetLabelOffset(999)
@@ -382,27 +406,28 @@ class Plotter(object):
 
         # cms lumi styling
         pad = plotpad if plotratio else canvas
-        if pad != ROOT.TVirtualPad.Pad(): pad.cd()
+        #if pad != ROOT.TVirtualPad.Pad(): pad.cd()
         self.__setStyle(pad,position=lumipos,preliminary=isprelim)
 
         # the ratio portion
         if plotratio:
-            denom = stack.GetStack().Last().Clone('stack_{0}_ratio'.format(variable))
+            denom = stack.GetStack().Last().Clone('h_stack_{0}_ratio'.format(variable))
             ratiostaterr = self.__get_ratio_stat_err(denom)
             ratiostaterr.SetXTitle(xaxis)
-            ratiounity = ROOT.TLine(stack.GetXaxis().GetXmin(),1,stack.GetXaxis().GetXmax(),1)
+            unityargs = [rangex[0],1,rangex[1],1] if len(rangex)==2 else [stack.GetXaxis().GetXmin(),1,stack.GetXaxis().GetXmax(),1]
+            ratiounity = ROOT.TLine(*unityargs)
             ratiounity.SetLineStyle(2)
             ratios = OrderedDict()
             for histName, hist in hists.iteritems():
                 if histName in self.signals:
-                    hists = ROOT.TList()
-                    hists.Add(hist)
-                    hists.Add(denom)
-                    num = hists[0].Clone('{0}_{1}_ratio'.format(histName,variable))
+                    sighists = ROOT.TList()
+                    sighists.Add(hist)
+                    sighists.Add(denom)
+                    num = sighists[0].Clone('h_{0}_{1}_ratio'.format(histName,variable))
                     num.Reset()
-                    num.Merge(hists)
+                    num.Merge(sighists)
                 else:
-                    num = hist.Clone('{0}_{1}_ratio'.format(histName,variable))
+                    num = hist.Clone('h_{0}_{1}_ratio'.format(histName,variable))
                 if histName=='data':
                     num.SetBinErrorOption(ROOT.TH1.kPoisson)
                     num.Divide(denom)
@@ -415,18 +440,22 @@ class Plotter(object):
                 ratios[histName] = num
 
             # and draw
-            if ratiopad != ROOT.TVirtualPad.Pad(): ratiopad.cd()
+            #if ratiopad != ROOT.TVirtualPad.Pad(): ratiopad.cd()
+            ratiopad.cd()
             ratiostaterr.Draw("e2")
+            if len(rangex)==2: ratiostaterr.GetXaxis().SetRangeUser(*rangex)
             ratiounity.Draw('same')
             for histName, hist in ratios.iteritems():
                 if histName=='data':
                     hist.Draw('e0 same')
                     #hist.Draw('0P same')
                 else:
+                    hist.SetLineWidth(3)
                     hist.Draw('hist same')
+            #if canvas != ROOT.TVirtualPad.Pad(): canvas.cd()
+            canvas.cd()
 
         # save
-        if canvas != ROOT.TVirtualPad.Pad(): canvas.cd()
         self.__save(canvas,savename)
 
     def plotRatio(self,numerator,denominator,savename,**kwargs):

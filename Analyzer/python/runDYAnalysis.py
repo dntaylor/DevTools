@@ -4,10 +4,9 @@ import logging
 import sys
 
 from DevTools.Analyzer.utilities import getTestFiles
+from DevTools.Analyzer.DYAnalysis import DYAnalysis
 
-from DevTools.Analyzer.MuonAnalysis import MuonAnalysis
-
-logger = logging.getLogger("MuonAnalysis")
+logger = logging.getLogger("DYAnalysis")
 logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
@@ -16,7 +15,7 @@ def parse_command_line(argv):
 
     parser.add_argument('--inputFiles', type=str, nargs='*', default=getTestFiles('MC'), help='Input files')
     parser.add_argument('--inputFileList', type=str, default='', help='Input file list')
-    parser.add_argument('--outputFile', type=str, default='mTree.root', help='Output file')
+    parser.add_argument('--outputFile', type=str, default='dyTree.root', help='Output file')
 
     return parser.parse_args(argv)
 
@@ -26,9 +25,9 @@ def main(argv=None):
 
     args = parse_command_line(argv)
 
-    mAnalysis = MuonAnalysis(
+    dyAnalysis = DYAnalysis(
         outputFileName=args.outputFile,
-        outputTreeName='MTree',
+        outputTreeName='DYTree',
         inputFileNames=args.inputFileList if args.inputFileList else args.inputFiles,
         inputTreeName='MiniTree',
         inputLumiName='LumiTree',
@@ -36,10 +35,10 @@ def main(argv=None):
     )
     
     try:
-       mAnalysis.analyze()
-       mAnalysis.finish()
+       dyAnalysis.analyze()
+       dyAnalysis.finish()
     except KeyboardInterrupt:
-       mAnalysis.finish()
+       dyAnalysis.finish()
 
     return 0
 

@@ -1,4 +1,5 @@
 from DevTools.Plotter.Plotter import Plotter
+from copy import deepcopy
 
 blind = True
 
@@ -12,8 +13,8 @@ sigMap = {
     'WZ'  : [
              'WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8',
              'WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8',
-             'WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8',
-             'WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8',
+             #'WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8',
+             #'WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8',
             ],
     'ZZ'  : [
              'ZZTo4L_13TeV_powheg_pythia8',
@@ -37,7 +38,7 @@ sigMap = {
             ],
     'WW'  : [
              'WWTo2L2Nu_13TeV-powheg',
-             'WWToLNuQQ_13TeV-powheg',
+             #'WWToLNuQQ_13TeV-powheg',
             ],
     'Z'   : [
              'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
@@ -56,30 +57,43 @@ sigMap = {
              'SingleMuon',
              'SingleElectron',
             ],
-    'HppHmm500GeV' : ['HPlusPlusHMinusMinusHTo4L_M-500_13TeV-pythia8'],
+    'HppHmm200GeV' : ['HPlusPlusHMinusMinusHTo4L_M-200_13TeV-pythia8'],
 }
 
-for s in ['TT','TTV','Z','WW','WZ','VVV','ZZ']:
+samples = ['TT','TTV','Z','WW','WZ','VVV','ZZ']
+
+for s in samples:
     hpp4lPlotter.addHistogramToStack(s,sigMap[s])
 
-hpp4lPlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'],signal=True)
+hpp4lPlotter.addHistogram('HppHmm200GeV',sigMap['HppHmm200GeV'],signal=True,scale=10)
 
 if not blind:
     hpp4lPlotter.addHistogram('data',sigMap['data'])
 
 plots = {
-    'hppMass': {'xaxis': 'm_{l^{+}l^{+}} (GeV)', 'yaxis': 'Events/20 GeV', 'logy': True, 'numcol': 2, 'lumipos': 33, 'rebin': 2},
-    'hmmMass': {'xaxis': 'm_{l^{-}l^{-}} (GeV)', 'yaxis': 'Events/20 GeV', 'logy': True, 'numcol': 2, 'lumipos': 33, 'rebin': 2},
+    'hppMass'               : {'xaxis': 'm_{l^{+}l^{+}} (GeV)', 'yaxis': 'Events/20 GeV', 'numcol': 2, 'lumipos': 33, 'rebin': 20},
+    'hppPt'                 : {'xaxis': 'p_{T}^{l^{+}l^{+}} (GeV)', 'yaxis': 'Events/20 GeV', 'rebin': 20},
+    'hppDeltaR'             : {'xaxis': '#DeltaR(l^{+}l^{+})', 'yaxis': 'Events', 'rebin': 25},
+    'hppLeadingLeptonPt'    : {'xaxis': 'p_{T}^{#Phi_{lead}^{++}} (GeV)', 'yaxis': 'Events/20 GeV', 'rebin': 20},
+    'hppSubLeadingLeptonPt' : {'xaxis': 'p_{T}^{#Phi_{sublead}^{++}} (GeV)', 'yaxis': 'Events/20 GeV', 'rebin': 20},
+    'hmmMass'               : {'xaxis': 'm_{l^{-}l^{-}} (GeV)', 'yaxis': 'Events/20 GeV', 'numcol': 2, 'lumipos': 33, 'rebin': 20},
+    'hmmPt'                 : {'xaxis': 'p_{T}^{l^{-}l^{-}} (GeV)', 'yaxis': 'Events/20 GeV', 'rebin': 20},
+    'hmmDeltaR'             : {'xaxis': '#DeltaR(l^{-}l^{-})', 'yaxis': 'Events', 'rebin': 25},
+    'hmmLeadingLeptonPt'    : {'xaxis': 'p_{T}^{#Phi_{lead}^{--}} (GeV)', 'yaxis': 'Events/20 GeV', 'rebin': 20},
+    'hmmSubLeadingLeptonPt' : {'xaxis': 'p_{T}^{#Phi_{sublead}^{--}} (GeV)', 'yaxis': 'Events/20 GeV', 'rebin': 20},
+    'met'                   : {'xaxis': 'E_T^{miss} (GeV)', 'yaxis': 'Events/20 GeV', 'rebin': 20},
 }
 
-
+# signal region
 for plot in plots:
     hpp4lPlotter.plot(plot,plot,**plots[plot])
-
 
 if blind:
     hpp4lPlotter.addHistogram('data',sigMap['data'])
 
+
+# partially blinded plots
+if blind:
     blinders = {
         'hppMass': [150,1200],
         'hmmMass': [150,1200],
@@ -88,3 +102,30 @@ if blind:
     for plot in blinders:
         savename = '{0}_blinder'.format(plot)
         hpp4lPlotter.plot(plot,savename,blinder=blinders[plot],**plots[plot])
+
+
+# low mass control
+hpp4lPlotter.clearHistograms()
+
+for s in samples:
+    hpp4lPlotter.addHistogramToStack(s,sigMap[s])
+hpp4lPlotter.addHistogram('data',sigMap['data'])
+
+lowmass_cust = {
+    'hppMass'              : {'rangex': [0,300]},
+    'hppPt'                : {'rangex': [0,300]},
+    'hppLeadingLeptonPt'   : {'rangex': [0,300]},
+    'hppSubLeadingLeptonPt': {'rangex': [0,300]},
+    'hmmMass'              : {'rangex': [0,300]},
+    'hmmPt'                : {'rangex': [0,300]},
+    'hmmLeadingLeptonPt'   : {'rangex': [0,300]},
+    'hmmSubLeadingLeptonPt': {'rangex': [0,300]},
+    'met'                  : {'rangex': [0,200]},
+}
+
+for plot in plots:
+    savename = 'lowmass/{0}'.format(plot)
+    plotname = '{0}_lowmass'.format(plot)
+    kwargs = deepcopy(plots[plot])
+    if plot in lowmass_cust: kwargs.update(lowmass_cust[plot])
+    hpp4lPlotter.plot(plotname,savename,**kwargs)

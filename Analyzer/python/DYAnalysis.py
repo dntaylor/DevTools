@@ -1,5 +1,5 @@
-# Hpp4lAnalysis.py
-# for hpp4l analysis
+# DYAnalysis.py
+# for DY analysis
 
 from AnalysisBase import AnalysisBase
 from utilities import ZMASS, deltaPhi, deltaR
@@ -10,34 +10,34 @@ import operator
 
 import ROOT
 
-class Hpp4lAnalysis(AnalysisBase):
+class DYAnalysis(AnalysisBase):
     '''
-    Hpp4l analysis
+    DY analysis
     '''
 
     def __init__(self,**kwargs):
-        outputFileName = kwargs.pop('outputFileName','hpp4lTree.root')
-        outputTreeName = kwargs.pop('outputTreeName','Hpp4lTree')
-        super(Hpp4lAnalysis, self).__init__(outputFileName=outputFileName,outputTreeName=outputTreeName,**kwargs)
+        outputFileName = kwargs.pop('outputFileName','wzTree.root')
+        outputTreeName = kwargs.pop('outputTreeName','DYTree')
+        super(DYAnalysis, self).__init__(outputFileName=outputFileName,outputTreeName=outputTreeName,**kwargs)
 
         # setup cut tree
-        self.cutTree.add(self.fourLoose,'fourLooseLeptons')
+        self.cutTree.add(self.twoLoose,'twoLooseLeptons')
         self.cutTree.add(self.trigger,'trigger')
 
         # setup analysis tree
 
         # chan string
-        self.tree.add(self.getChannelString, 'channel', ['C',5])
-        self.tree.add(self.getGenChannelString, 'genChannel', ['C',5])
-        self.tree.add(self.getZChannelString, 'zChannel', ['C',3])
+        self.tree.add(self.getChannelString, 'channel', ['C',3])
 
         # event counts
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',30), 'numJetsLoose30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',30), 'numJetsTight30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',30), 'numBjetsTight30', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passLoose)), 'numLooseElectrons', 'I')
+        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passMedium)), 'numMediumElectrons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passTight)), 'numTightElectrons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passLoose)), 'numLooseMuons', 'I')
+        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passMedium)), 'numMediumMuons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passTight)), 'numTightMuons', 'I')
 
         # pileup
@@ -60,59 +60,12 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu27Pass'), 'pass_IsoMu27', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
 
-
         # vbf
         self.addJet('leadJet')
         self.addJet('subleadJet')
         self.addDiJet('dijet','leadJet','subleadJet')
         self.tree.add(lambda rtrow,cands: self.numCentralJets(rtrow,cands,'isLoose',30), 'dijet_numCentralJetsLoose30', 'I')
         self.tree.add(lambda rtrow,cands: self.numCentralJets(rtrow,cands,'isTight',30), 'dijet_numCentralJetsTight30', 'I')
-
-        # 3 lepton
-        self.addComposite('4l','hpp1','hpp2','hmm1', 'hmm2')
-        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp1'],cands['hpp2'],cands['hmm1'],cands['hmm2']), '4l_zeppenfeld','F')
-
-        # hpp leptons
-        self.addDiLepton('hpp','hpp1','hpp2')
-        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp1'],cands['hpp2']), 'hpp_zeppenfeld','F')
-        self.addLepton('hpp1')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hpp1']), 'hpp1_passMedium', 'I')
-        self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hpp1']), 'hpp1_passTight', 'I')
-        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hpp1']), 'hpp1_looseScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hpp1']), 'hpp1_mediumScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hpp1']), 'hpp1_tightScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp1']), 'hpp1_zeppenfeld','F')
-        self.addLepton('hpp2')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hpp2']), 'hpp2_passMedium', 'I')
-        self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hpp2']), 'hpp2_passTight', 'I')
-        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hpp2']), 'hpp2_looseScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hpp2']), 'hpp2_mediumScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hpp2']), 'hpp2_tightScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp2']), 'hpp2_zeppenfeld','F')
-
-        # hmm leptons
-        self.addDiLepton('hmm','hmm1','hmm2')
-        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hmm1'],cands['hmm2']), 'hmm_zeppenfeld','F')
-        self.addLepton('hmm1')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hmm1']), 'hmm1_passMedium', 'I')
-        self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hmm1']), 'hmm1_passTight', 'I')
-        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hmm1']), 'hmm1_looseScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hmm1']), 'hmm1_mediumScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hmm1']), 'hmm1_tightScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hmm1']), 'hmm1_zeppenfeld','F')
-        self.addLepton('hmm2')
-        self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hmm2']), 'hmm2_passMedium', 'I')
-        self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hmm2']), 'hmm2_passTight', 'I')
-        self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hmm2']), 'hmm2_looseScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hmm2']), 'hmm2_mediumScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hmm2']), 'hmm2_tightScale', 'F')
-        self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hmm2']), 'hmm2_zeppenfeld','F')
-
-        # wrong combination
-        self.addDiLepton('hmm1_hpp1','hmm1','hpp1')
-        self.addDiLepton('hmm1_hpp2','hmm1','hpp2')
-        self.addDiLepton('hmm2_hpp1','hmm2','hpp1')
-        self.addDiLepton('hmm2_hpp2','hmm2','hpp2')
 
         # z leptons
         self.addDiLepton('z','z1','z2')
@@ -136,14 +89,10 @@ class Hpp4lAnalysis(AnalysisBase):
         self.addMet('met',('pfmet',0))
 
     ############################
-    ### select 4l candidates ###
+    ### select DY candidates ###
     ############################
     def selectCandidates(self,rtrow):
         candidate = {
-            'hpp1' : (),
-            'hpp2' : (),
-            'hmm1' : (),
-            'hmm2' : (),
             'z1' : (),
             'z2' : (),
             'leadJet' : (),
@@ -157,38 +106,39 @@ class Hpp4lAnalysis(AnalysisBase):
         charges = {}
         leps = []
         leps = self.getPassingCands(rtrow,'Loose')
-        medLeps = self.getPassingCands(rtrow,'Medium')
-        if len(leps)<4: return candidate # need at least 4 leptons
-
+        if len(leps)<2: return candidate # need at least 3 leptons
 
         for cand in leps:
             pts[cand] = self.getObjectVariable(rtrow,cand,'pt')
             p4s[cand] = self.getObjectVariable(rtrow,cand,'p4')
             charges[cand] = self.getObjectVariable(rtrow,cand,'charge')
 
-        # get the candidates
-        hppCands = []
-        for quad in itertools.permutations(leps,4):
-            if charges[quad[0]]+charges[quad[1]]!=2: continue
-            if charges[quad[2]]+charges[quad[3]]!=-2: continue
-            hppCands += [quad]
-        if not hppCands: return candidate
+        # get invariant masses
+        massDiffs = {}
+        for zpair in itertools.combinations(pts.keys(),2):
+            if zpair[0][0]!=zpair[1][0]: continue # SF
+            if charges[zpair[0]]==charges[zpair[1]]: continue # OS
+            zp4 = p4s[zpair[0]] + p4s[zpair[1]]
+            zmass = zp4.M()
+            massDiffs[zpair] = abs(zmass-ZMASS)
 
-        # sort by closest to same mass
-        bestMassDiff = 999999999
-        bestCand = []
-        for quad in hppCands:
-            hppMass = self.getCompositeVariable(rtrow,'mass',quad[0],quad[1])
-            hmmMass = self.getCompositeVariable(rtrow,'mass',quad[2],quad[3])
-            massdiff = abs(hppMass-hmmMass)
-            if massdiff<bestMassDiff:
-                bestCand = quad
-                bestMassDiff = massdiff
+        if not massDiffs: return candidate # need a z candidate
 
-        candidate['hpp1'] = bestCand[0] if pts[bestCand[0]]>pts[bestCand[1]] else bestCand[1]
-        candidate['hpp2'] = bestCand[1] if pts[bestCand[0]]>pts[bestCand[1]] else bestCand[0]
-        candidate['hmm1'] = bestCand[2] if pts[bestCand[2]]>pts[bestCand[3]] else bestCand[3]
-        candidate['hmm2'] = bestCand[3] if pts[bestCand[2]]>pts[bestCand[3]] else bestCand[2]
+        # sort by closest z
+        bestZ = sorted(massDiffs.items(), key=operator.itemgetter(1))[0][0]
+
+        # now get the highest pt w
+        zpts = {}
+        zpts[bestZ[0]] = pts.pop(bestZ[0])
+        zpts[bestZ[1]] = pts.pop(bestZ[1])
+
+        # and sort pt of Z
+        z = sorted(zpts.items(), key=operator.itemgetter(1))
+        z1 = z[1][0]
+        z2 = z[0][0]
+
+        candidate['z1'] = z1
+        candidate['z2'] = z2
 
         # add jet
         jets = self.getCands(rtrow, 'jets', lambda rtrow,cand: self.getObjectVariable(rtrow,cand,'isLoose')>0.5)
@@ -202,34 +152,11 @@ class Hpp4lAnalysis(AnalysisBase):
             candidate['leadJet'] = ('jets',-1)
             candidate['subleadJet'] = ('jets',-1)
 
-        # do the z alternative combination
-        massDiffs = {}
-        for zpair in itertools.combinations(pts.keys(),2):
-            if zpair[0][0]!=zpair[1][0]: continue # SF
-            if charges[zpair[0]]==charges[zpair[1]]: continue # OS
-            zp4 = p4s[zpair[0]] + p4s[zpair[1]]
-            zmass = zp4.M()
-            massDiffs[zpair] = abs(zmass-ZMASS)
-
-        if not massDiffs:
-            candidate['z1'] = ('',-1)
-            candidate['z2'] = ('',-1)
-            return candidate
-
-        # sort by closest z
-        bestZ = sorted(massDiffs.items(), key=operator.itemgetter(1))[0][0]
-
-        z1 = bestZ[0] if pts[bestZ[0]] > pts[bestZ[1]] else bestZ[1]
-        z2 = bestZ[1] if pts[bestZ[0]] > pts[bestZ[1]] else bestZ[0]
-
-        candidate['z1'] = z1
-        candidate['z2'] = z2
-
         return candidate
 
-    ##################
-    ### lepton IDs ###
-    ##################
+    #################
+    ### lepton id ###
+    #################
     def passLoose(self,rtrow,cand):
         return passWZLoose(self,rtrow,cand)
 
@@ -323,45 +250,15 @@ class Hpp4lAnalysis(AnalysisBase):
     def getChannelString(self,rtrow,cands):
         '''Get the channel string'''
         chanString = ''
-        for c in ['hpp1','hpp2','hmm1','hmm2']:
-            chanString += self.getCollectionString(cands[c])
-        return chanString
-
-    def getGenChannelString(self,rtrow,cands):
-        '''Get the gen h++ channel'''
-        chanString = ''
-        pdgMap = {
-            11: 'e',
-            13: 'm',
-            15: 't',
-        }
-        if 'HPlusPlusHMinusMinusHTo4L' in self.fileNames[0]: # h++h-- signal sample
-            for s in [1,-1]:
-                h = -1*s*9900041                     # h++ in pythia8
-                for l1 in [s*11, s*13, s*15]:        # lepton 1
-                    for l2 in [s*11, s*13, s*15]:    # lepton 2
-                        if abs(l2)<abs(l1): continue # skip double counting
-                        hasDecay = self.findDecay(rtrow,h,l1,l2)
-                        if hasDecay:
-                            chanString += pdgMap[abs(l1)]
-                            chanString += pdgMap[abs(l2)]
-        else:
-            chanString = 'a'
-        return chanString
-
-    def getZChannelString(self,rtrow,cands):
-        '''Get the channel string'''
-        chanString = ''
         for c in ['z1','z2']:
-            if cands[c][1]<0: return 'aa'
             chanString += self.getCollectionString(cands[c])
         return chanString
 
     ###########################
     ### analysis selections ###
     ###########################
-    def fourLoose(self,rtrow,cands):
-        return len(self.getPassingCands(rtrow,'Loose'))>=4
+    def twoLoose(self,rtrow,cands):
+        return len(self.getPassingCands(rtrow,'Loose'))>=2
 
     def trigger(self,rtrow,cands):
         triggerNames = {

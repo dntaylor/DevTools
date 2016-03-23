@@ -54,11 +54,16 @@ class AnalysisBase(object):
         if not isinstance(outputFileName, basestring): # its a cms.string(), get value
             outputFileName = outputFileName.value()
         # input tchain
-        self.tchain = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputTreeName))
+        self.treename = '{0}/{1}'.format(inputTreeDirectory,inputTreeName)
         tchainLumi = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputLumiName))
+        self.totalEntries = 0
+        logging.info('Getting Lumi information')
         for fName in self.fileNames:
             if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
-            self.tchain.Add(fName)
+            tfile = ROOT.TFile.Open(fName)
+            tree = tfile.Get(self.treename)
+            self.totalEntries += tree.GetEntries()
+            tfile.Close('R')
             tchainLumi.Add(fName)
         # get the lumi info
         self.numLumis = tchainLumi.GetEntries()
@@ -119,26 +124,45 @@ class AnalysisBase(object):
         start = time.time()
         new = start
         old = start
-        treeEvents = self.tchain.GetEntries()
-        rtrow = self.tchain
         if hasProgress:
-            for r in self.pbar(xrange(treeEvents)):
-                rtrow.GetEntry(r)
-                self.perRowAction(rtrow)
+            self.pbar.maxval = self.totalEntries
+            self.pbar.start()
+            total = 0
+            for f, fName in enumerate(self.fileNames):
+                if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
+                tfile = ROOT.TFile.Open(fName,'READ')
+                tree = tfile.Get(self.treename)
+                treeEvents = tree.GetEntries()
+                rtrow = tree
+                for r in xrange(treeEvents):
+                    total += 1
+                    rtrow.GetEntry(r)
+                    self.pbar.update(total)
+                    self.perRowAction(rtrow)
+                tfile.Close('R')
         else:
-            for r in xrange(treeEvents):
-                if r==2: start = time.time() # just ignore first event for timing
-                rtrow.GetEntry(r)
-                if r % 1000 == 1:
-                    cur = time.time()
-                    elapsed = cur-start
-                    remaining = float(elapsed)/r * float(treeEvents) - float(elapsed)
-                    mins, secs = divmod(int(remaining),60)
-                    hours, mins = divmod(mins,60)
-                    logging.info('Processing event {0}/{1} - {2}:{3:02d}:{4:02d} remaining'.format(r,treeEvents,hours,mins,secs))
-                    self.flush()
-
-                self.perRowAction(rtrow)
+            total = 0
+            for f, fName in enumerate(self.fileNames):
+                if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
+                logging.info('Processing file {0} of {1}'.format(f+1, len(self.fileNames)))
+                tfile = ROOT.TFile.Open(fName,'READ')
+                tree = tfile.Get(self.treename)
+                treeEvents = tree.GetEntries()
+                rtrow = tree
+                for r in xrange(treeEvents):
+                    total += 1
+                    if total==2: start = time.time() # just ignore first event for timing
+                    rtrow.GetEntry(r)
+                    if total % 1000 == 1:
+                        cur = time.time()
+                        elapsed = cur-start
+                        remaining = float(elapsed)/total * float(self.totalEntries) - float(elapsed)
+                        mins, secs = divmod(int(remaining),60)
+                        hours, mins = divmod(mins,60)
+                        logging.info('Processing event {0}/{1} - {2}:{3:02d}:{4:02d} remaining'.format(total,self.totalEntries,hours,mins,secs))
+                        self.flush()
+                    self.perRowAction(rtrow)
+                tfile.Close('R')
 
     def perRowAction(self,rtrow):
         '''Per row action, can be overridden'''
@@ -168,6 +192,22 @@ class AnalysisBase(object):
         '''
         logging.warning("You must override selectCandidates.")
         return {}
+
+    #################
+    ### utilities ###
+    #################
+    def findDecay(self,rtrow,m_pdgid,d1_pdgid,d2_pdgid):
+        '''Check if requested decay present in event'''
+        for g in range(rtrow.genParticles_count):
+            if m_pdgid==rtrow.genParticles_pdgId[g]:
+                if (
+                    (d1_pdgid==rtrow.genParticles_daughter_1[g]
+                    and d2_pdgid==rtrow.genParticles_daughter_2[g])
+                    or (d1_pdgid==rtrow.genParticles_daughter_2[g]
+                    and d2_pdgid==rtrow.genParticles_daughter_1[g])
+                   ):
+                    return True
+        return False
 
     ########################
     ### object variables ###

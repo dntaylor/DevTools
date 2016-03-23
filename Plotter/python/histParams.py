@@ -12,7 +12,7 @@ from DevTools.Plotter.utilities import ZMASS
 params = {
     # default params
     'common' : {
-
+        'numVertices'      : {'variable': 'numVertices',     'binning': [40,0,40]},
     },
     # overrides for Electron
     'Electron': {
@@ -23,7 +23,7 @@ params = {
         'mvaTrig'          : {'variable': 'e_mvaTrigValues', 'binning': [100,-1.,1.]},
     },
     # overrides for Muon
-    'Electron': {
+    'Muon': {
         'pt'               : {'variable': 'm_pt',            'binning': [200,0,1000]},
         'eta'              : {'variable': 'm_eta',           'binning': [60,-3.,3.]},
         'dz'               : {'variable': 'm_dz',            'binning': [50,0,0.5]},
@@ -42,42 +42,57 @@ params = {
     # overrides for Hpp4l
     'Hpp4l' : {
         # h++
-        'hppMass'               : {'variable': 'hpp_mass',                       'binning': [120, 0, 1200]},
-        'hppLeadingLeptonPt'    : {'variable': 'hpp1_pt',                        'binning': [100, 0, 1000]},
-        'hppSubLeadingLeptonPt' : {'variable': 'hpp2_pt',                        'binning': [100, 0, 1000]},
+        'hppMass'               : {'variable': 'hpp_mass',                       'binning': [1200, 0, 1200]},
+        'hppPt'                 : {'variable': 'hpp_pt',                         'binning': [1200, 0, 1200]},
+        'hppEta'                : {'variable': 'hpp_eta',                        'binning': [1000, -5, 5]},
+        'hppDeltaR'             : {'variable': 'hpp_deltaR',                     'binning': [500, 0, 5]},
+        'hppLeadingLeptonPt'    : {'variable': 'hpp1_pt',                        'binning': [1000, 0, 1000]},
+        'hppLeadingLeptonEta'   : {'variable': 'hpp1_eta',                       'binning': [500, -2.5, 2.5]},
+        'hppSubLeadingLeptonPt' : {'variable': 'hpp2_pt',                        'binning': [1000, 0, 1000]},
+        'hppSubLeadingLeptonEta': {'variable': 'hpp2_eta',                       'binning': [500, -2.5, 2.5]},
         # h--
-        'hmmMass'               : {'variable': 'hmm_mass',                       'binning': [120, 0, 1200]},
-        'hmmLeadingLeptonPt'    : {'variable': 'hmm1_pt',                        'binning': [100, 0, 1000]},
-        'hmmSubLeadingLeptonPt' : {'variable': 'hmm2_pt',                        'binning': [100, 0, 1000]},
+        'hmmMass'               : {'variable': 'hmm_mass',                       'binning': [1200, 0, 1200]},
+        'hmmPt'                 : {'variable': 'hmm_pt',                         'binning': [1200, 0, 1200]},
+        'hmmEta'                : {'variable': 'hmm_eta',                        'binning': [1000, -5, 5]},
+        'hmmDeltaR'             : {'variable': 'hmm_deltaR',                     'binning': [500, 0, 5]},
+        'hmmLeadingLeptonPt'    : {'variable': 'hmm1_pt',                        'binning': [1000, 0, 1000]},
+        'hmmLeadingLeptonEta'   : {'variable': 'hmm1_eta',                       'binning': [500, -2.5, 2.5]},
+        'hmmSubLeadingLeptonPt' : {'variable': 'hmm2_pt',                        'binning': [1000, 0, 1000]},
+        'hmmSubLeadingLeptonEta': {'variable': 'hmm2_eta',                       'binning': [500, -2.5, 2.5]},
         # best z
         'zMass'                 : {'variable': 'z_mass',                         'binning': [60, 60, 120]},
         'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [60,0,60]},
-        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [100, 0, 1000]},
-        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [100, 0, 1000]},
+        'zPt'                   : {'variable': 'z_pt',                           'binning': [500, 0, 500]},
+        'zEta'                  : {'variable': 'z_eta',                          'binning': [1000, -5, 5]},
+        'zDeltaR'               : {'variable': 'z_deltaR',                       'binning': [500, 0, 5]},
+        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [1000, 0, 1000]},
+        'zLeadingLeptonEta'     : {'variable': 'z1_eta',                         'binning': [500, -2.5, 2.5]},
+        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [1000, 0, 1000]},
+        'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
         # event
-        'met'                   : {'variable': 'met_pt',                         'binning': [50, 0, 500]},
-        'mass'                  : {'variable': '4l_mass',                        'binning': [50, 0, 2000]},
+        'met'                   : {'variable': 'met_pt',                         'binning': [500, 0, 500]},
+        'mass'                  : {'variable': '4l_mass',                        'binning': [2000, 0, 2000]},
     },
     # overrides for Hpp3l
     'Hpp3l' : {
         # h++/h--
-        'hppMass'               : {'variable': 'hpp_mass',                       'binning': [120, 0, 1200]},
-        'hppLeadingLeptonPt'    : {'variable': 'hpp1_pt',                        'binning': [100, 0, 1000]},
-        'hppSubLeadingLeptonPt' : {'variable': 'hpp2_pt',                        'binning': [100, 0, 1000]},
+        'hppMass'               : {'variable': 'hpp_mass',                       'binning': [1200, 0, 1200]},
+        'hppLeadingLeptonPt'    : {'variable': 'hpp1_pt',                        'binning': [1000, 0, 1000]},
+        'hppSubLeadingLeptonPt' : {'variable': 'hpp2_pt',                        'binning': [1000, 0, 1000]},
         # h-/h+
-        'hmMass'                : {'variable': 'hm_mass',                        'binning': [120, 0, 1200]},
-        'hmLeptonPt'            : {'variable': 'hm1_pt',                         'binning': [100, 0, 1000]},
+        'hmMass'                : {'variable': 'hm_mass',                        'binning': [1200, 0, 1200]},
+        'hmLeptonPt'            : {'variable': 'hm1_pt',                         'binning': [1000, 0, 1000]},
         # best z
         'zMass'                 : {'variable': 'z_mass',                         'binning': [60, 60, 120]},
         'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [60,0,60]},
-        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [100, 0, 1000]},
-        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [100, 0, 1000]},
+        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [1000, 0, 1000]},
+        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [1000, 0, 1000]},
         # w
-        'wMass'                 : {'variable': 'w_mass',                         'binning': [50, 0, 200]},
-        'wLeptonPt'             : {'variable': 'w1_pt',                          'binning': [100, 0, 1000]},
+        'wMass'                 : {'variable': 'w_mass',                         'binning': [200, 0, 200]},
+        'wLeptonPt'             : {'variable': 'w1_pt',                          'binning': [1000, 0, 1000]},
         # event
-        'met'                   : {'variable': 'met_pt',                         'binning': [50, 0, 500]},
-        'mass'                  : {'variable': '3l_mass',                        'binning': [50, 0, 2000]},
+        'met'                   : {'variable': 'met_pt',                         'binning': [500, 0, 500]},
+        'mass'                  : {'variable': '3l_mass',                        'binning': [2000, 0, 2000]},
     },
 }
 
@@ -125,7 +140,7 @@ selectionParams['Electron'] = {
 ### wz specific stuff ###
 #########################
 wzBaseCut = 'z1_pt>20 && z2_pt>10 && w1_pt>20 && met_pt>30 && numBjetsTight30==0 && fabs(z_mass-91.1876)<15 && 3l_mass>100'
-wzBaseScaleFactor = 'genWeight'
+wzBaseScaleFactor = 'genWeight*pileupWeight'
 wzPromptCut = ' && '.join([promptCut.format(l) for l in ['z1','z2','w1']])
 
 wzTightVar = {
@@ -173,18 +188,22 @@ selectionParams['WZ'] = {
 ### hpp4l ###
 #############
 hpp4lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hmm1_passMedium==1 && hmm2_passMedium==1'
-hpp4lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hmm1_mediumScale*hmm2_mediumScale*genWeight'
+hpp4lLowMassControl = '{0} && hpp_mass<170 && hmm_mass<170'.format(hpp4lBaseCut)
+hpp4lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hmm1_mediumScale*hmm2_mediumScale*genWeight*pileupWeight'
 selectionParams['Hpp4l'] = {
-    'default' : {'args': [hpp4lBaseCut], 'kwargs': {'mcscalefactor': hpp4lScaleFactor}},
+    'default' : {'args': [hpp4lBaseCut],        'kwargs': {'mcscalefactor': hpp4lScaleFactor}},
+    'lowmass' : {'args': [hpp4lLowMassControl], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'postfix': 'lowmass'}},
 }
 
 #############
 ### hpp3l ###
 #############
 hpp3lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hm1_passMedium==1'
-hpp3lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hm1_mediumScale*genWeight'
+hpp3lLowMassControl = '{0} && hpp_mass<170'.format(hpp3lBaseCut)
+hpp3lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hm1_mediumScale*genWeight*pileupWeight'
 selectionParams['Hpp3l'] = {
-    'default' : {'args': [hpp3lBaseCut], 'kwargs': {'mcscalefactor': hpp3lScaleFactor}},
+    'default' : {'args': [hpp3lBaseCut],        'kwargs': {'mcscalefactor': hpp3lScaleFactor}},
+    'lowmass' : {'args': [hpp3lLowMassControl], 'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'postfix': 'lowmass'}},
 }
 
 #############################
