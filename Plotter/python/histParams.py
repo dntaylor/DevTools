@@ -12,7 +12,9 @@ from DevTools.Plotter.utilities import ZMASS
 params = {
     # default params
     'common' : {
+        'count'            : {'variable': '1',               'binning': [1,0,2]}, # just a count of events passing selection
         'numVertices'      : {'variable': 'numVertices',     'binning': [40,0,40]},
+        'met'              : {'variable': 'met_pt',          'binning': [500, 0, 500]},
     },
     # overrides for Electron
     'Electron': {
@@ -36,7 +38,6 @@ params = {
         'zSubLeadingLeptonPt' : {'variable': 'z2_pt',   'binning': [50, 0, 500]},
         'wMass'               : {'variable': 'w_mass',  'binning': [50, 0, 200]},
         'wLeptonPt'           : {'variable': 'w1_pt',   'binning': [50, 0, 500]},
-        'met'                 : {'variable': 'met_pt',  'binning': [50, 0, 500]},
         'mass'                : {'variable': '3l_mass', 'binning': [50, 0, 500]},
     },
     # overrides for Hpp4l
@@ -60,8 +61,8 @@ params = {
         'hmmSubLeadingLeptonPt' : {'variable': 'hmm2_pt',                        'binning': [1000, 0, 1000]},
         'hmmSubLeadingLeptonEta': {'variable': 'hmm2_eta',                       'binning': [500, -2.5, 2.5]},
         # best z
-        'zMass'                 : {'variable': 'z_mass',                         'binning': [60, 60, 120]},
-        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [60,0,60]},
+        'zMass'                 : {'variable': 'z_mass',                         'binning': [500, 0, 500]},
+        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [200, 0, 200]},
         'zPt'                   : {'variable': 'z_pt',                           'binning': [500, 0, 500]},
         'zEta'                  : {'variable': 'z_eta',                          'binning': [1000, -5, 5]},
         'zDeltaR'               : {'variable': 'z_deltaR',                       'binning': [500, 0, 5]},
@@ -70,28 +71,41 @@ params = {
         'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [1000, 0, 1000]},
         'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
         # event
-        'met'                   : {'variable': 'met_pt',                         'binning': [500, 0, 500]},
         'mass'                  : {'variable': '4l_mass',                        'binning': [2000, 0, 2000]},
     },
     # overrides for Hpp3l
     'Hpp3l' : {
         # h++/h--
         'hppMass'               : {'variable': 'hpp_mass',                       'binning': [1200, 0, 1200]},
+        'hppPt'                 : {'variable': 'hpp_pt',                         'binning': [1200, 0, 1200]},
+        'hppEta'                : {'variable': 'hpp_eta',                        'binning': [1000, -5, 5]},
+        'hppDeltaR'             : {'variable': 'hpp_deltaR',                     'binning': [500, 0, 5]},
         'hppLeadingLeptonPt'    : {'variable': 'hpp1_pt',                        'binning': [1000, 0, 1000]},
+        'hppLeadingLeptonEta'   : {'variable': 'hpp1_eta',                       'binning': [500, -2.5, 2.5]},
         'hppSubLeadingLeptonPt' : {'variable': 'hpp2_pt',                        'binning': [1000, 0, 1000]},
+        'hppSubLeadingLeptonEta': {'variable': 'hpp2_eta',                       'binning': [500, -2.5, 2.5]},
         # h-/h+
         'hmMass'                : {'variable': 'hm_mass',                        'binning': [1200, 0, 1200]},
+        'hmPt'                  : {'variable': 'hm_pt',                          'binning': [1200, 0, 1200]},
+        'hmEta'                 : {'variable': 'hm_eta',                         'binning': [1000, -5, 5]},
         'hmLeptonPt'            : {'variable': 'hm1_pt',                         'binning': [1000, 0, 1000]},
+        'hmLeptonEta'           : {'variable': 'hm1_eta',                        'binning': [500, -2.5, 2.5]},
         # best z
-        'zMass'                 : {'variable': 'z_mass',                         'binning': [60, 60, 120]},
-        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [60,0,60]},
+        'zMass'                 : {'variable': 'z_mass',                         'binning': [500, 0, 500]},
+        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [200, 0, 200]},
+        'zPt'                   : {'variable': 'z_pt',                           'binning': [500, 0, 500]},
+        'zEta'                  : {'variable': 'z_eta',                          'binning': [1000, -5, 5]},
         'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [1000, 0, 1000]},
+        'zLeadingLeptonEta'     : {'variable': 'z1_eta',                         'binning': [500, -2.5, 2.5]},
         'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [1000, 0, 1000]},
+        'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
         # w
-        'wMass'                 : {'variable': 'w_mass',                         'binning': [200, 0, 200]},
+        'wMass'                 : {'variable': 'w_mass',                         'binning': [500, 0, 500]},
+        'wPt'                   : {'variable': 'w_pt',                           'binning': [500, 0, 500]},
+        'wEta'                  : {'variable': 'w_eta',                          'binning': [1000, -5, 5]},
         'wLeptonPt'             : {'variable': 'w1_pt',                          'binning': [1000, 0, 1000]},
+        'wLeptonEta'            : {'variable': 'w1_eta',                         'binning': [500, -2.5, 2.5]},
         # event
-        'met'                   : {'variable': 'met_pt',                         'binning': [500, 0, 500]},
         'mass'                  : {'variable': '3l_mass',                        'binning': [2000, 0, 2000]},
     },
 }
@@ -128,12 +142,12 @@ fakeCut = '({0}_genMatch==0 || ({0}_genMatch==1 && {0}_genIsFromHadron && {0}_ge
 ### electron specific ###
 #########################
 selectionParams['Electron'] = {
-    'default'      : {'args': [promptCut.format('e')],                                       'kwargs': {}},
-    'fake'         : {'args': [fakeCut.format('e')],                                         'kwargs': {'postfix': 'fake'}},
-    'barrel'       : {'args': [' && '.join([promptCut.format('e'),eBarrelCut.format('e')])], 'kwargs': {'postfix': 'barrel'}},
-    'barrel_fake'  : {'args': [' && '.join([fakeCut.format('e'),eBarrelCut.format('e')])],   'kwargs': {'postfix': 'barrel_fake'}},
-    'endcap'       : {'args': [' && '.join([promptCut.format('e'),eEndcapCut.format('e')])], 'kwargs': {'postfix': 'endcap'}},
-    'edncap_fake'  : {'args': [' && '.join([fakeCut.format('e'),eEndcapCut.format('e')])],   'kwargs': {'postfix': 'endcap_fake'}},
+    'default'      : {'args': [promptCut.format('e')],                                       'kwargs': {'directory': 'default/prompt'}},
+    'fake'         : {'args': [fakeCut.format('e')],                                         'kwargs': {'directory': 'default/fake'}},
+    'barrel'       : {'args': [' && '.join([promptCut.format('e'),eBarrelCut.format('e')])], 'kwargs': {'directory': 'barrel/prompt'}},
+    'barrel_fake'  : {'args': [' && '.join([fakeCut.format('e'),eBarrelCut.format('e')])],   'kwargs': {'directory': 'barrel/fake'}},
+    'endcap'       : {'args': [' && '.join([promptCut.format('e'),eEndcapCut.format('e')])], 'kwargs': {'directory': 'endcap/prompt'}},
+    'edncap_fake'  : {'args': [' && '.join([fakeCut.format('e'),eEndcapCut.format('e')])],   'kwargs': {'directory': 'endcap/fake'}},
 }
 
 #########################
@@ -173,15 +187,15 @@ for region in ['PPP','PPF','PFP','FPP','PFF','FPF','FFP','FFF']:
     wzCutMap[region] = ' && '.join(['{0}=={1}'.format(wzTightVar[x],1 if region[x]=='P' else 0) for x in range(3)]+[wzBaseCut])
 
 selectionParams['WZ'] = {
-    'default' : {'args': [wzBaseCut],       'kwargs': {'mcscalefactor': '*'.join([wzScaleFactorMap['PPP'],wzBaseScaleFactor])}},
-    'PPP'     : {'args': [wzCutMap['PPP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PPP'],wzBaseScaleFactor]), 'postfix': 'PPP'}},
-    'PPF'     : {'args': [wzCutMap['PPF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PPF'],wzBaseScaleFactor]), 'postfix': 'PPF'}},
-    'PFP'     : {'args': [wzCutMap['PFP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PFP'],wzBaseScaleFactor]), 'postfix': 'PFP'}},
-    'FPP'     : {'args': [wzCutMap['FPP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FPP'],wzBaseScaleFactor]), 'postfix': 'FPP'}},
-    'PFF'     : {'args': [wzCutMap['PFF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PFF'],wzBaseScaleFactor]), 'postfix': 'PFF'}},
-    'FPF'     : {'args': [wzCutMap['FPF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FPF'],wzBaseScaleFactor]), 'postfix': 'FPF'}},
-    'FFP'     : {'args': [wzCutMap['FFP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FFP'],wzBaseScaleFactor]), 'postfix': 'FFP'}},
-    'FFF'     : {'args': [wzCutMap['FFF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FFF'],wzBaseScaleFactor]), 'postfix': 'FFF'}},
+    'default' : {'args': [wzBaseCut],       'kwargs': {'mcscalefactor': '*'.join([wzScaleFactorMap['PPP'],wzBaseScaleFactor]), 'directory': 'default'}},
+    'PPP'     : {'args': [wzCutMap['PPP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PPP'],wzBaseScaleFactor]), 'directory': 'PPP'}},
+    'PPF'     : {'args': [wzCutMap['PPF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PPF'],wzBaseScaleFactor]), 'directory': 'PPF'}},
+    'PFP'     : {'args': [wzCutMap['PFP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PFP'],wzBaseScaleFactor]), 'directory': 'PFP'}},
+    'FPP'     : {'args': [wzCutMap['FPP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FPP'],wzBaseScaleFactor]), 'directory': 'FPP'}},
+    'PFF'     : {'args': [wzCutMap['PFF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PFF'],wzBaseScaleFactor]), 'directory': 'PFF'}},
+    'FPF'     : {'args': [wzCutMap['FPF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FPF'],wzBaseScaleFactor]), 'directory': 'FPF'}},
+    'FFP'     : {'args': [wzCutMap['FFP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FFP'],wzBaseScaleFactor]), 'directory': 'FFP'}},
+    'FFF'     : {'args': [wzCutMap['FFF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FFF'],wzBaseScaleFactor]), 'directory': 'FFF'}},
 }
 
 #############
@@ -191,20 +205,51 @@ hpp4lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hmm1_passMedium==1 &
 hpp4lLowMassControl = '{0} && hpp_mass<170 && hmm_mass<170'.format(hpp4lBaseCut)
 hpp4lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hmm1_mediumScale*hmm2_mediumScale*genWeight*pileupWeight'
 selectionParams['Hpp4l'] = {
-    'default' : {'args': [hpp4lBaseCut],        'kwargs': {'mcscalefactor': hpp4lScaleFactor}},
-    'lowmass' : {'args': [hpp4lLowMassControl], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'postfix': 'lowmass'}},
+    'default' : {'args': [hpp4lBaseCut],        'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'default'}},
+    'lowmass' : {'args': [hpp4lLowMassControl], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'lowmass'}},
 }
+
+channels = []
+higgsChannels = ['ee','em','me','mm']
+for hpp in higgsChannels:
+    for hmm in higgsChannels:
+        channels += [hpp+hmm]
+
+for sel in ['default','lowmass']:
+    for chan in channels:
+        directory = '{0}/{1}'.format(sel,chan)
+        name = '{0}_{1}'.format(sel,chan)
+        selectionParams['Hpp4l'][name] = deepcopy(selectionParams['Hpp4l'][sel])
+        args = selectionParams['Hpp4l'][name]['args']
+        selectionParams['Hpp4l'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
+        selectionParams['Hpp4l'][name]['kwargs']['directory'] = directory
 
 #############
 ### hpp3l ###
 #############
 hpp3lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hm1_passMedium==1'
-hpp3lLowMassControl = '{0} && hpp_mass<170'.format(hpp3lBaseCut)
+hpp3lLowMassControl = '{0} && hpp_mass<170 && hm_mass<170'.format(hpp3lBaseCut)
 hpp3lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hm1_mediumScale*genWeight*pileupWeight'
 selectionParams['Hpp3l'] = {
-    'default' : {'args': [hpp3lBaseCut],        'kwargs': {'mcscalefactor': hpp3lScaleFactor}},
-    'lowmass' : {'args': [hpp3lLowMassControl], 'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'postfix': 'lowmass'}},
+    'default' : {'args': [hpp3lBaseCut],        'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'directory': 'default'}},
+    'lowmass' : {'args': [hpp3lLowMassControl], 'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'directory': 'lowmass'}},
 }
+
+channels = []
+higgsChannels = ['ee','em','me','mm']
+higgsChannels2 = ['e', 'm']
+for hpp in higgsChannels:
+    for hm in higgsChannels2:
+        channels += [hpp+hm]
+
+for sel in ['default','lowmass']:
+    for chan in channels:
+        directory = '{0}/{1}'.format(sel,chan)
+        name = '{0}_{1}'.format(sel,chan)
+        selectionParams['Hpp3l'][name] = deepcopy(selectionParams['Hpp3l'][sel])
+        args = selectionParams['Hpp3l'][name]['args']
+        selectionParams['Hpp3l'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
+        selectionParams['Hpp3l'][name]['kwargs']['directory'] = directory
 
 #############################
 ### functions to retrieve ###

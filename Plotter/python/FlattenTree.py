@@ -64,8 +64,10 @@ class FlattenTree(object):
         if self.outfile:
             self.outfile.Close()
 
-    def __write(self,hist):
+    def __write(self,hist,directory=''):
         self.outfile = ROOT.TFile(self.outputFileName,'update')
+        if not self.outfile.GetDirectory(directory): self.outfile.mkdir(directory)
+        self.outfile.cd('{0}:/{1}'.format(self.outputFileName,directory))
         hist.Write('',ROOT.TObject.kOverwrite)
         self.__finish()
 
@@ -131,17 +133,17 @@ class FlattenTree(object):
         else:
             pbar = None
         allJobs = []
-        for sel,post in self.selections:
+        for sel,directory in self.selections:
             for histName,params in self.histParameters2D.iteritems():
-                allJobs += [[sel,post,histName,params]]
+                allJobs += [[sel,directory,histName,params]]
         if hasProgress:
             for args in pbar(allJobs):
-                sel,post,histName,params = args
-                self.__flatten2D(sel,histName,params,postfix=post,**kwargs)
+                sel,directory,histName,params = args
+                self.__flatten2D(sel,histName,params,directory=directory,**kwargs)
         else:
             for args in allJobs:
-                sel,post,histName,params = args
-                self.__flatten2D(sel,histName,params,postfix=post,**kwargs)
+                sel,directory,histName,params = args
+                self.__flatten2D(sel,histName,params,directory=directory,**kwargs)
 
     def __flatten(self,selection,histName,params,**kwargs):
         '''Produce flat histograms for a given selection.'''
@@ -154,14 +156,13 @@ class FlattenTree(object):
         datascalefactor = kwargs.pop('datascalefactor','')
         if datascalefactor and isData(self.sample): scalefactor = datascalefactor
         if mcscalefactor and not isData(self.sample): scalefactor = mcscalefactor
-        postfix = kwargs.pop('postfix','')
-        if not hasProgress: logging.info('Flattening {0} {1}'.format(self.sample,postfix))
+        directory = kwargs.pop('directory','')
+        if not hasProgress: logging.info('Flattening {0} {1} {2}'.format(self.sample,directory,histName))
         tree = self.sampleTree
         if not tree: return
         os.system('mkdir -p {0}'.format(os.path.dirname(self.outputFileName)))
         if not isData(self.sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
         name = histName
-        if postfix: name += '_{0}'.format(postfix)
         self.j += 1
         tempName = '{0}_{1}_{2}'.format(name,self.sample,self.j)
         drawString = '{0}>>{1}({2})'.format(params['variable'],tempName,', '.join([str(x) for x in params['binning']]))
@@ -172,13 +173,13 @@ class FlattenTree(object):
             hist = ROOT.gDirectory.Get(tempName)
             hist.SetTitle(name)
             hist.SetName(name)
-            self.__write(hist)
+            self.__write(hist,directory=directory)
         else:
             bins = params['binning']
             hist = ROOT.TH1F(tempName,tempName,*bins)
             hist.SetTitle(name)
             hist.SetName(name)
-            self.__write(hist)
+            self.__write(hist,directory=directory)
 
     def __flatten2D(self,selection,histName,params,**kwargs):
         '''Produce flat 2D histograms for a given selection.'''
@@ -191,14 +192,13 @@ class FlattenTree(object):
         datascalefactor = kwargs.pop('datascalefactor','')
         if datascalefactor and isData(self.sample): scalefactor = datascalefactor
         if mcscalefactor and not isData(self.sample): scalefactor = mcscalefactor
-        postfix = kwargs.pop('postfix','')
-        if not hasProgress: logging.info('Flattening {0} {1}'.format(self.sample,postfix))
+        directory = kwargs.pop('directory','')
+        if not hasProgress: logging.info('Flattening {0} {1} {2}'.format(self.sample,directory,histName))
         tree = self.sampleTree
         if not tree: return
         os.system('mkdir -p {0}'.format(os.path.dirname(self.outputFileName)))
         if not isData(self.sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
         name = histName
-        if postfix: name += '_{0}'.format(postfix)
         self.j += 1
         tempName = '{0}_{1}_{2}'.format(name,self.sample,self.j)
         drawString = '{0}:{1}>>{2}({3})'.format(params['yVariable'],params['xVariable'],tempName,', '.join([str(x) for x in params['xBinning']+params['yBinning']]))
@@ -209,10 +209,10 @@ class FlattenTree(object):
             hist = ROOT.gDirectory.Get(tempName)
             hist.SetTitle(name)
             hist.SetName(name)
-            self.__write(hist)
+            self.__write(hist,directory=directory)
         else:
             bins = params['xBinning']+params['yBinning']
             hist = ROOT.TH2F(tempName,tempName,*bins)
             hist.SetTitle(name)
             hist.SetName(name)
-            self.__write(hist)
+            self.__write(hist,directory=directory)
