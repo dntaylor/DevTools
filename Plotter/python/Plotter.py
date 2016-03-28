@@ -13,6 +13,7 @@ import DevTools.Plotter.CMS_lumi as CMS_lumi
 import DevTools.Plotter.tdrstyle as tdrstyle
 
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
+ROOT.gROOT.ProcessLine("gErrorIgnoreLevel = 1001;")
 tdrstyle.setTDRStyle()
 ROOT.gStyle.SetPalette(1)
 
@@ -361,6 +362,8 @@ class Plotter(object):
         blinder = kwargs.pop('blinder',[])
         rangex = kwargs.pop('rangex',[])
         save = kwargs.pop('save',True)
+
+        logging.info('Plotting {0}'.format(savename))
 
         ROOT.gDirectory.Delete('h_*')
 

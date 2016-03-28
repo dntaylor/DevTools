@@ -53,12 +53,10 @@ class DYAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZPass'), 'pass_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu20Pass'), 'pass_IsoMu20', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoTkMu20Pass'), 'pass_IsoTkMu20', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu27Pass'), 'pass_IsoMu27', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
+        self.tree.add(self.triggerEfficiency, 'triggerEfficiency', 'F')
 
         # vbf
         self.addJet('leadJet')
@@ -261,6 +259,8 @@ class DYAnalysis(AnalysisBase):
         return len(self.getPassingCands(rtrow,'Loose'))>=2
 
     def trigger(self,rtrow,cands):
+        # accept MC, check trigger for data
+        if rtrow.isData<0.5: return True
         triggerNames = {
             'DoubleMuon'     : [
                 'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ',
@@ -269,14 +269,9 @@ class DYAnalysis(AnalysisBase):
             'DoubleEG'       : [
                 'Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ',
             ],
-            'MuonEG'         : [
-                'Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL',
-                'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL',
-            ],
             'SingleMuon'     : [
                 'IsoMu20',
                 'IsoTkMu20',
-                'IsoMu27',
             ],
             'SingleElectron' : [
                 'Ele23_WPLoose_Gsf',
@@ -289,7 +284,6 @@ class DYAnalysis(AnalysisBase):
         datasets = [
             'DoubleMuon', 
             'DoubleEG', 
-            'MuonEG',
             'SingleMuon',
             'SingleElectron',
         ]
@@ -311,6 +305,10 @@ class DYAnalysis(AnalysisBase):
             if dataset in self.fileNames[0]: break
         return False
 
+    def triggerEfficiency(self,rtrow,cands):
+        candList = [cands[c] for c in ['z1','z2']]
+        triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','Mu17_Mu8','Ele17_Ele12']
+        return self.triggerScales.getDataEfficiency(rtrow,triggerList,candList)
 
 
 

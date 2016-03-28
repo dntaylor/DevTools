@@ -57,8 +57,8 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu20Pass'), 'pass_IsoMu20', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoTkMu20Pass'), 'pass_IsoTkMu20', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu27Pass'), 'pass_IsoMu27', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
+        self.tree.add(self.triggerEfficiency, 'triggerEfficiency', 'F')
 
 
         # vbf
@@ -364,6 +364,8 @@ class Hpp4lAnalysis(AnalysisBase):
         return len(self.getPassingCands(rtrow,'Loose'))>=4
 
     def trigger(self,rtrow,cands):
+        # accept MC, check trigger for data
+        if rtrow.isData<0.5: return True
         triggerNames = {
             'DoubleMuon'     : [
                 'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ',
@@ -379,7 +381,6 @@ class Hpp4lAnalysis(AnalysisBase):
             'SingleMuon'     : [
                 'IsoMu20',
                 'IsoTkMu20',
-                'IsoMu27',
             ],
             'SingleElectron' : [
                 'Ele23_WPLoose_Gsf',
@@ -414,7 +415,10 @@ class Hpp4lAnalysis(AnalysisBase):
             if dataset in self.fileNames[0]: break
         return False
 
-
+    def triggerEfficiency(self,rtrow,cands):
+        candList = [cands[c] for c in ['hpp1','hpp2','hmm1','hmm2']]
+        triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','Mu17_Mu8','Ele17_Ele12']
+        return self.triggerScales.getDataEfficiency(rtrow,triggerList,candList)
 
 
 

@@ -54,6 +54,7 @@ treeMap = {
     'WZ'             : 'WZTree',
     'Hpp3l'          : 'Hpp3lTree',
     'Hpp4l'          : 'Hpp4lTree',
+    'DY'             : 'DYTree',
 }
 
 def getTreeName(analysis):

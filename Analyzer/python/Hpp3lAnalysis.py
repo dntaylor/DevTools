@@ -32,6 +32,7 @@ class Hpp3lAnalysis(AnalysisBase):
 
         # chan string
         self.tree.add(self.getChannelString, 'channel', ['C',4])
+        self.tree.add(self.getGenChannelString, 'genChannel', ['C',5])
         self.tree.add(self.getWZChannelString, 'wzChannel', ['C',4])
 
         # event counts
@@ -60,8 +61,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu20Pass'), 'pass_IsoMu20', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoTkMu20Pass'), 'pass_IsoTkMu20', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu27Pass'), 'pass_IsoMu27', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
+        self.tree.add(self.triggerEfficiency, 'triggerEfficiency', 'F')
 
         # vbf
         self.addJet('leadJet')
@@ -346,6 +347,28 @@ class Hpp3lAnalysis(AnalysisBase):
             chanString += self.getCollectionString(cands[c])
         return chanString
 
+    def getGenChannelString(self,rtrow,cands):
+        '''Get the gen h++ channel'''
+        chanString = ''
+        pdgMap = {
+            11: 'e',
+            13: 'm',
+            15: 't',
+        }
+        if 'HPlusPlusHMinusMinusHTo4L' in self.fileNames[0]: # h++h-- signal sample
+            for s in [1,-1]:
+                h = -1*s*9900041                     # h++ in pythia8
+                for l1 in [s*11, s*13, s*15]:        # lepton 1
+                    for l2 in [s*11, s*13, s*15]:    # lepton 2
+                        if abs(l2)<abs(l1): continue # skip double counting
+                        hasDecay = self.findDecay(rtrow,h,l1,l2)
+                        if hasDecay:
+                            chanString += pdgMap[abs(l1)]
+                            chanString += pdgMap[abs(l2)]
+        else:
+            chanString = 'a'
+        return chanString
+
     ###########################
     ### analysis selections ###
     ###########################
@@ -356,6 +379,8 @@ class Hpp3lAnalysis(AnalysisBase):
         return len(self.getPassingCands(rtrow,'Medium'))<=3
 
     def trigger(self,rtrow,cands):
+        # accept MC, check trigger for data
+        if rtrow.isData<0.5: return True
         triggerNames = {
             'DoubleMuon'     : [
                 'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ',
@@ -371,7 +396,6 @@ class Hpp3lAnalysis(AnalysisBase):
             'SingleMuon'     : [
                 'IsoMu20',
                 'IsoTkMu20',
-                'IsoMu27',
             ],
             'SingleElectron' : [
                 'Ele23_WPLoose_Gsf',
@@ -406,7 +430,10 @@ class Hpp3lAnalysis(AnalysisBase):
             if dataset in self.fileNames[0]: break
         return False
 
-
+    def triggerEfficiency(self,rtrow,cands):
+        candList = [cands[c] for c in ['hpp1','hpp2','hm1']]
+        triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','Mu17_Mu8','Ele17_Ele12']
+        return self.triggerScales.getDataEfficiency(rtrow,triggerList,candList)
 
 
 

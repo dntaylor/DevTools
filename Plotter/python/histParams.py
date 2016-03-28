@@ -15,6 +15,7 @@ params = {
         'count'            : {'variable': '1',               'binning': [1,0,2]}, # just a count of events passing selection
         'numVertices'      : {'variable': 'numVertices',     'binning': [40,0,40]},
         'met'              : {'variable': 'met_pt',          'binning': [500, 0, 500]},
+        'metPhi'           : {'variable': 'met_phi',         'binning': [500, -3.14159, 3.14159]},
     },
     # overrides for Electron
     'Electron': {
@@ -30,6 +31,18 @@ params = {
         'eta'              : {'variable': 'm_eta',           'binning': [60,-3.,3.]},
         'dz'               : {'variable': 'm_dz',            'binning': [50,0,0.5]},
         'dxy'              : {'variable': 'm_dxy',           'binning': [50,0,0.3]},
+    },
+    # overrides for DY
+    'DY' : {
+        'zMass'                 : {'variable': 'z_mass',                         'binning': [5000, 0, 500]},
+        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [2000, 0, 200]},
+        'zPt'                   : {'variable': 'z_pt',                           'binning': [5000, 0, 500]},
+        'zEta'                  : {'variable': 'z_eta',                          'binning': [1000, -5, 5]},
+        'zDeltaR'               : {'variable': 'z_deltaR',                       'binning': [500, 0, 5]},
+        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [10000, 0, 1000]},
+        'zLeadingLeptonEta'     : {'variable': 'z1_eta',                         'binning': [500, -2.5, 2.5]},
+        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [10000, 0, 1000]},
+        'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
     },
     # overrides for WZ
     'WZ' : {
@@ -149,6 +162,27 @@ selectionParams['Electron'] = {
     'endcap'       : {'args': [' && '.join([promptCut.format('e'),eEndcapCut.format('e')])], 'kwargs': {'directory': 'endcap/prompt'}},
     'edncap_fake'  : {'args': [' && '.join([fakeCut.format('e'),eEndcapCut.format('e')])],   'kwargs': {'directory': 'endcap/fake'}},
 }
+
+###################
+### DY specific ###
+###################
+dyBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && z_mass>12. && z1_pt>20. && z2_pt>10.'
+dyScaleFactor = 'z1_mediumScale*z2_mediumScale*genWeight*pileupWeight'
+selectionParams['DY'] = {
+    'default' : {'args': [dyBaseCut],        'kwargs': {'mcscalefactor': dyScaleFactor, 'directory': 'default'}},
+}
+
+channels = ['ee','mm']
+
+for sel in ['default']:
+    for chan in channels:
+        directory = '{0}/{1}'.format(sel,chan)
+        name = '{0}_{1}'.format(sel,chan)
+        selectionParams['DY'][name] = deepcopy(selectionParams['DY'][sel])
+        args = selectionParams['DY'][name]['args']
+        selectionParams['DY'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
+        selectionParams['DY'][name]['kwargs']['directory'] = directory
+
 
 #########################
 ### wz specific stuff ###
