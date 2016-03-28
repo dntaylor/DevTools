@@ -167,7 +167,7 @@ selectionParams['Electron'] = {
 ### DY specific ###
 ###################
 dyBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && z_mass>12. && z1_pt>20. && z2_pt>10.'
-dyScaleFactor = 'z1_mediumScale*z2_mediumScale*genWeight*pileupWeight'
+dyScaleFactor = 'z1_mediumScale*z2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['DY'] = {
     'default' : {'args': [dyBaseCut],        'kwargs': {'mcscalefactor': dyScaleFactor, 'directory': 'default'}},
 }
@@ -188,7 +188,7 @@ for sel in ['default']:
 ### wz specific stuff ###
 #########################
 wzBaseCut = 'z1_pt>20 && z2_pt>10 && w1_pt>20 && met_pt>30 && numBjetsTight30==0 && fabs(z_mass-91.1876)<15 && 3l_mass>100'
-wzBaseScaleFactor = 'genWeight*pileupWeight'
+wzBaseScaleFactor = 'genWeight*pileupWeight*triggerEfficiency'
 wzPromptCut = ' && '.join([promptCut.format(l) for l in ['z1','z2','w1']])
 
 wzTightVar = {
@@ -237,7 +237,7 @@ selectionParams['WZ'] = {
 #############
 hpp4lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hmm1_passMedium==1 && hmm2_passMedium==1'
 hpp4lLowMassControl = '{0} && hpp_mass<170 && hmm_mass<170'.format(hpp4lBaseCut)
-hpp4lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hmm1_mediumScale*hmm2_mediumScale*genWeight*pileupWeight'
+hpp4lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hmm1_mediumScale*hmm2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Hpp4l'] = {
     'default' : {'args': [hpp4lBaseCut],        'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'default'}},
     'lowmass' : {'args': [hpp4lLowMassControl], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'lowmass'}},
@@ -263,7 +263,7 @@ for sel in ['default','lowmass']:
 #############
 hpp3lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hm1_passMedium==1'
 hpp3lLowMassControl = '{0} && hpp_mass<170 && hm_mass<170'.format(hpp3lBaseCut)
-hpp3lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hm1_mediumScale*genWeight*pileupWeight'
+hpp3lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hm1_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Hpp3l'] = {
     'default' : {'args': [hpp3lBaseCut],        'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'directory': 'default'}},
     'lowmass' : {'args': [hpp3lLowMassControl], 'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'directory': 'lowmass'}},
