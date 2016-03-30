@@ -200,7 +200,8 @@ class Limits(object):
     def getExpected(self,process,era,analysis,channel):
         '''Get the expected value.'''
         key = (process,era,analysis,channel)
-        return self.expected[key] if key in self.expected else 1e-10
+        val = self.expected[key] if key in self.expected else 0.
+        return val if val else 1.0e-10
 
     def printCard(self,filename,eras=['all'],analyses=['all'],channels=['all'],blind=True):
         '''
@@ -270,7 +271,7 @@ class Limits(object):
             for era in eras:
                 for analysis in analyses:
                     for channel in channels:
-                        for process in processes:
+                        for process in processesOrdered:
                             key = (era,analysis,channel,process)
                             thisRow += ['{0:<10.4g}'.format(combinedSysts[syst]['systs'][key]) if key in combinedSysts[syst]['systs'] else '-']
             systRows += [thisRow]
