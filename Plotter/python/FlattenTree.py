@@ -115,7 +115,9 @@ class FlattenTree(object):
             pbar = None
         allJobs = []
         for sel,sel_kwargs in self.selections:
+            countOnly = sel_kwargs.pop('countOnly',False)
             for histName,params in self.histParameters.iteritems():
+                if countOnly and 'count' not in histName: continue
                 allJobs += [[sel,sel_kwargs,histName,params]]
         if hasProgress:
             for args in pbar(allJobs):
@@ -133,17 +135,19 @@ class FlattenTree(object):
         else:
             pbar = None
         allJobs = []
-        for sel,directory in self.selections:
+        for sel,sel_kwargs in self.selections:
+            countOnly = sel_kwargs.pop('countOnly',False)
             for histName,params in self.histParameters2D.iteritems():
-                allJobs += [[sel,directory,histName,params]]
+                if countOnly and 'count' not in histName: continue
+                allJobs += [[sel,sel_kwargs,histName,params]]
         if hasProgress:
             for args in pbar(allJobs):
-                sel,directory,histName,params = args
-                self.__flatten2D(sel,histName,params,directory=directory,**kwargs)
+                sel,sel_kwargs,histName,params = args
+                self.__flatten2D(sel,histName,params,**sel_kwargs)
         else:
             for args in allJobs:
-                sel,directory,histName,params = args
-                self.__flatten2D(sel,histName,params,directory=directory,**kwargs)
+                sel,sel_kwargs,histName,params = args
+                self.__flatten2D(sel,histName,params,**sel_kwargs)
 
     def __flatten(self,selection,histName,params,**kwargs):
         '''Produce flat histograms for a given selection.'''
@@ -166,6 +170,10 @@ class FlattenTree(object):
         self.j += 1
         tempName = '{0}_{1}_{2}'.format(name,self.sample,self.j)
         drawString = '{0}>>{1}({2})'.format(params['variable'],tempName,', '.join([str(x) for x in params['binning']]))
+        if 'scale' in params: scalefactor += '*{0}'.format(params['scale'])
+        if 'mcscale' in params and not isData(self.sample): scalefactor += '*{0}'.format(params['mcscale'])
+        if 'datascale' in params and isData(self.sample): scalefactor += '*{0}'.format(params['datascale'])
+        if 'selection' in params: selection += ' && {0}'.format(params['selection'])
         selectionString = '{0}*({1})'.format(scalefactor,selection)
         tree.Draw(drawString,selectionString,'goff')
         # see if hist exists
@@ -202,6 +210,10 @@ class FlattenTree(object):
         self.j += 1
         tempName = '{0}_{1}_{2}'.format(name,self.sample,self.j)
         drawString = '{0}:{1}>>{2}({3})'.format(params['yVariable'],params['xVariable'],tempName,', '.join([str(x) for x in params['xBinning']+params['yBinning']]))
+        if 'scale' in params: scalefactor += '*{0}'.format(params['scale'])
+        if 'mcscale' in params and not isData(self.sample): scalefactor += '*{0}'.format(params['mcscale'])
+        if 'datascale' in params and isData(self.sample): scalefactor += '*{0}'.format(params['datascale'])
+        if 'selection' in params: selection += ' && {0}'.format(params['selection'])
         selectionString = '{0}*({1})'.format(scalefactor,selection)
         tree.Draw(drawString,selectionString,'goff')
         # see if hist exists

@@ -67,6 +67,7 @@ class DYAnalysis(AnalysisBase):
 
         # z leptons
         self.addDiLepton('z','z1','z2')
+        self.addDiCandVar('z','z1','z2','mass_uncorrected','mass','F',uncorrected=True)
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1'],cands['z2']), 'z_zeppenfeld','F')
         self.addLepton('z1')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z1']), 'z1_passMedium', 'I')

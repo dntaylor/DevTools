@@ -232,6 +232,13 @@ class AnalysisBase(object):
             energy = self.getObjectVariable(rtrow,cand,'energy')
             val = ROOT.TLorentzVector()
             val.SetPtEtaPhiE(pt,eta,phi,energy)
+        elif var=='p4_uncorrected':
+            pt     = self.getObjectVariable(rtrow,cand,'pt_uncorrected')
+            eta    = self.getObjectVariable(rtrow,cand,'eta_uncorrected')
+            phi    = self.getObjectVariable(rtrow,cand,'phi_uncorrected')
+            energy = self.getObjectVariable(rtrow,cand,'energy_uncorrected')
+            val = ROOT.TLorentzVector()
+            val.SetPtEtaPhiE(pt,eta,phi,energy)
 
         # if invalid, return 0
         elif pos<0:
@@ -255,15 +262,17 @@ class AnalysisBase(object):
         self.cache[key] = val
         return val
 
-    def getCompositeVariable(self,rtrow,var,*cands):
+    def getCompositeVariable(self,rtrow,var,*cands,**kwargs):
         '''Create a composite candidate'''
+        uncorrected = kwargs.pop('uncorrected',False)
 
         key = '_'.join(['{0}_{1}'.format(*cand) for cand in cands] + [var])
         if key in self.cache: return self.cache[key]
 
         vec = ROOT.TLorentzVector()
+        p4Name = 'p4_uncorrected' if uncorrected else 'p4'
         for cand in cands:
-            vec += self.getObjectVariable(rtrow,cand,'p4')
+            vec += self.getObjectVariable(rtrow,cand,p4Name)
 
         if var=='p4':
             val = vec
@@ -300,7 +309,7 @@ class AnalysisBase(object):
         self.cache[key] = val
         return val
 
-    def getCompositeMetVariable(self,rtrow,var,met,*cands):
+    def getCompositeMetVariable(self,rtrow,var,met,*cands,**kwargs):
         '''Get composite met variables'''
 
         key = '_'.join(['{0}_{1}'.format(*cand) for cand in cands] + ['{0}_{1}'.format(*met)] + [var])
@@ -457,9 +466,9 @@ class AnalysisBase(object):
         self.addDiCandVar(label,obj1,obj2,'deltaPhi','deltaPhi','F')
         self.addDiCandVar(label,obj1,obj2,'energy','energy','F')
 
-    def addDiCandVar(self,label,obj1,obj2,varLabel,var,rootType):
+    def addDiCandVar(self,label,obj1,obj2,varLabel,var,rootType,**kwargs):
         '''Add a variable for a dilepton candidate'''
-        self.tree.add(lambda rtrow,cands: self.getCompositeVariable(rtrow,var,cands[obj1],cands[obj2]), '{0}_{1}'.format(label,varLabel), rootType)
+        self.tree.add(lambda rtrow,cands: self.getCompositeVariable(rtrow,var,cands[obj1],cands[obj2],**kwargs), '{0}_{1}'.format(label,varLabel), rootType)
 
     def addLeptonMet(self,label,obj,met):
         '''Add variables related to a lepton + met'''
@@ -469,9 +478,9 @@ class AnalysisBase(object):
         self.addCandMetVar(label,obj,met,'deltaPhi','deltaPhi','F')
         self.addCandMetVar(label,obj,met,'mt','mt','F')
 
-    def addCandMetVar(self,label,obj,met,varLabel,var,rootType):
+    def addCandMetVar(self,label,obj,met,varLabel,var,rootType,**kwargs):
         '''Add a single lepton met var'''
-        self.tree.add(lambda rtrow,cands: self.getCompositeMetVariable(rtrow,var,met,cands[obj]), '{0}_{1}'.format(label,varLabel), rootType)
+        self.tree.add(lambda rtrow,cands: self.getCompositeMetVariable(rtrow,var,met,cands[obj],**kwargs), '{0}_{1}'.format(label,varLabel), rootType)
 
     def addComposite(self,label,*objs):
         '''Add variables realated to multi object variables'''
@@ -481,7 +490,7 @@ class AnalysisBase(object):
         self.addCompositeVar(label,objs,'phi','phi','F')
         self.addCompositeVar(label,objs,'energy','energy','F')
 
-    def addCompositeVar(self,label,objs,varLabel,var,rootType):
+    def addCompositeVar(self,label,objs,varLabel,var,rootType,**kwargs):
         '''Add single variable for multiple objects'''
-        self.tree.add(lambda rtrow,cands: self.getCompositeVariable(rtrow,var,*[cands[obj] for obj in objs]), '{0}_{1}'.format(label,varLabel), rootType)
+        self.tree.add(lambda rtrow,cands: self.getCompositeVariable(rtrow,var,*[cands[obj] for obj in objs],**kwargs), '{0}_{1}'.format(label,varLabel), rootType)
 

@@ -1,5 +1,13 @@
+import os
+import sys
+import logging
+from itertools import product, combinations_with_replacement
+
 from DevTools.Plotter.Plotter import Plotter
 from copy import deepcopy
+import ROOT
+
+logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 blind = True
 
@@ -8,11 +16,12 @@ hpp4lPlotter = Plotter(
     outputDirectory = 'plots/Hpp4l',
 )
 
-hppChans = ['ee','em','me','mm']
 chans = []
-for hpp in hppChans:
-    for hmm in hppChans:
-        chans += [hpp+hmm]
+higgsChannels = [''.join(x) for x in product('em',repeat=2)]
+for hpp in higgsChannels:
+    for hmm in higgsChannels:
+        chanString = ''.join(sorted(hpp))+''.join(sorted(hmm))
+        if chanString not in chans: chans += [chanString]
 
 labelMap = {
     'e': 'e',
@@ -58,7 +67,7 @@ sigMap = {
              'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
             ],
     'TT'  : [
-             'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+             #'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
              'TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
              'TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
              'TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
@@ -71,6 +80,14 @@ sigMap = {
              'SingleElectron',
             ],
     'HppHmm200GeV' : ['HPlusPlusHMinusMinusHTo4L_M-200_13TeV-pythia8'],
+    'HppHmm300GeV' : ['HPlusPlusHMinusMinusHTo4L_M-300_13TeV-pythia8'],
+    'HppHmm400GeV' : ['HPlusPlusHMinusMinusHTo4L_M-400_13TeV-pythia8'],
+    'HppHmm500GeV' : ['HPlusPlusHMinusMinusHTo4L_M-500_13TeV-pythia8'],
+    'HppHmm600GeV' : ['HPlusPlusHMinusMinusHTo4L_M-600_13TeV-pythia8'],
+    'HppHmm700GeV' : ['HPlusPlusHMinusMinusHTo4L_M-700_13TeV-pythia8'],
+    'HppHmm800GeV' : ['HPlusPlusHMinusMinusHTo4L_M-800_13TeV-pythia8'],
+    'HppHmm900GeV' : ['HPlusPlusHMinusMinusHTo4L_M-900_13TeV-pythia8'],
+    'HppHmm1000GeV': ['HPlusPlusHMinusMinusHTo4L_M-1000_13TeV-pythia8'],
 }
 
 samples = ['TT','TTV','Z','WW','WZ','VVV','ZZ']
@@ -78,7 +95,7 @@ samples = ['TT','TTV','Z','WW','WZ','VVV','ZZ']
 for s in samples:
     hpp4lPlotter.addHistogramToStack(s,sigMap[s])
 
-hpp4lPlotter.addHistogram('HppHmm200GeV',sigMap['HppHmm200GeV'],signal=True,scale=10)
+hpp4lPlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'],signal=True,scale=10)
 
 if not blind:
     hpp4lPlotter.addHistogram('data',sigMap['data'])
@@ -169,3 +186,75 @@ for plot in plots:
     kwargs = deepcopy(plots[plot])
     if plot in lowmass_cust: kwargs.update(lowmass_cust[plot])
     hpp4lPlotter.plot(plotname,plotname,**kwargs)
+
+
+# normalized plots
+hpp4lPlotter.clearHistograms()
+
+samples = ['TT','TTV','Z','WW','WZ','VVV','ZZ']
+allSamplesDict = {'BG':[]}
+
+for s in samples:
+    allSamplesDict['BG'] += sigMap[s]
+
+hpp4lPlotter.addHistogram('BG',allSamplesDict['BG'])
+hpp4lPlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'],signal=True)
+
+norm_cust = {
+    # hpp
+    'hppMass'               : {'yaxis': 'Unit normalized', 'logy':0, 'rebin': 1},
+    'hppPt'                 : {'yaxis': 'Unit normalized', 'rebin': 20, 'numcol': 2},
+    'hppDeltaR'             : {'yaxis': 'Unit normalized', 'rebin': 5},
+    'hppLeadingLeptonPt'    : {'yaxis': 'Unit normalized', 'rebin': 1},
+    'hppSubLeadingLeptonPt' : {'yaxis': 'Unit normalized', 'rebin': 1},
+    # hmm
+    'hmmMass'               : {'yaxis': 'Unit normalized', 'logy':0, 'rebin': 1},
+    'hmmPt'                 : {'yaxis': 'Unit normalized', 'rebin': 20, 'numcol': 2},
+    'hmmDeltaR'             : {'yaxis': 'Unit normalized', 'rebin': 5},
+    'hmmLeadingLeptonPt'    : {'yaxis': 'Unit normalized', 'rebin': 1},
+    'hmmSubLeadingLeptonPt' : {'yaxis': 'Unit normalized', 'rebin': 1},
+    # z
+    'zMass'                 : {'yaxis': 'Unit normalized', 'rebin': 20, 'numcol': 2},
+    'mllMinusMZ'            : {'yaxis': 'Unit normalized', 'rebin': 1},
+    # event
+    'met'                   : {'yaxis': 'Unit normalized', 'rebin': 1},
+    'numVertices'           : {'yaxis': 'Unit normalized'},
+}
+
+for plot in plots:
+    plotname = 'default/{0}'.format(plot)
+    savename = 'normalized/{0}'.format(plot)
+    kwargs = deepcopy(plots[plot])
+    if plot in norm_cust: kwargs.update(norm_cust[plot])
+    hpp4lPlotter.plotNormalized(plotname,savename,**kwargs)
+
+# all signal on one plot
+hpp4lPlotter.clearHistograms()
+
+sigColors = {
+    200 : ROOT.TColor.GetColor('#000000'),
+    300 : ROOT.TColor.GetColor('#330000'),
+    400 : ROOT.TColor.GetColor('#660000'),
+    500 : ROOT.TColor.GetColor('#800000'),
+    600 : ROOT.TColor.GetColor('#990000'),
+    700 : ROOT.TColor.GetColor('#B20000'),
+    800 : ROOT.TColor.GetColor('#CC0000'),
+    900 : ROOT.TColor.GetColor('#FF0000'),
+    1000: ROOT.TColor.GetColor('#FF3333'),
+    1100: ROOT.TColor.GetColor('#FF6666'),
+    1200: ROOT.TColor.GetColor('#FF8080'),
+    1300: ROOT.TColor.GetColor('#FF9999'),
+    1400: ROOT.TColor.GetColor('#FFB2B2'),
+    1500: ROOT.TColor.GetColor('#FFCCCC'),
+}
+
+masses = [200,300,400,500,600,700,800,900,1000]
+for mass in masses:
+    hpp4lPlotter.addHistogram('HppHmm{0}GeV'.format(mass),sigMap['HppHmm{0}GeV'.format(mass)],signal=True,style={'linecolor': sigColors[mass]})
+
+for plot in norm_cust:
+    plotname = 'default/{0}'.format(plot)
+    savename = 'signal/{0}'.format(plot)
+    kwargs = deepcopy(plots[plot])
+    if plot in norm_cust: kwargs.update(norm_cust[plot])
+    hpp4lPlotter.plotNormalized(plotname,savename,**kwargs)

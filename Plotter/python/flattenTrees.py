@@ -6,6 +6,7 @@ import logging
 import argparse
 import re
 from multiprocessing import Pool
+from copy import deepcopy
 
 import ROOT
 ROOT.PyConfig.IgnoreCommandLineOptions = True
@@ -65,8 +66,8 @@ def getSelectedHistParams(analysis,hists):
         if h in allHistParams: selectedHistParams[h] = allHistParams[h]
     return selectedHistParams
 
-def getSelectedHistSelections(analysis,sels):
-    allHistSelections = getHistSelections(analysis)
+def getSelectedHistSelections(analysis,sels,sample):
+    allHistSelections = getHistSelections(analysis,sample)
     if 'all' in sels: return allHistSelections
     selectedHistSelections = {}
     for s in sels:
@@ -95,20 +96,22 @@ def main(argv=None):
 
     directories = getSampleDirectories(args.analysis,args.samples)
     histParams = getSelectedHistParams(args.analysis,args.hists)
-    histSelections = getSelectedHistSelections(args.analysis,args.selections)
 
-    logging.info('Will flatten {0} histograms in {1} samples'.format(len(histParams)*len(histSelections),len(directories)))
+    logging.info('Will flatten {0} samples'.format(len(directories)))
 
     if args.j>1:
         multi = MultiProgress(args.j)
         for directory in directories:
             sample = directory.split('/')[-1]
+            if sample.endswith('.root'): sample = sample[:-5]
+            histSelections = getSelectedHistSelections(args.analysis,args.selections,sample)
             multi.addJob(sample,flatten,args=(directory,),kwargs={'analysis':args.analysis,'histParams':histParams,'histSelections':histSelections})
         multi.retrieve()
     else:
         for directory in directories:
             sample = directory.split('/')[-1]
             if sample.endswith('.root'): sample = sample[:-5]
+            histSelections = getSelectedHistSelections(args.analysis,args.selections,sample)
             flatten(directory,
                     analysis=args.analysis,
                     histParams=histParams,

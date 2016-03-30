@@ -34,6 +34,8 @@ def getTestFiles(type):
         return ['/store/user/dntaylor/2016-03-19_DevTools_76X_v1/DoubleMuon/2016-03-19_DevTools_76X_v1/160319_200028/0000/miniTree_111.root']
     elif type=='hpp':
         return ['/store/user/dntaylor/2016-03-19_DevTools_76X_v1/HPlusPlusHMinusMinusHTo4L_M-500_13TeV-pythia8/2016-03-19_DevTools_76X_v1/160320_073839/0000/miniTree_1.root']
+    elif type=='dy':
+        return ['/store/user/dntaylor/2016-03-19_DevTools_76X_v1/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/2016-03-19_DevTools_76X_v1/160319_195502/0001/miniTree_1111.root']
     elif type=='long':
         return [
             '/store/user/dntaylor/2016-03-19_DevTools_76X_v1/ZZTo4L_13TeV_powheg_pythia8/2016-03-19_DevTools_76X_v1/160319_195936/0000/miniTree_54.root',

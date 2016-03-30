@@ -395,7 +395,7 @@ class Plotter(object):
         highestMax = -9999999.
 
         # stack
-        stack = ROOT.THStack()
+        stack = 0
         if self.stackOrder:
             stack = self.__getStack(variable,**kwargs)
             highestMax = max(highestMax,stack.GetMaximum())
@@ -511,6 +511,7 @@ class Plotter(object):
         plotratio = kwargs.pop('plotratio',True)
         save = kwargs.pop('save',True)
 
+        logging.info('Plotting {0}'.format(savename))
         ROOT.gDirectory.Delete('h_*')
 
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
@@ -656,6 +657,7 @@ class Plotter(object):
         logx = kwargs.pop('logx',False)
         customOrder = kwargs.pop('customOrder',[])
 
+        logging.info('Plotting {0}'.format(savename))
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
         canvas.SetLogy(logy)
         canvas.SetLogx(logx)
@@ -705,6 +707,7 @@ class Plotter(object):
         ymin = kwargs.pop('ymin',0)
         ymax = kwargs.pop('ymax',1.2)
 
+        logging.info('Plotting {0}'.format(savename))
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
         canvas.SetLogy(logy)
         canvas.SetLogx(logx)
@@ -759,6 +762,7 @@ class Plotter(object):
         logx = kwargs.pop('logx',False)
         customOrder = kwargs.pop('customOrder',[])
 
+        logging.info('Plotting {0}'.format(savename))
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
         canvas.SetLogy(logy)
         canvas.SetLogx(logx)
@@ -771,6 +775,12 @@ class Plotter(object):
             hist = self.__getHistogram(histName,variable,nofill=True,**kwargs)
             hist.Scale(1./hist.Integral())
             hist.SetLineWidth(3)
+            highestMax = max(highestMax,hist.GetMaximum())
+            if ymax==None: hist.SetMaximum(1.2*highestMax)
+            hists[histName] = hist
+
+        for i,histName in enumerate(histOrder):
+            hist = hists[histName]
             style = self.styles[histName]
             if i==0:
                 hist.Draw(style['drawstyle'])
@@ -779,11 +789,9 @@ class Plotter(object):
                 hist.GetYaxis().SetTitleOffset(1.5)
                 if ymax!=None: hist.SetMaximum(ymax)
                 if ymin!=None: hist.SetMinimum(ymin)
+                if ymax==None: hist.SetMaximum(1.2*highestMax)
             else:
                 hist.Draw(style['drawstyle']+' same')
-            highestMax = max(highestMax,hist.GetMaximum())
-            if ymax==None: hist.SetMaximum(1.2*highestMax)
-            hists[histName] = hist
 
         legend = self.__getLegend(hists=hists,numcol=numcol,position=legendpos)
         legend.Draw()
@@ -804,6 +812,7 @@ class Plotter(object):
         logx = kwargs.pop('logx',False)
         logz = kwargs.pop('logz',False)
 
+        logging.info('Plotting {0}'.format(savename))
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
         canvas.SetLogy(logy)
         canvas.SetLogx(logx)

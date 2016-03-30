@@ -3,6 +3,7 @@
 A map of histogram params.
 '''
 from copy import deepcopy
+from itertools import product, combinations_with_replacement
 
 from DevTools.Plotter.utilities import ZMASS
 
@@ -12,10 +13,11 @@ from DevTools.Plotter.utilities import ZMASS
 params = {
     # default params
     'common' : {
-        'count'            : {'variable': '1',               'binning': [1,0,2]}, # just a count of events passing selection
-        'numVertices'      : {'variable': 'numVertices',     'binning': [40,0,40]},
-        'met'              : {'variable': 'met_pt',          'binning': [500, 0, 500]},
-        'metPhi'           : {'variable': 'met_phi',         'binning': [500, -3.14159, 3.14159]},
+        'count'                  : {'variable': '1',               'binning': [1,0,2]}, # just a count of events passing selection
+        'numVertices'            : {'variable': 'numVertices',     'binning': [40,0,40]},
+        'numVertices_noreweight' : {'variable': 'numVertices',     'binning': [40,0,40],                'mcscale': '1./pileupWeight'},
+        'met'                    : {'variable': 'met_pt',          'binning': [500, 0, 500]},
+        'metPhi'                 : {'variable': 'met_phi',         'binning': [500, -3.14159, 3.14159]},
     },
     # overrides for Electron
     'Electron': {
@@ -74,15 +76,15 @@ params = {
         'hmmSubLeadingLeptonPt' : {'variable': 'hmm2_pt',                        'binning': [1000, 0, 1000]},
         'hmmSubLeadingLeptonEta': {'variable': 'hmm2_eta',                       'binning': [500, -2.5, 2.5]},
         # best z
-        'zMass'                 : {'variable': 'z_mass',                         'binning': [500, 0, 500]},
-        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [200, 0, 200]},
-        'zPt'                   : {'variable': 'z_pt',                           'binning': [500, 0, 500]},
-        'zEta'                  : {'variable': 'z_eta',                          'binning': [1000, -5, 5]},
-        'zDeltaR'               : {'variable': 'z_deltaR',                       'binning': [500, 0, 5]},
-        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [1000, 0, 1000]},
-        'zLeadingLeptonEta'     : {'variable': 'z1_eta',                         'binning': [500, -2.5, 2.5]},
-        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [1000, 0, 1000]},
-        'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
+        'zMass'                 : {'variable': 'z_mass',                         'binning': [500, 0, 500],    'selection': 'z_mass>0.',},
+        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [200, 0, 200],    'selection': 'z_mass>0.',},
+        'zPt'                   : {'variable': 'z_pt',                           'binning': [500, 0, 500],    'selection': 'z_mass>0.',},
+        'zEta'                  : {'variable': 'z_eta',                          'binning': [1000, -5, 5],    'selection': 'z_mass>0.',},
+        'zDeltaR'               : {'variable': 'z_deltaR',                       'binning': [500, 0, 5],      'selection': 'z_mass>0.',},
+        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [1000, 0, 1000],  'selection': 'z_mass>0.',},
+        'zLeadingLeptonEta'     : {'variable': 'z1_eta',                         'binning': [500, -2.5, 2.5], 'selection': 'z_mass>0.',},
+        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [1000, 0, 1000],  'selection': 'z_mass>0.',},
+        'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5], 'selection': 'z_mass>0.',},
         # event
         'mass'                  : {'variable': '4l_mass',                        'binning': [2000, 0, 2000]},
     },
@@ -104,20 +106,20 @@ params = {
         'hmLeptonPt'            : {'variable': 'hm1_pt',                         'binning': [1000, 0, 1000]},
         'hmLeptonEta'           : {'variable': 'hm1_eta',                        'binning': [500, -2.5, 2.5]},
         # best z
-        'zMass'                 : {'variable': 'z_mass',                         'binning': [500, 0, 500]},
-        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [200, 0, 200]},
-        'zPt'                   : {'variable': 'z_pt',                           'binning': [500, 0, 500]},
-        'zEta'                  : {'variable': 'z_eta',                          'binning': [1000, -5, 5]},
-        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [1000, 0, 1000]},
-        'zLeadingLeptonEta'     : {'variable': 'z1_eta',                         'binning': [500, -2.5, 2.5]},
-        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [1000, 0, 1000]},
-        'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
+        'zMass'                 : {'variable': 'z_mass',                         'binning': [500, 0, 500],    'selection': 'z_mass>0.',},
+        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [200, 0, 200],    'selection': 'z_mass>0.',},
+        'zPt'                   : {'variable': 'z_pt',                           'binning': [500, 0, 500],    'selection': 'z_mass>0.',},
+        'zEta'                  : {'variable': 'z_eta',                          'binning': [1000, -5, 5],    'selection': 'z_mass>0.',},
+        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [1000, 0, 1000],  'selection': 'z_mass>0.',},
+        'zLeadingLeptonEta'     : {'variable': 'z1_eta',                         'binning': [500, -2.5, 2.5], 'selection': 'z_mass>0.',},
+        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [1000, 0, 1000],  'selection': 'z_mass>0.',},
+        'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5], 'selection': 'z_mass>0.',},
         # w
-        'wMass'                 : {'variable': 'w_mass',                         'binning': [500, 0, 500]},
-        'wPt'                   : {'variable': 'w_pt',                           'binning': [500, 0, 500]},
-        'wEta'                  : {'variable': 'w_eta',                          'binning': [1000, -5, 5]},
-        'wLeptonPt'             : {'variable': 'w1_pt',                          'binning': [1000, 0, 1000]},
-        'wLeptonEta'            : {'variable': 'w1_eta',                         'binning': [500, -2.5, 2.5]},
+        'wMass'                 : {'variable': 'w_mass',                         'binning': [500, 0, 500],    'selection': 'z_mass>0.',},
+        'wPt'                   : {'variable': 'w_pt',                           'binning': [500, 0, 500],    'selection': 'z_mass>0.',},
+        'wEta'                  : {'variable': 'w_eta',                          'binning': [1000, -5, 5],    'selection': 'z_mass>0.',},
+        'wLeptonPt'             : {'variable': 'w1_pt',                          'binning': [1000, 0, 1000],  'selection': 'z_mass>0.',},
+        'wLeptonEta'            : {'variable': 'w1_eta',                         'binning': [500, -2.5, 2.5], 'selection': 'z_mass>0.',},
         # event
         'mass'                  : {'variable': '3l_mass',                        'binning': [2000, 0, 2000]},
     },
@@ -142,6 +144,7 @@ params2D = {
 ### selections ###
 ##################
 selectionParams = {}
+sampleSelectionParams = {}
 
 #########################
 ### some utility cuts ###
@@ -166,7 +169,7 @@ selectionParams['Electron'] = {
 ###################
 ### DY specific ###
 ###################
-dyBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && z_mass>12. && z1_pt>20. && z2_pt>10.'
+dyBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && z_mass>12. && z1_pt>20. && z2_pt>10. && z_mass>50.'
 dyScaleFactor = 'z1_mediumScale*z2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['DY'] = {
     'default' : {'args': [dyBaseCut],        'kwargs': {'mcscalefactor': dyScaleFactor, 'directory': 'default'}},
@@ -243,20 +246,68 @@ selectionParams['Hpp4l'] = {
     'lowmass' : {'args': [hpp4lLowMassControl], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'lowmass'}},
 }
 
-channels = []
-higgsChannels = ['ee','em','me','mm']
+masses = [200,300,400,500,600,700,800,900,1000]
+
+# setup old working points
+hpp4lOldSelections = {}
+for mass in masses:
+    hpp4lOldSelections[mass] = '{base} && (hpp1_pt+hpp2_pt+hmm1_pt+hmm2_pt)>0.6*{mass}+130. && hpp_mass>0.9*{mass} && hpp_mass<1.1*{mass} && hmm_mass>0.9*{mass} && hmm_mass<1.1*{mass}'.format(base=hpp4lBaseCut,mass=mass)
+    selectionParams['Hpp4l']['old_{0}'.format(mass)] = {'args': [hpp4lOldSelections[mass]], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'old/{0}'.format(mass), 'countOnly': True}}
+
+# setup reco channel selections
+channels = {}
+higgsChannels = [''.join(x) for x in product('em',repeat=2)]
 for hpp in higgsChannels:
     for hmm in higgsChannels:
-        channels += [hpp+hmm]
+        chanString = ''.join(sorted(hpp))+''.join(sorted(hmm))
+        if chanString not in channels: channels[chanString] = []
+        channels[chanString] += [hpp+hmm]
 
-for sel in ['default','lowmass']:
+sels = selectionParams['Hpp4l'].keys()
+for sel in sels:
     for chan in channels:
-        directory = '{0}/{1}'.format(sel,chan)
+        directory = '{0}/{1}'.format('/'.join(sel.split('_')),chan)
         name = '{0}_{1}'.format(sel,chan)
         selectionParams['Hpp4l'][name] = deepcopy(selectionParams['Hpp4l'][sel])
         args = selectionParams['Hpp4l'][name]['args']
-        selectionParams['Hpp4l'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
+        selectionParams['Hpp4l'][name]['args'][0] = args[0] + ' && ' + '(' + ' || '.join(['channel=="{0}"'.format(c) for c in channels[chan]]) + ')'
         selectionParams['Hpp4l'][name]['kwargs']['directory'] = directory
+
+# setup gen channel selections
+genChannelsPP = []
+genChannelsAP = []
+genHiggsChannels = [''.join(x) for x in combinations_with_replacement('emt',2)]
+genHiggsChannels2 = [''.join(x) for x in combinations_with_replacement('emt',1)]
+for hpp in genHiggsChannels:
+    for hmm in genHiggsChannels:
+        genChannelsPP += [hpp+hmm]
+    for hm in genHiggsChannels2:
+        genChannelsAP += [hpp+hm]
+
+hpp4l_pp_selections = {}
+hpp4l_ap_selections = {}
+sels = selectionParams['Hpp4l'].keys()
+for sel in sels:
+    for chan in genChannelsPP:
+        directory = '{0}/gen_{1}'.format(selectionParams['Hpp4l'][sel]['kwargs']['directory'],chan)
+        name = '{0}_gen_{1}'.format(sel,chan)
+        hpp4l_pp_selections[name] = deepcopy(selectionParams['Hpp4l'][sel])
+        args = hpp4l_pp_selections[name]['args']
+        hpp4l_pp_selections[name]['args'][0] = args[0] + ' && ' + 'genChannel=="{0}"'.format(chan)
+        hpp4l_pp_selections[name]['kwargs']['directory'] = directory
+        hpp4l_pp_selections[name]['kwargs']['countOnly'] = True
+    for chan in genChannelsAP:
+        directory = '{0}/gen_{1}'.format(selectionParams['Hpp4l'][sel]['kwargs']['directory'],chan)
+        name = '{0}_gen_{1}'.format(sel,chan)
+        hpp4l_ap_selections[name] = deepcopy(selectionParams['Hpp4l'][sel])
+        args = hpp4l_ap_selections[name]['args']
+        hpp4l_ap_selections[name]['args'][0] = args[0] + ' && ' + 'genChannel=="{0}"'.format(chan)
+        hpp4l_ap_selections[name]['kwargs']['directory'] = directory
+        hpp4l_ap_selections[name]['kwargs']['countOnly'] = True
+sampleSelectionParams['Hpp4l'] = {}
+for mass in masses:
+    sampleName = 'HPlusPlusHMinusMinusHTo4L_M-{0}_13TeV-pythia8'.format(mass)
+    sampleSelectionParams['Hpp4l'][sampleName] = deepcopy(hpp4l_pp_selections)
 
 #############
 ### hpp3l ###
@@ -269,12 +320,15 @@ selectionParams['Hpp3l'] = {
     'lowmass' : {'args': [hpp3lLowMassControl], 'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'directory': 'lowmass'}},
 }
 
-channels = []
-higgsChannels = ['ee','em','me','mm']
-higgsChannels2 = ['e', 'm']
+# setup reco channel selections
+channels = {}
+higgsChannels = [''.join(x) for x in product('em',repeat=2)]
+higgsChannels2 = [''.join(x) for x in product('em',repeat=1)]
 for hpp in higgsChannels:
     for hm in higgsChannels2:
-        channels += [hpp+hm]
+        chanString = ''.join(sorted(hpp))+''.join(sorted(hm))
+        if chanString not in channels: channels[chanString] = []
+        channels[chanString] += [hpp+hm]
 
 for sel in ['default','lowmass']:
     for chan in channels:
@@ -282,8 +336,44 @@ for sel in ['default','lowmass']:
         name = '{0}_{1}'.format(sel,chan)
         selectionParams['Hpp3l'][name] = deepcopy(selectionParams['Hpp3l'][sel])
         args = selectionParams['Hpp3l'][name]['args']
-        selectionParams['Hpp3l'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
+        selectionParams['Hpp3l'][name]['args'][0] = args[0] + ' && ' + '(' + ' || '.join(['channel=="{0}"'.format(c) for c in channels[chan]]) + ')'
         selectionParams['Hpp3l'][name]['kwargs']['directory'] = directory
+
+# setup gen channel selections
+genChannelsPP = []
+genChannelsAP = []
+genHiggsChannels = [''.join(x) for x in combinations_with_replacement('emt',2)]
+genHiggsChannels2 = [''.join(x) for x in combinations_with_replacement('emt',1)]
+for hpp in genHiggsChannels:
+    for hmm in genHiggsChannels:
+        genChannelsPP += [hpp+hmm]
+    for hm in genHiggsChannels2:
+        genChannelsAP += [hpp+hm]
+
+hpp3l_pp_selections = {}
+hpp3l_ap_selections = {}
+sels = selectionParams['Hpp3l'].keys()
+for sel in sels:
+    for chan in genChannelsPP:
+        directory = '{0}/gen_{1}'.format(selectionParams['Hpp3l'][sel]['kwargs']['directory'],chan)
+        name = '{0}_gen_{1}'.format(sel,chan)
+        hpp3l_pp_selections[name] = deepcopy(selectionParams['Hpp3l'][sel])
+        args = hpp3l_pp_selections[name]['args']
+        hpp3l_pp_selections[name]['args'][0] = args[0] + ' && ' + 'genChannel=="{0}"'.format(chan)
+        hpp3l_pp_selections[name]['kwargs']['directory'] = directory
+        hpp3l_pp_selections[name]['kwargs']['countOnly'] = True
+    for chan in genChannelsAP:
+        directory = '{0}/gen_{1}'.format(selectionParams['Hpp3l'][sel]['kwargs']['directory'],chan)
+        name = '{0}_gen_{1}'.format(sel,chan)
+        hpp3l_ap_selections[name] = deepcopy(selectionParams['Hpp3l'][sel])
+        args = hpp3l_ap_selections[name]['args']
+        hpp3l_ap_selections[name]['args'][0] = args[0] + ' && ' + 'genChannel=="{0}"'.format(chan)
+        hpp3l_ap_selections[name]['kwargs']['directory'] = directory
+        hpp3l_ap_selections[name]['kwargs']['countOnly'] = True
+sampleSelectionParams['Hpp3l'] = {}
+for mass in [200,300,400,500,600,700,800,900,1000]:
+    sampleName = 'HPlusPlusHMinusMinusHTo4L_M-{0}_13TeV-pythia8'.format(mass)
+    sampleSelectionParams['Hpp3l'][sampleName] = deepcopy(hpp3l_pp_selections)
 
 #############################
 ### functions to retrieve ###
@@ -298,5 +388,11 @@ def getHistParams2D(analysis):
     if analysis in params: histParams.update(params2D[analysis])
     return histParams
 
-def getHistSelections(analysis):
-    return selectionParams[analysis] if analysis in selectionParams else {}
+def getHistSelections(analysis,sample):
+    params = {}
+    if analysis in selectionParams:
+        params.update(selectionParams[analysis])
+    if analysis in sampleSelectionParams:
+        if sample in sampleSelectionParams[analysis]:
+            params.update(sampleSelectionParams[analysis][sample])
+    return params
