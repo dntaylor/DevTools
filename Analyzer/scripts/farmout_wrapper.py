@@ -7,6 +7,7 @@ import os
 # import run script
 from DevTools.Analyzer.runWZAnalysis import main as runWZ
 from DevTools.Analyzer.runDYAnalysis import main as runDY
+from DevTools.Analyzer.runChargeAnalysis import main as runCharge
 from DevTools.Analyzer.runHpp3lAnalysis import main as runHpp3l
 from DevTools.Analyzer.runHpp4lAnalysis import main as runHpp4l
 from DevTools.Analyzer.runSingleElectronAnalysis import main as runSingleElectron
@@ -18,7 +19,7 @@ from DevTools.Analyzer.runMuonAnalysis import main as runMuon
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Submit analyzers')
 
-    parser.add_argument('analysis', type=str, choices=['WZ', 'DY','Hpp3l','Hpp4l','SingleElectron','SingleMuon','Electron','Muon', 'DijetFakeRate'], help='Analysis to submit')
+    parser.add_argument('analysis', type=str, choices=['WZ', 'DY', 'Charge', 'Hpp3l', 'Hpp4l', 'SingleElectron', 'SingleMuon', 'Electron', 'Muon', 'DijetFakeRate'], help='Analysis to submit')
 
     return parser.parse_args(argv)
 
@@ -38,6 +39,8 @@ def main(argv=None):
         status = runWZ(argv)
     elif args.analysis=='DY':
         status = runDY(argv)
+    elif args.analysis=='Charge':
+        status = runCharge(argv)
     elif args.analysis=='Hpp3l':
         status = runHpp3l(argv)
     elif args.analysis=='Hpp4l':

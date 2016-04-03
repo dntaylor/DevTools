@@ -17,6 +17,7 @@ from AnalysisTree import AnalysisTree
 from PileupWeights import PileupWeights
 from LeptonScales import LeptonScales
 from TriggerScales import TriggerScales
+from TriggerPrescales import TriggerPrescales
 
 from utilities import deltaR, deltaPhi
 
@@ -80,6 +81,7 @@ class AnalysisBase(object):
         self.pileupWeights = PileupWeights()
         self.leptonScales = LeptonScales()
         self.triggerScales = TriggerScales()
+        self.triggerPrescales = TriggerPrescales()
         # tfile
         self.outfile = ROOT.TFile(outputFileName,"recreate")
         # cut tree

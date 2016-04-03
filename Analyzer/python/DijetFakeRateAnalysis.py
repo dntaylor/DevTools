@@ -57,6 +57,8 @@ class DijetFakeRateAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele12_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele12_CaloIdL_TrackIdL_IsoVL', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele17_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele17_CaloIdL_TrackIdL_IsoVL', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele23_CaloIdL_TrackIdL_IsoVL', 'I')
+        self.tree.add(self.triggerEfficiency, 'triggerEfficiency', 'F')
+        self.tree.add(self.triggerPrescale, 'triggerPrescale', 'F')
 
         # lead jet
         self.addJet('leadJet')
@@ -183,18 +185,20 @@ class DijetFakeRateAnalysis(AnalysisBase):
         return len(self.getPassingCands(rtrow,'Loose'))==1
 
     def trigger(self,rtrow,cands):
+        # accept MC, check trigger for data
+        if rtrow.isData<0.5: return True
         if not cands['l1']: return False
         triggerNames = {
             'DoubleMuon'     : [
                 ['Mu8_TrkIsoVVL', 0],
                 ['Mu17_TrkIsoVVL', 20],
-                ['Mu24_TrkIsoVVL', 30],
+                #['Mu24_TrkIsoVVL', 30],
                 #['Mu34_TrkIsoVVL', 40],
             ],
             'DoubleEG'       : [
                 ['Ele12_CaloIdL_TrackIdL_IsoVL', 0],
                 ['Ele17_CaloIdL_TrackIdL_IsoVL', 20],
-                ['Ele23_CaloIdL_TrackIdL_IsoVL', 30],
+                #['Ele23_CaloIdL_TrackIdL_IsoVL', 30],
             ],
         }
         # here we need to accept only a specific trigger after a certain pt threshold
@@ -212,4 +216,35 @@ class DijetFakeRateAnalysis(AnalysisBase):
         passTrigger = self.getTreeVariable(rtrow,'{0}Pass'.format(theTrigger))
         if passTrigger>0.5: return False if reject else True
         return False
+
+    def triggerEfficiency(self,rtrow,cands):
+        candList = [cands['l1']]
+        # select via pt and flavor
+        pt = self.getObjectVariable(rtrow,cands['l1'],'pt')
+        if cands['l1'][0] == 'electrons':
+            if pt<20:
+                triggerList = ['Ele17_Ele12Leg2']
+            else:
+                triggerList = ['Ele17_Ele12Leg1']
+        else:
+            if pt<20:
+                triggerList = ['Mu17_Mu8Leg2']
+            else:
+                triggerList = ['Mu17_Mu8Leg1']
+        return self.triggerScales.getDataEfficiency(rtrow,triggerList,candList)
+
+    def triggerPrescale(self,rtrow,cands):
+        # select via pt and flavor
+        pt = self.getObjectVariable(rtrow,cands['l1'],'pt')
+        if cands['l1'][0] == 'electrons':
+            if pt<20:
+                trigger = 'Ele17_Ele12Leg2'
+            else:
+                trigger = 'Ele17_Ele12Leg1'
+        else:
+            if pt<20:
+                trigger = 'Mu17_Mu8Leg2'
+            else:
+                trigger = 'Mu17_Mu8Leg1'
+        return self.triggerPrescales.getPrescale(trigger)
 
