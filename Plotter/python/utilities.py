@@ -55,6 +55,8 @@ treeMap = {
     'Hpp3l'          : 'Hpp3lTree',
     'Hpp4l'          : 'Hpp4lTree',
     'DY'             : 'DYTree',
+    'Charge'         : 'ChargeTree',
+    'DijetFakeRate'  : 'DijetFakeRateTree',
 }
 
 def getTreeName(analysis):

@@ -137,7 +137,11 @@ class Plotter(PlotterBase):
             hist = hists[0].Clone('h_{0}_{1}'.format(histName,varName.replace('/','_')))
             hist.Reset()
             hist.Merge(hists)
-            if rebin: hist = hist.Rebin(rebin)
+            if rebin:
+                if type(rebin) in [list,tuple]:
+                    hist = hist.Rebin(len(rebin)-1,'',array('d',rebin))
+                else:
+                    hist = hist.Rebin(rebin)
             style = self.styles[histName]
             hist.SetTitle(style['name'])
             if 'linecolor' in style:
@@ -604,6 +608,7 @@ class Plotter(PlotterBase):
                 num.GetXaxis().SetTitle(xaxis)
                 num.GetYaxis().SetTitle(yaxis)
                 num.GetYaxis().SetTitleOffset(1.5)
+                num.SetMinimum(0.)
                 if ymax!=None: num.SetMaximum(ymax)
                 if ymin!=None: num.SetMinimum(ymin)
             else:

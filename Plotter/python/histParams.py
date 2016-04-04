@@ -34,8 +34,26 @@ params = {
         'dz'               : {'variable': 'm_dz',            'binning': [50,0,0.5]},
         'dxy'              : {'variable': 'm_dxy',           'binning': [50,0,0.3]},
     },
+    # overrides for DijetFakeRate
+    'DijetFakeRate': {
+        'pt'               : {'variable': 'l1_pt',   'binning': [2000,0,2000]},
+        'eta'              : {'variable': 'l1_eta',  'binning': [600,-3.,3.]},
+        'wMass'            : {'variable': 'w_mass',  'binning': [500, 0, 500]},
+    },
     # overrides for DY
     'DY' : {
+        'zMass'                 : {'variable': 'z_mass',                         'binning': [5000, 0, 500]},
+        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [2000, 0, 200]},
+        'zPt'                   : {'variable': 'z_pt',                           'binning': [5000, 0, 500]},
+        'zEta'                  : {'variable': 'z_eta',                          'binning': [1000, -5, 5]},
+        'zDeltaR'               : {'variable': 'z_deltaR',                       'binning': [500, 0, 5]},
+        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [10000, 0, 1000]},
+        'zLeadingLeptonEta'     : {'variable': 'z1_eta',                         'binning': [500, -2.5, 2.5]},
+        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [10000, 0, 1000]},
+        'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
+    },
+    # overrides for Charge
+    'Charge' : {
         'zMass'                 : {'variable': 'z_mass',                         'binning': [5000, 0, 500]},
         'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [2000, 0, 200]},
         'zPt'                   : {'variable': 'z_pt',                           'binning': [5000, 0, 500]},
@@ -166,6 +184,50 @@ selectionParams['Electron'] = {
     'edncap_fake'  : {'args': [' && '.join([fakeCut.format('e'),eEndcapCut.format('e')])],   'kwargs': {'directory': 'endcap/fake'}},
 }
 
+##############################
+### DijetFakeRate specific ###
+##############################
+frBaseCut = '1'
+frBaseCutLoose = '{0}'.format(frBaseCut)
+frBaseCutMedium = '{0} && l1_passMedium==1'.format(frBaseCut)
+frBaseCutTight = '{0} && l1_passTight==1'.format(frBaseCut)
+frScaleFactorLoose = 'l1_looseScale*genWeight*pileupWeight*triggerEfficiency/triggerPrescale'
+frScaleFactorMedium = 'l1_mediumScale*genWeight*pileupWeight*triggerEfficiency/triggerPrescale'
+frScaleFactorTight = 'l1_tightScale*genWeight*pileupWeight*triggerEfficiency/triggerPrescale'
+selectionParams['DijetFakeRate'] = {
+    'loose' : {'args': [frBaseCutLoose],        'kwargs': {'mcscalefactor': frScaleFactorLoose,  'directory': 'loose'}},
+    'medium': {'args': [frBaseCutMedium],       'kwargs': {'mcscalefactor': frScaleFactorMedium, 'directory': 'medium'}},
+    'tight' : {'args': [frBaseCutTight],        'kwargs': {'mcscalefactor': frScaleFactorTight,  'directory': 'tight'}},
+}
+
+channels = ['e','m']
+
+etaBins = {
+    'e': [0.,0.5,1.0,1.479,2.0,2.5],
+    'm': [0.,0.4,0.8,1.2,1.8,2.4],
+}
+ptBins = {
+    'e': [10,15,20,25,30,40,50,60,80,100,2000],
+    'm': [10,15,20,25,30,40,50,60,80,100,2000],
+}
+
+for sel in ['loose','medium','tight']:
+    for chan in channels:
+        directory = '{0}/{1}'.format(sel,chan)
+        name = '{0}_{1}'.format(sel,chan)
+        selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
+        args = selectionParams['DijetFakeRate'][name]['args']
+        selectionParams['DijetFakeRate'][name]['args'][0] = args[0] + '&& channel=="{0}"'.format(chan)
+        selectionParams['DijetFakeRate'][name]['kwargs']['directory'] = directory
+        for eb in range(len(etaBins[chan])-1):
+            directory = '{0}/{1}/etaBin{2}'.format(sel,chan,eb)
+            name = '{0}_{1}_etaBin{2}'.format(sel,chan,eb)
+            selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
+            args = selectionParams['DijetFakeRate'][name]['args']
+            selectionParams['DijetFakeRate'][name]['args'][0] = args[0] + '&& channel=="{0}" && fabs(l1_eta)>={1} && fabs(l1_eta)<{2}'.format(chan,etaBins[chan][eb],etaBins[chan][eb+1])
+            selectionParams['DijetFakeRate'][name]['kwargs']['directory'] = directory
+
+
 ###################
 ### DY specific ###
 ###################
@@ -186,11 +248,33 @@ for sel in ['default']:
         selectionParams['DY'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
         selectionParams['DY'][name]['kwargs']['directory'] = directory
 
+#######################
+### Charge specific ###
+#######################
+chargeBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && fabs(z_mass-{0})<10. && z1_pt>20. && z2_pt>10.'.format(ZMASS)
+chargeOS = '{0} && z1_charge!=z2_charge'.format(chargeBaseCut)
+chargeSS = '{0} && z1_charge==z2_charge'.format(chargeBaseCut)
+chargeScaleFactor = 'z1_mediumScale*z2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
+selectionParams['Charge'] = {
+    'OS' : {'args': [chargeOS],        'kwargs': {'mcscalefactor': chargeScaleFactor, 'directory': 'OS'}},
+    'SS' : {'args': [chargeSS],        'kwargs': {'mcscalefactor': chargeScaleFactor, 'directory': 'SS'}},
+}
+
+channels = ['ee','mm']
+
+for sel in ['OS','SS']:
+    for chan in channels:
+        directory = '{0}/{1}'.format(sel,chan)
+        name = '{0}_{1}'.format(sel,chan)
+        selectionParams['Charge'][name] = deepcopy(selectionParams['Charge'][sel])
+        args = selectionParams['Charge'][name]['args']
+        selectionParams['Charge'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
+        selectionParams['Charge'][name]['kwargs']['directory'] = directory
 
 #########################
 ### wz specific stuff ###
 #########################
-wzBaseCut = 'z1_pt>20 && z2_pt>10 && w1_pt>20 && met_pt>30 && numBjetsTight30==0 && fabs(z_mass-91.1876)<15 && 3l_mass>100'
+wzBaseCut = 'z1_pt>20 && z2_pt>10 && w1_pt>20 && met_pt>30 && numBjetsTight30==0 && fabs(z_mass-{0})<15 && 3l_mass>100'.format(ZMASS)
 wzBaseScaleFactor = 'genWeight*pileupWeight*triggerEfficiency'
 wzPromptCut = ' && '.join([promptCut.format(l) for l in ['z1','z2','w1']])
 
@@ -240,10 +324,12 @@ selectionParams['WZ'] = {
 #############
 hpp4lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hmm1_passMedium==1 && hmm2_passMedium==1'
 hpp4lLowMassControl = '{0} && hpp_mass<170 && hmm_mass<170'.format(hpp4lBaseCut)
+hpp4lMatchSign = 'hpp1_genCharge==hpp1_charge && hpp2_genCharge==hpp2_charge && hmm1_genCharge==hmm1_charge && hmm2_genCharge==hmm2_charge'
 hpp4lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hmm1_mediumScale*hmm2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Hpp4l'] = {
-    'default' : {'args': [hpp4lBaseCut],        'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'default'}},
-    'lowmass' : {'args': [hpp4lLowMassControl], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'lowmass'}},
+    'default'   : {'args': [hpp4lBaseCut],                           'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'default'}},
+    'lowmass'   : {'args': [hpp4lLowMassControl],                    'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'lowmass'}},
+    'matchSign' : {'args': [hpp4lBaseCut + ' && ' + hpp4lMatchSign], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'matchSign'}},
 }
 
 masses = [200,300,400,500,600,700,800,900,1000]

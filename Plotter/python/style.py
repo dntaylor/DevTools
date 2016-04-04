@@ -22,6 +22,7 @@ colors = {
 }
 
 colorMap = {
+    'MC'        : 'Red',
     'BG'        : 'Blue',
     'EWK'       : 'Blue',
     'QCD'       : 'Pink',
@@ -39,12 +40,14 @@ colorMap = {
     'TTZ'       : 'BlueGreen', 
     'TTW'       : 'BlueGreen', 
     'Z'         : 'DarkYellow',
+    'W'         : 'LightBlue',
     'TT'        : 'Green',
     'HppHmm'    : 'Orange',
     'HppHm'     : 'Orange',
 }
 
 labelMap = {
+    'MC'        : 'Simulation',
     'BG'        : 'Background',
     'EWK'       : 'Electroweak',
     'QCD'       : 'QCD',
@@ -62,6 +65,7 @@ labelMap = {
     'TTZ'       : 't#bar{t}Z',
     'TTW'       : 't#bar{t}W',
     'Z'         : 'Drell-Yan',
+    'W'         : 'W',
     'TT'        : 't#bar{t}',
     'HppHmm'    : '#Phi^{++}#Phi^{#font[122]{\55}#font[122]{\55}}',
     'HppHm'     : '#Phi^{#pm#pm}#Phi^{#mp}',
