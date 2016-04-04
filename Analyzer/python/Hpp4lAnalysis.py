@@ -3,7 +3,7 @@
 
 from AnalysisBase import AnalysisBase
 from utilities import ZMASS, deltaPhi, deltaR
-from leptonId import passWZLoose, passWZMedium, passWZTight
+from leptonId import passWZLoose, passWZMedium, passWZTight, passHppLoose, passHppMedium, passHppTight
 
 import itertools
 import operator
@@ -39,6 +39,8 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passTight)), 'numTightElectrons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passLoose)), 'numLooseMuons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passTight)), 'numTightMuons', 'I')
+        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'taus',self.passLoose)), 'numLooseTaus', 'I')
+        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'taus',self.passTight)), 'numTightTaus', 'I')
 
         # pileup
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'vertices_count'), 'numVertices', 'I')
@@ -58,6 +60,7 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu20Pass'), 'pass_IsoMu20', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoTkMu20Pass'), 'pass_IsoTkMu20', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'DoubleMediumIsoPFTau35_Trk1_eta2p1_RegPass'), 'pass_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg', 'I')
         self.tree.add(self.triggerEfficiency, 'triggerEfficiency', 'F')
 
 
@@ -151,7 +154,7 @@ class Hpp4lAnalysis(AnalysisBase):
         }
 
         # get leptons
-        colls = ['electrons','muons']
+        colls = ['electrons','muons','taus']
         pts = {}
         p4s = {}
         charges = {}
@@ -231,13 +234,16 @@ class Hpp4lAnalysis(AnalysisBase):
     ### lepton IDs ###
     ##################
     def passLoose(self,rtrow,cand):
-        return passWZLoose(self,rtrow,cand)
+        #return passWZLoose(self,rtrow,cand)
+        return passHppLoose(self,rtrow,cand)
 
     def passMedium(self,rtrow,cand):
-        return passWZMedium(self,rtrow,cand)
+        #return passWZMedium(self,rtrow,cand)
+        return passHppMedium(self,rtrow,cand)
 
     def passTight(self,rtrow,cand):
-        return passWZTight(self,rtrow,cand)
+        #return passWZTight(self,rtrow,cand)
+        return passHppTight(self,rtrow,cand)
 
     def looseScale(self,rtrow,cand):
         if cand[0]=='muons':
@@ -273,7 +279,7 @@ class Hpp4lAnalysis(AnalysisBase):
         else:
             return []
         cands = []
-        for coll in ['electrons','muons']:
+        for coll in ['electrons','muons','taus']:
             cands += self.getCands(rtrow,coll,passMode)
         return cands
 
@@ -385,6 +391,9 @@ class Hpp4lAnalysis(AnalysisBase):
             'SingleElectron' : [
                 'Ele23_WPLoose_Gsf',
             ],
+            'Tau' : [
+                'DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg',
+            ],
         }
         # the order here defines the heirarchy
         # first dataset, any trigger passes
@@ -396,6 +405,7 @@ class Hpp4lAnalysis(AnalysisBase):
             'MuonEG',
             'SingleMuon',
             'SingleElectron',
+            'Tau',
         ]
         # reject triggers if they are in another dataset
         # looks for the dataset name in the filename
@@ -417,7 +427,15 @@ class Hpp4lAnalysis(AnalysisBase):
 
     def triggerEfficiency(self,rtrow,cands):
         candList = [cands[c] for c in ['hpp1','hpp2','hmm1','hmm2']]
-        triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','Mu17_Mu8','Ele17_Ele12']
+        numTaus = [c[0] for c in candList].count('taus')
+        if numTaus<2:
+            triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','Mu17_Mu8','Ele17_Ele12']
+        elif numTaus==2:
+            triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','Mu17_Mu8','Ele17_Ele12','DoublePFTau35']
+        elif numTaus==3:
+            triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','DoublePFTau35']
+        else:
+            triggerList = ['DoublePFTau35']
         return self.triggerScales.getDataEfficiency(rtrow,triggerList,candList)
 
 

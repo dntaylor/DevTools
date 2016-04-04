@@ -1,12 +1,14 @@
 import os
 import sys
 import logging
+import math
 
 import ROOT
 
 import operator
 
 def product(iterable):
+    if not iterable: return 0. # case of empty list
     return reduce(operator.mul, iterable, 1)
 
 class TriggerScales(object):
@@ -30,6 +32,20 @@ class TriggerScales(object):
                     'DATA' : self.singleMu_rootfile.Get('{0}/efficienciesDATA/pt_abseta_DATA'.format(directory)),
                 }
 
+        # double tau fits
+        self.doubleTau_efficiencies = {
+            'MC': {
+                'val'    : {'m0' : 3.60274e01, 'sigma' : 5.89434e00, 'alpha' : 5.82870e00, 'n' : 1.83737e00, 'norm' : 9.58000e-01,},
+                'errUp'  : {'m0' : 3.56012e01, 'sigma' : 5.97209e00, 'alpha' : 6.09604e00, 'n' : 1.68740e00, 'norm' : 9.87653e-01,},
+                'errDown': {'m0' : 3.62436e01, 'sigma' : 5.58461e00, 'alpha' : 5.12924e00, 'n' : 2.05921e00, 'norm' : 9.32305e-01,},
+            },
+            'DATA': {
+                'val'    : {'m0' : 3.45412e01, 'sigma' : 5.63353e00, 'alpha' : 2.49242e00, 'n' : 3.35896e00, 'norm' : 1.00000e00,},
+                'errUp'  : {'m0' : 3.31713e01, 'sigma' : 5.66551e00, 'alpha' : 1.87175e00, 'n' : 8.07790e00, 'norm' : 1.00000e00,},
+                'errDown': {'m0' : 3.56264e01, 'sigma' : 5.30711e00, 'alpha' : 2.81591e00, 'n' : 2.40649e00, 'norm' : 9.99958e-01,},
+            },
+        }
+
         ##############
         ### OTHERS ###
         ##############
@@ -52,10 +68,12 @@ class TriggerScales(object):
         self.singleTriggers = {
             'muons'    : ['IsoMu20_OR_IsoTkMu20', 'Mu45_eta2p1', 'Mu50', 'Mu17_Mu8Leg1', 'Mu17_Mu8Leg2'],
             'electrons': ['Ele23_WPLoose', 'Ele17_Ele12Leg1', 'Ele17_Ele12Leg2'],
+            'taus'     : ['PFTau35'],
         }
         self.doubleTriggers = {
             'muons'    : ['Mu17_Mu8'],
             'electrons': ['Ele17_Ele12'],
+            'taus'     : ['DoublePFTau35'],
         }
 
     def __parse_hww(self,filename,fileType):
@@ -86,6 +104,37 @@ class TriggerScales(object):
                     'errdown': float(errdown),
                 }]
         return scales
+
+    def __doubleTau35_fit(self,pt,mode):
+        m0    = self.doubleTau_efficiencies[mode]['val']['m0']
+        sigma = self.doubleTau_efficiencies[mode]['val']['sigma']
+        alpha = self.doubleTau_efficiencies[mode]['val']['alpha']
+        n     = self.doubleTau_efficiencies[mode]['val']['n']
+        norm  = self.doubleTau_efficiencies[mode]['val']['norm']
+        x = pt
+        # recreate the fit
+        sqrtPiOver2 = math.sqrt(ROOT.TMath.PiOver2())
+        sqrt2 = math.sqrt(2.)
+        sig = abs(sigma)
+        t = (x-m0)/sig * alpha/abs(alpha)
+        absAlpha = abs(alpha/sig)
+        a =  ROOT.TMath.Power(n/absAlpha,n) * ROOT.TMath.Exp(-0.5*absAlpha*absAlpha)
+        b = absAlpha - n/absAlpha
+        arg = absAlpha/sqrt2
+        if arg>5.: ApproxErf = 1.
+        elif arg<-5.: ApproxErf = -1.
+        else: ApproxErf = ROOT.TMath.Erf(arg)
+        leftArea = (1.+ApproxErf)*sqrtPiOver2
+        rightArea = (a*1./ROOT.TMath.Power(absAlpha-b,n-1))/(n-1)
+        area = leftArea+rightArea
+        if t<= absAlpha:
+            arg = t/sqrt2
+            if arg>5.: ApproxErf = 1.
+            elif arg<-5.: ApproxErf = -1.
+            else: ApproxErf = ROOT.TMath.Erf(arg)
+            return norm * (1.+ApproxErf)*sqrtPiOver2/area
+        else:
+            return norm * (leftArea + a * (1./ROOT.TMath.Power(t-b,n-1) - 1./ROOT.TMath.Power(absAlpha-b,n-1))/(1-n))/area
 
     def __exit__(self, type, value, traceback):
         self.__finish()
@@ -160,6 +209,9 @@ class TriggerScales(object):
                        and pt>=row['ptmin']
                        and pt<=row['ptmax']):
                        return row['eff']
+        elif cand[0]=='taus':
+            if rootName=='PFTau35':
+                return self.__doubleTau35_fit(pt,mode)
         return 0.
 
     def __getLeadEfficiency(self,rtrow,rootNames,mode,cand,pt,eta):
@@ -169,8 +221,10 @@ class TriggerScales(object):
         elif cand[0]=='muons':
             if 'Mu17_Mu8' in rootNames:
                 return self.__getEfficiency(rtrow,'Mu17_Mu8Leg1',mode,cand,pt,eta)
-        else:
-            return 0.
+        elif cand[0]=='taus':
+            if 'DoublePFTau35' in rootNames:
+                return self.__getEfficiency(rtrow,'PFTau35',mode,cand,pt,eta)
+        return 0.
 
     def __getTrailEfficiency(self,rtrow,rootNames,mode,cand,pt,eta):
         if cand[0]=='electrons':
@@ -179,8 +233,10 @@ class TriggerScales(object):
         elif cand[0]=='muons':
             if 'Mu17_Mu8' in rootNames:
                 return self.__getEfficiency(rtrow,'Mu17_Mu8Leg2',mode,cand,pt,eta)
-        else:
-            return 0.
+        elif cand[0]=='taus':
+            if 'DoublePFTau35' in rootNames:
+                return self.__getEfficiency(rtrow,'PFTau35',mode,cand,pt,eta)
+        return 0.
 
     def __getSingleEfficiency(self,rtrow,rootNames,mode,cand,pt,eta):
         if cand[0]=='electrons':
@@ -190,8 +246,6 @@ class TriggerScales(object):
                 return self.__getEfficiency(rtrow,'Ele17_Ele12Leg1',mode,cand,pt,eta)
             elif 'Ele17_Ele12Leg2' in rootNames:
                 return self.__getEfficiency(rtrow,'Ele17_Ele12Leg2',mode,cand,pt,eta)
-            else:
-                return 0.
         elif cand[0]=='muons':
             if 'IsoMu20_OR_IsoTkMu20' in rootNames:
                 return self.__getEfficiency(rtrow,'IsoMu20_OR_IsoTkMu20',mode,cand,pt,eta)
@@ -203,10 +257,10 @@ class TriggerScales(object):
                 return self.__getEfficiency(rtrow,'Mu17_Mu8Leg1',mode,cand,pt,eta)
             elif 'Mu17_Mu8Leg2' in rootNames:
                 return self.__getEfficiency(rtrow,'Mu17_Mu8Leg2',mode,cand,pt,eta)
-            else:
-                return 0.
-        else:
-            return 0.
+        elif cand[0]=='taus':
+            if 'PFTau35' in rootNames:
+                return self.__getEfficiency(rtrow,'PFTau35',mode,cand,pt,eta)
+        return 0.
 
     def __hasSingle(self,triggers,triggerType):
         for trigger in triggers:
@@ -239,14 +293,15 @@ class TriggerScales(object):
         #######################
         ### Double triggers ###
         #######################
-        elif ((len(triggers)==1 and (self.__hasDouble(triggers,'electrons') or self.__hasDouble(triggers,'muons'))) or
-              (len(triggers)==2 and (self.__hasDouble(triggers,'electrons') and self.__hasDouble(triggers,'muons')))):
+        elif ((len(triggers)==1 and (self.__hasDouble(triggers,'electrons') or self.__hasDouble(triggers,'muons') or   # ee, mm, tt
+                  self.__hasDouble(triggers,'taus'))) or
+              (len(triggers)==2 and (self.__hasDouble(triggers,'electrons') and self.__hasDouble(triggers,'muons')))): # ee/mm
             val = 1-(
                 # none pass lead
                 product([1-self.__getLeadEfficiency(rtrow,triggers,mode,cand,pts[cand],etas[cand]) for cand in cands])
                 # one pass lead, none pass trail
                 +sum([self.__getLeadEfficiency(rtrow,triggers,mode,lead,pts[lead],etas[lead])
-                      *product([1-self.__getTrailEfficiency(rtrow,triggers,mode,trail,pts[trail],etas[trail]) if trail!=lead else 1. for trail in cands]) for lead in cands])
+                      *product([1-self.__getTrailEfficiency(rtrow,triggers,mode,trail,pts[trail],etas[trail]) if trail!=lead else 1. for trail in cands if trail[0]==lead[0]]) for lead in cands])
                 # TODO: DZ not included ???
                 # one pass lead, one pass trail, fail dz
                 # one pass lead, two pass trail, both fail dz
@@ -255,19 +310,28 @@ class TriggerScales(object):
         ################################
         ### single + double triggers ###
         ################################
-        elif ((len(triggers)==2 and ((self.__hasSingle(triggers,'electrons') and self.__hasDouble(triggers,'electrons')) or
-                                     (self.__hasSingle(triggers,'muons') and self.__hasDouble(triggers,'muons')))) or
-              (len(triggers)==4 and (self.__hasSingle(triggers,'electrons') and self.__hasDouble(triggers,'electrons') and
-                                     self.__hasSingle(triggers,'muons') and self.__hasDouble(triggers,'muons')))):
+        elif ((len(triggers)==2 and ((self.__hasSingle(triggers,'electrons') and self.__hasDouble(triggers,'electrons')) or # e/ee
+                                     (self.__hasSingle(triggers,'muons') and self.__hasDouble(triggers,'muons')))) or       # m/mm
+              (len(triggers)==3 and ((self.__hasSingle(triggers,'electrons') and self.__hasSingle(triggers,'muons')         # e/m/tt
+                                     and self.__hasDouble(triggers,'taus')))) or
+              (len(triggers)==4 and (self.__hasSingle(triggers,'electrons') and self.__hasDouble(triggers,'electrons') and  # e/m/ee/mm (e/m/ee/em/mm)
+                                     self.__hasSingle(triggers,'muons') and self.__hasDouble(triggers,'muons'))) or
+              (len(triggers)==5 and (self.__hasSingle(triggers,'electrons') and self.__hasDouble(triggers,'electrons') and  # e/m/ee/mm/tt (e/m/ee/em/mm/tt)
+                                     self.__hasSingle(triggers,'muons') and self.__hasDouble(triggers,'muons') and
+                                     self.__hasDouble(triggers,'taus')))):
             val = 1-(
                 # none pass single
-                product([1-self.__getSingleEfficiency(rtrow,triggers,mode,cand,pts[cand],etas[cand]) for cand in cands])
+                product([1-self.__getSingleEfficiency(rtrow,triggers,mode,cand,pts[cand],etas[cand]) for cand in cands if cand[0] in ['electrons','muons']]) # only electron/muon single triggers
             )*(
                 # none pass lead
                 product([1-self.__getLeadEfficiency(rtrow,triggers,mode,cand,pts[cand],etas[cand]) for cand in cands])
                 # one pass lead, none pass trail
                 +sum([self.__getLeadEfficiency(rtrow,triggers,mode,lead,pts[lead],etas[lead])
-                      *product([1-self.__getTrailEfficiency(rtrow,triggers,mode,trail,pts[trail],etas[trail]) if trail!=lead else 1. for trail in cands]) for lead in cands])
+                      *product([1-self.__getTrailEfficiency(rtrow,triggers,mode,trail,pts[trail],etas[trail]) if trail!=lead else 1. for trail in cands if (
+                                       (trail[0]=='taus' and lead[0]=='taus') or                                # no cross trigger with taus
+                                       (trail[0] in ['electrons','muons'] and lead[0] in ['electrons','muons']) # allow cross triggers with e/m
+                                   )
+                               ]) for lead in cands])
                 # TODO: DZ not included ???
                 # one pass lead, one pass trail, fail dz
                 # one pass lead, two pass trail, both fail dz

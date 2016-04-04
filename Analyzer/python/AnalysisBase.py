@@ -444,7 +444,7 @@ class AnalysisBase(object):
 
     def addFlavorDependentCandVar(self,label,varLabel,varMap,rootType):
         '''Add a variable for a cand based on flavor'''
-        self.tree.add(lambda rtrow,cands: self.getObjectVariable(rtrow,cands[label],varMap[cands[label][0]]), '{0}_{1}'.format(label,varLabel), rootType)
+        self.tree.add(lambda rtrow,cands: self.getObjectVariable(rtrow,cands[label],varMap[cands[label][0]]) if cands[label][0] in varMap else 0., '{0}_{1}'.format(label,varLabel), rootType)
 
     def addDiJet(self,label,obj1,obj2):
         '''Add variables relevant for a dijet candidate'''
