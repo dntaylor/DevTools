@@ -76,7 +76,7 @@ params = {
         'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [500, 0, 500]},
         'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
         # w
-        'wMass'                 : {'variable': 'w_mass',                         'binning': [200, 0, 500]},
+        'wMass'                 : {'variable': 'w_mass',                         'binning': [500, 0, 500]},
         'wPt'                   : {'variable': 'w_pt',                           'binning': [500, 0, 500]},
         'wLeptonPt'             : {'variable': 'w1_pt',                          'binning': [500, 0, 500]},
         'wLeptonEta'            : {'variable': 'w1_eta',                         'binning': [500, -2.5, 2.5]},

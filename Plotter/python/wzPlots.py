@@ -1,4 +1,14 @@
+
+import os
+import sys
+import logging
+
 from DevTools.Plotter.Plotter import Plotter
+from copy import deepcopy
+
+import ROOT
+
+logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 wzPlotter = Plotter(
     inputDirectory  = 'flat/WZ',
@@ -54,8 +64,9 @@ plotStyles = {
     'wPt'                 : {'xaxis': 'p_{T}^{W}', 'yaxis': 'Events/10 GeV', 'rebin':10, 'rangex':[0,200]},
     'wLeptonPt'           : {'xaxis': 'p_{T}^{W lepton}', 'yaxis': 'Events/10 GeV', 'rebin':10, 'rangex':[0,200]},
     # event
-    'mass'                : {'xaxis': 'm_{3l}', 'yaxis': 'Events/10 GeV', 'rebin':10, 'rangex':[0,500]},
-    'nJets'               : {'xaxis': 'Number of jets (p_{t} > 30 GeV)', 'yaxis': 'Events', 'rangex':[0,8]},
+    'met'                 : {'xaxis': 'E_{T}^{miss}', 'yaxis': 'Events/10 GeV', 'rebin':10, 'rangex':[0,200]},
+    'mass'                : {'xaxis': 'm_{3l}', 'yaxis': 'Events/20 GeV', 'rebin':20, 'rangex':[0,500]},
+    'nJets'               : {'xaxis': 'Number of Jets (p_{T} > 30 GeV)', 'yaxis': 'Events', 'rangex':[0,8]},
 }
 
 def getDataDrivenPlot(plot):
