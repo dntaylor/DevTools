@@ -43,7 +43,19 @@ for s in samples:
 wzPlotter.addHistogram('data',sigMap['data'])
 
 plotStyles = {
-    'zMass': {'xaxis': 'm_{l^{+}l^{-}}', 'yaxis': 'Events/1 GeV', 'rangex':[60,120]},
+    # Z
+    'zMass'               : {'xaxis': 'm_{l^{+}l^{-}}', 'yaxis': 'Events/1 GeV', 'rangex':[60,120]},
+    'mllMinusMZ'          : {'xaxis': '|m_{l^{+}l^{-}}-m_{Z}|', 'yaxis': 'Events/1 GeV', 'rangex':[0,60]},
+    'zPt'                 : {'xaxis': 'p_{T}^{Z}', 'yaxis': 'Events/1 GeV', 'rangex':[0,200]},
+    'zLeadingLeptonPt'    : {'xaxis': 'p_{T}^{Z lead}', 'yaxis': 'Events/1 GeV', 'rangex':[0,200]},
+    'zSubLeadingLeptonPt' : {'xaxis': 'p_{T}^{Z sublead}', 'yaxis': 'Events/1 GeV', 'rangex':[0,200]},
+    # W
+    'wMass'               : {'xaxis': 'm_{T}^{W}', 'yaxis': 'Events/1 GeV', 'rangex':[0,200]},
+    'wPt'                 : {'xaxis': 'p_{T}^{W}', 'yaxis': 'Events/1 GeV', 'rangex':[0,200]},
+    'wLeptonPt'           : {'xaxis': 'p_{T}^{W lepton}', 'yaxis': 'Events/1 GeV', 'rangex':[0,200]},
+    # event
+    'mass'                : {'xaxis': 'm_{3l}', 'yaxis': 'Events/10 GeV', 'rebin':10, 'rangex':[0,500]},
+    'nJets'               : {'xaxis': 'Number of jets (p_{t} > 30 GeV)', 'yaxis': 'Events', 'rangex':[0,8]},
 }
 
 def getDataDrivenPlot(plot):
@@ -54,7 +66,7 @@ def getDataDrivenPlot(plot):
     histMap['datadriven'] = ['/'.join(plotdirs[:-1]+[reg]+plotdirs[-1:]) for reg in regions]
     return histMap
 
-for plot in ['zMass']:
+for plot in plotStyles:
     plotvars = getDataDrivenPlot(plot)
     savename = plot
     wzPlotter.plot(plotvars,savename,**plotStyles[plot])
