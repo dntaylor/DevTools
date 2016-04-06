@@ -15,6 +15,7 @@ from CutTree import CutTree
 from AnalysisTree import AnalysisTree
 
 from PileupWeights import PileupWeights
+from FakeRates import FakeRates
 from LeptonScales import LeptonScales
 from TriggerScales import TriggerScales
 from TriggerPrescales import TriggerPrescales
@@ -79,6 +80,7 @@ class AnalysisBase(object):
         self.flush()
         # other input files
         self.pileupWeights = PileupWeights()
+        self.fakeRates = FakeRates()
         self.leptonScales = LeptonScales()
         self.triggerScales = TriggerScales()
         self.triggerPrescales = TriggerPrescales()

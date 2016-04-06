@@ -81,6 +81,8 @@ class WZAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z1']), 'z1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z1']), 'z1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z1']), 'z1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['z1']), 'z1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['z1']), 'z1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1']), 'z1_zeppenfeld','F')
         self.addLepton('z2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z2']), 'z2_passMedium', 'I')
@@ -88,6 +90,8 @@ class WZAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z2']), 'z2_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z2']), 'z2_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z2']), 'z2_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['z2']), 'z2_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['z2']), 'z2_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z2']), 'z2_zeppenfeld','F')
 
         # w lepton
@@ -98,6 +102,8 @@ class WZAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['w1']), 'w1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['w1']), 'w1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['w1']), 'w1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['w1']), 'w1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['w1']), 'w1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['w1']), 'w1_zeppenfeld','F')
 
         # wrong combination
@@ -211,6 +217,12 @@ class WZAnalysis(AnalysisBase):
             return self.leptonScales.getScale(rtrow,'CutbasedTight',cand)
         else:
             return 1.
+
+    def mediumFakeRate(self,rtrow,cand):
+        return self.fakeRates.getFakeRate(rtrow,cand,'WZMedium','WZLoose')
+
+    def tightFakeRate(self,rtrow,cand):
+        return self.fakeRates.getFakeRate(rtrow,cand,'WZTight','WZLoose')
 
     def getPassingCands(self,rtrow,mode):
         if mode=='Loose':
