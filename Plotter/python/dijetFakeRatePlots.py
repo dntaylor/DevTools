@@ -87,6 +87,8 @@ dijetFakeRatePlotter.addHistogram('data',sigMap['data'])
 plots = {
     'pt'      : {'xaxis': 'p_{T} (GeV)', 'yaxis': 'Events/0.5 GeV', 'rebin': 5, 'rangex': [0,150]},
     'eta'     : {'xaxis': '|#eta|', 'yaxis': 'Events', 'rebin': 5, 'rangex': [-2.5,2.5]},
+    'met'     : {'xaxis': 'E_{T}^{miss} (GeV)', 'yaxis': 'Events/0.2 GeV', 'rebin': 2, 'rangex': [0,200]},
+    'wMass'   : {'xaxis': 'm_{T}^{l^{+},MET} (GeV)', 'yaxis': 'Events/0.5 GeV', 'rebin': 5, 'rangex': [0,200]},
 }
 
 # signal region
@@ -105,18 +107,19 @@ allSamplesDict = {'MC':[]}
 for s in samples:
     allSamplesDict['MC'] += sigMap[s]
 
-dijetFakeRatePlotter.addHistogram('MC',allSamplesDict['MC'],style={'linecolor': ROOT.kRed})
-dijetFakeRatePlotter.addHistogram('data',sigMap['data'],style={'linecolor':ROOT.kBlack})
+dijetFakeRatePlotter.addHistogram('MC',allSamplesDict['MC'])
+dijetFakeRatePlotter.addHistogram('data',sigMap['data'],style={'linecolor':ROOT.kBlack,'name':'EWK Corrected'})
+dijetFakeRatePlotter.addHistogram('data_uncorrected',sigMap['data'],style={'linecolor':ROOT.kRed,'name':'Uncorrected'})
 
-ptbins = [10,20,30,40,50,60,80,100,200,1000]
+ptbins = [0,10,15,20,25,30,40,50,60,100]#,200,1000]
 etabins = [-2.5,-2.0,-1.479,-1.0,-0.5,0.,0.5,1.0,1.479,2.0,2.5]
 
 medium_cust = {
-    'pt'     : {'yaxis': 'N_{Medium}/N_{Loose}', 'rebin': ptbins},
+    'pt'     : {'yaxis': 'N_{Medium}/N_{Loose}', 'rebin': ptbins, 'xrange': [0,100]},
     'eta'    : {'yaxis': 'N_{Medium}/N_{Loose}', 'rebin': etabins},
 }
 tight_cust = {
-    'pt'     : {'yaxis': 'N_{Tight}/N_{Loose}', 'rebin': ptbins},
+    'pt'     : {'yaxis': 'N_{Tight}/N_{Loose}', 'rebin': ptbins, 'xrange': [0,100]},
     'eta'    : {'yaxis': 'N_{Tight}/N_{Loose}', 'rebin': etabins},
 }
 
@@ -130,7 +133,19 @@ for plot in ['pt','eta']:
         for chan in chans:
             numname = '{0}/{1}/{2}'.format(lepton,chan,plot)
             denomname = 'loose/{0}/{1}'.format(chan,plot)
-            savename = 'ratio/{0}/{1}'.format(lepton,plot)
-            dijetFakeRatePlotter.plotRatio(numname,denomname,savename,ymax=1.,**kwargs)
+            savename = 'ratio/{0}/{1}/{2}'.format(lepton,chan,plot)
+            subtractMap = {
+                'data': ['MC'],
+            }
+            customOrder = ['data_uncorrected','data']
+            dijetFakeRatePlotter.plotRatio(numname,denomname,savename,ymax=1.,customOrder=customOrder,legendpos=34,numcol=2,subtractMap=subtractMap,**kwargs)
+            for etabin in range(5):
+                if plot=='eta': continue
+                if chan=='m' and etabin>1: continue
+                numname = '{0}/{1}/etaBin{2}/{3}'.format(lepton,chan,etabin,plot)
+                denomname = 'loose/{0}/etaBin{1}/{2}'.format(chan,etabin,plot)
+                savename = 'ratio/{0}/{1}/{2}_etabin{3}'.format(lepton,chan,plot,etabin)
+                dijetFakeRatePlotter.plotRatio(numname,denomname,savename,ymax=1.,customOrder=customOrder,legendpos=34,numcol=2,subtractMap=subtractMap,**kwargs)
+
 
 

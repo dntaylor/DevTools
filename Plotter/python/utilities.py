@@ -2,6 +2,7 @@
 import os
 import sys
 import errno
+import hashlib
 
 from DevTools.Analyzer.utilities import ZMASS
 
@@ -13,6 +14,25 @@ def python_mkdir(dir):
         if exc.errno == errno.EEXIST and os.path.isdir(dir):
             pass
         else: raise
+
+def hashFile(*filenames,**kwargs):
+    BUFFSIZE = kwargs.pop('BUFFSIZE',65536)
+    hasher = hashlib.md5()
+    for filename in filenames:
+        with open(filename,'rb') as f:
+            buff = f.read(BUFFSIZE)
+            while len(buff)>0:
+                hasher.update(buff)
+                buff = f.read(BUFFSIZE)
+    return hasher.hexdigest()
+
+def hashString(*strings):
+    hasher = hashlib.md5()
+    for string in strings:
+        hasher.update(string)
+    return hasher.hexdigest()
+
+
 
 def isData(sample):
     '''Test if sample is data'''

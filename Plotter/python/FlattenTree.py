@@ -2,6 +2,7 @@ import logging
 import os
 import sys
 import glob
+import json
 
 sys.argv.append('-b')
 import ROOT
@@ -10,7 +11,7 @@ sys.argv.pop()
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
 from DevTools.Plotter.xsec import getXsec
-from DevTools.Plotter.utilities import getLumi, isData
+from DevTools.Plotter.utilities import getLumi, isData, hashFile, hashString, python_mkdir
 
 try:
     from progressbar import ProgressBar, ETA, Percentage, Bar, SimpleProgress
@@ -35,6 +36,8 @@ class FlattenTree(object):
         self.selections = []
         self.sample = ''
         self.j = 0
+        self.hashDir = '.hash'
+        self.files = []
 
     def __initializeSample(self,sample):
         self.sample = sample
@@ -53,6 +56,7 @@ class FlattenTree(object):
             tchain.Add(f)
         self.sampleLumi = float(summedWeights)/getXsec(sample) if getXsec(sample) else 0.
         self.sampleTree = tchain
+        self.files = allFiles
         
     def __exit__(self, type, value, traceback):
         self.__finish()
@@ -70,6 +74,28 @@ class FlattenTree(object):
         self.outfile.cd('{0}:/{1}'.format(self.outputFileName,directory))
         hist.Write('',ROOT.TObject.kOverwrite)
         self.__finish()
+
+    def __checkHash(self,name,directory,strings=[]):
+        #TODO: think of better way
+        return False
+        outputFileDir = self.outputFileName.rstrip('.root')
+        hashFileName = '{0}/{1}/{2}/{3}.json'.format(self.hashDir,outputFileDir,directory,name)
+        if os.path.isfile(hashFileName):
+            hashvals = json.load(hashFileName)
+        else:
+            hashvals = {'files':'','strings':''}
+        oldFileHash = hashvals['files']
+        oldStringHash = hashvals['strings']
+        newFileHash = hashFile(*self.files)
+        newStringHash = hashString(*strings)
+        if oldFileHash==newFileHash and oldStringHash==newStringHash:
+            return True
+        hashvals['files'] = newFileHash
+        hashvals['strings'] = newStringHash
+        python_mkdir(os.path.dirname(hashFileName))
+        with open(hashFileName,'w') as f:
+            json.dump(hashvals,f)
+        return False
 
     def addHistogram(self,name,**params):
         '''
@@ -175,6 +201,11 @@ class FlattenTree(object):
         if 'datascale' in params and isData(self.sample): scalefactor += '*{0}'.format(params['datascale'])
         if 'selection' in params: selection += ' && {0}'.format(params['selection'])
         selectionString = '{0}*({1})'.format(scalefactor,selection)
+        # check if we need to draw the hist, or if the one in the ntuple is the latest
+        hashExists = self.__checkHash(name,directory,strings=[params['variable'],', '.join([str(x) for x in params['binning']]),scalefactor,selection])
+        if hashExists:
+            self.__finish()
+            return
         tree.Draw(drawString,selectionString,'goff')
         # see if hist exists
         if ROOT.gDirectory.Get(tempName):
@@ -215,6 +246,11 @@ class FlattenTree(object):
         if 'datascale' in params and isData(self.sample): scalefactor += '*{0}'.format(params['datascale'])
         if 'selection' in params: selection += ' && {0}'.format(params['selection'])
         selectionString = '{0}*({1})'.format(scalefactor,selection)
+        # check if we need to draw the hist, or if the one in the ntuple is the latest
+        hashExists = self.__checkHash(name,directory,strings=[params['yvariable'],params['xVariable'],', '.join([str(x) for x in params['xBinning']+params['yBinning']]),scalefactor,selection])
+        if hashExists:
+            self.__finish()
+            return
         tree.Draw(drawString,selectionString,'goff')
         # see if hist exists
         if ROOT.gDirectory.Get(tempName):

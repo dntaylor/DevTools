@@ -40,7 +40,7 @@ colorMap = {
     'TTZ'       : 'BlueGreen', 
     'TTW'       : 'BlueGreen', 
     'Z'         : 'DarkYellow',
-    'W'         : 'LightBlue',
+    'W'         : 'Aqua',
     'TT'        : 'Green',
     'HppHmm'    : 'Orange',
     'HppHm'     : 'Orange',
@@ -85,7 +85,7 @@ for sig in ['HppHmm','HppHm']:
 
 def getStyle(sample):
     style = {}
-    if sample=='data':
+    if 'data'==sample:
         style['legendstyle'] = 'ep'
         style['drawstyle'] = 'ex0'
         style['name'] = 'Observed'

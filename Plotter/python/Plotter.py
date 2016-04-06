@@ -49,6 +49,7 @@ class Plotter(PlotterBase):
         self.styles = {}
         self.signals = []
         self.histScales = {}
+        self.j = 0
 
     def __exit__(self, type, value, traceback):
         self.finish()
@@ -125,14 +126,19 @@ class Plotter(PlotterBase):
     def _getHistogram(self,histName,variable,**kwargs):
         '''Get a styled histogram'''
         rebin = kwargs.pop('rebin',0)
-        # check if it is a variable map
-        varName = variable if isinstance(variable,basestring) else variable[histName]
         nofill = kwargs.pop('nofill',False)
+        # check if it is a variable map, variable list, or single variable
+        if isinstance(variable,dict):       # its a map
+            variable = variable[histName]
+        if isinstance(variable,basestring): # its a single variable
+            variable = [variable]
+        # it is now a list
         if histName in self.histDict:
             hists = ROOT.TList()
-            for sampleName in self.histDict[histName]:
-                hist = self._readSampleVariable(sampleName,varName)
-                if hist: hists.Add(hist)
+            for varName in variable:
+                for sampleName in self.histDict[histName]:
+                    hist = self._readSampleVariable(sampleName,varName)
+                    if hist: hists.Add(hist)
             if hists.IsEmpty(): return 0
             hist = hists[0].Clone('h_{0}_{1}'.format(histName,varName.replace('/','_')))
             hist.Reset()
@@ -211,7 +217,9 @@ class Plotter(PlotterBase):
 
     def _getStack(self,variable,**kwargs):
         '''Get a stack of histograms'''
-        stack = ROOT.THStack('stack_{0}'.format(variable.replace('/','_')),'stack_{0}'.format(variable.replace('/','_')))
+        stackname = 'h_stack_{0}'.format(self.j)
+        self.j += 1
+        stack = ROOT.THStack(stackname,stackname)
         for histName in self.stackOrder:
             hist = self._getHistogram(histName,variable,**kwargs)
             if hist: stack.Add(hist)
@@ -220,7 +228,9 @@ class Plotter(PlotterBase):
     def _getStackCounts(self,variables,**kwargs):
         '''Get a stack of histograms'''
         savename = kwargs.pop('savename','')
-        stack = ROOT.THStack('stack_{0}'.format(savename.replace('/','_')),'stack_{0}'.format(savename.replace('/','_')))
+        stackname = 'h_stack_{0}'.format(self.j)
+        self.j += 1
+        stack = ROOT.THStack(stackname,stackname)
         for histName in self.stackOrder:
             hist = self._getHistogramCounts(histName,variables,savename=savename,**kwargs)
             if hist: stack.Add(hist)
@@ -378,7 +388,9 @@ class Plotter(PlotterBase):
 
         # the ratio portion
         if plotratio:
-            denom = stack.GetStack().Last().Clone('h_stack_{0}_ratio'.format(variable.replace('/','_')))
+            stackname = 'h_stack_{0}_ratio'.format(self.j)
+            self.j += 1
+            denom = stack.GetStack().Last().Clone(stackname)
             ratiostaterr = self._get_ratio_stat_err(denom)
             ratiostaterr.SetXTitle(xaxis)
             unityargs = [rangex[0],1,rangex[1],1] if len(rangex)==2 else [stack.GetXaxis().GetXmin(),1,stack.GetXaxis().GetXmax(),1]
@@ -386,15 +398,17 @@ class Plotter(PlotterBase):
             ratiounity.SetLineStyle(2)
             ratios = OrderedDict()
             for histName, hist in hists.iteritems():
+                numname = 'h_{0}_{1}_ratio'.format(histName,self.j)
+                self.j += 1
                 if histName in self.signals:
                     sighists = ROOT.TList()
                     sighists.Add(hist)
                     sighists.Add(denom)
-                    num = sighists[0].Clone('h_{0}_{1}_ratio'.format(histName,variable.replace('/','_')))
+                    num = sighists[0].Clone(numname)
                     num.Reset()
                     num.Merge(sighists)
                 else:
-                    num = hist.Clone('h_{0}_{1}_ratio'.format(histName,variable.replace('/','_')))
+                    num = hist.Clone(numname)
                 if histName=='data':
                     num.SetBinErrorOption(ROOT.TH1.kPoisson)
                     num.Divide(denom)
@@ -585,6 +599,8 @@ class Plotter(PlotterBase):
         logy = kwargs.pop('logy',False)
         logx = kwargs.pop('logx',False)
         customOrder = kwargs.pop('customOrder',[])
+        subtractMap = kwargs.pop('subtractMap',{})
+        getHists = kwargs.pop('getHists', False)
 
         logging.info('Plotting {0}'.format(savename))
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
@@ -595,9 +611,16 @@ class Plotter(PlotterBase):
 
         hists = OrderedDict()
         histOrder = customOrder if customOrder else self.histOrder
+        
         for i,histName in enumerate(histOrder):
             num = self._getHistogram(histName,numerator,nofill=True,**kwargs)
             denom = self._getHistogram(histName,denominator,nofill=True,**kwargs)
+            if histName in subtractMap:
+                for subName in subtractMap[histName]:
+                    numsub = self._getHistogram(subName,numerator,nofill=True,**kwargs)
+                    num.Add(numsub,-1)
+                    denomsub = self._getHistogram(subName,denominator,nofill=True,**kwargs)
+                    denom.Add(denomsub,-1)
             num.Sumw2()
             denom.Sumw2()
             num.Divide(denom)
@@ -616,6 +639,8 @@ class Plotter(PlotterBase):
             highestMax = max(highestMax,num.GetMaximum())
             if ymax==None: num.SetMaximum(1.2*highestMax)
             hists[histName] = num
+
+        if getHists: return hists
 
         legend = self._getLegend(hists=hists,numcol=numcol,position=legendpos)
         legend.Draw()

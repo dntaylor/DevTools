@@ -66,12 +66,24 @@ params = {
     },
     # overrides for WZ
     'WZ' : {
-        'zMass'               : {'variable': 'z_mass',  'binning': [60, 60, 120]},
-        'zLeadingLeptonPt'    : {'variable': 'z1_pt',   'binning': [50, 0, 500]},
-        'zSubLeadingLeptonPt' : {'variable': 'z2_pt',   'binning': [50, 0, 500]},
-        'wMass'               : {'variable': 'w_mass',  'binning': [50, 0, 200]},
-        'wLeptonPt'           : {'variable': 'w1_pt',   'binning': [50, 0, 500]},
-        'mass'                : {'variable': '3l_mass', 'binning': [50, 0, 500]},
+        # z
+        'zMass'                 : {'variable': 'z_mass',                         'binning': [500, 0, 500]},
+        'mllMinusMZ'            : {'variable': 'fabs(z_mass-{0})'.format(ZMASS), 'binning': [200, 0, 200]},
+        'zPt'                   : {'variable': 'z_pt',                           'binning': [500, 0, 500]},
+        'zDeltaR'               : {'variable': 'z_deltaR',                       'binning': [500, 0, 5]},
+        'zLeadingLeptonPt'      : {'variable': 'z1_pt',                          'binning': [500, 0, 500]},
+        'zLeadingLeptonEta'     : {'variable': 'z1_eta',                         'binning': [500, -2.5, 2.5]},
+        'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [500, 0, 500]},
+        'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
+        # w
+        'wMass'                 : {'variable': 'w_mass',                         'binning': [200, 0, 500]},
+        'wPt'                   : {'variable': 'w_pt',                           'binning': [500, 0, 500]},
+        'wLeptonPt'             : {'variable': 'w1_pt',                          'binning': [500, 0, 500]},
+        'wLeptonEta'            : {'variable': 'w1_eta',                         'binning': [500, -2.5, 2.5]},
+        # event
+        'mass'                  : {'variable': '3l_mass',                        'binning': [500, 0, 500]},
+        'nJets'                 : {'variable': 'numJetsTight30',                 'binning': [10, 0, 10]},
+        'nBjets'                : {'variable': 'numBjetsTight30',                'binning': [10, 0, 10]},
     },
     # overrides for Hpp4l
     'Hpp4l' : {
@@ -170,6 +182,7 @@ sampleSelectionParams = {}
 eBarrelCut = 'fabs({0}_eta)<1.479'
 eEndcapCut = 'fabs({0}_eta)>1.479'
 promptCut = '{0}_genMatch==1 && {0}_genIsPrompt==1 && {0}_genDeltaR<0.1'
+genStatusOneCut = '{0}_genMatch==1 && {0}_genStatus==1 && {0}_genDeltaR<0.1'
 fakeCut = '({0}_genMatch==0 || ({0}_genMatch==1 && {0}_genIsFromHadron && {0}_genDeltaR<0.1))'
 
 #########################
@@ -187,7 +200,7 @@ selectionParams['Electron'] = {
 ##############################
 ### DijetFakeRate specific ###
 ##############################
-frBaseCut = '1'
+frBaseCut = 'w_mass<25 && met_pt<25'
 frBaseCutLoose = '{0}'.format(frBaseCut)
 frBaseCutMedium = '{0} && l1_passMedium==1'.format(frBaseCut)
 frBaseCutTight = '{0} && l1_passTight==1'.format(frBaseCut)
@@ -204,7 +217,7 @@ channels = ['e','m']
 
 etaBins = {
     'e': [0.,0.5,1.0,1.479,2.0,2.5],
-    'm': [0.,0.4,0.8,1.2,1.8,2.4],
+    'm': [0.,1.2,2.4],
 }
 ptBins = {
     'e': [10,15,20,25,30,40,50,60,80,100,2000],
@@ -276,7 +289,7 @@ for sel in ['OS','SS']:
 #########################
 wzBaseCut = 'z1_pt>20 && z2_pt>10 && w1_pt>20 && met_pt>30 && numBjetsTight30==0 && fabs(z_mass-{0})<15 && 3l_mass>100'.format(ZMASS)
 wzBaseScaleFactor = 'genWeight*pileupWeight*triggerEfficiency'
-wzPromptCut = ' && '.join([promptCut.format(l) for l in ['z1','z2','w1']])
+wzMCCut = ' && '.join([genStatusOneCut.format(l) for l in ['z1','z2','w1']])
 
 wzTightVar = {
     0: 'z1_passMedium',
@@ -296,28 +309,40 @@ wzLooseScale = {
     2: 'w1_looseScale',
 }
 
+wzFakeRate = {
+    0: 'z1_mediumFakeRate',
+    1: 'z2_mediumFakeRate',
+    2: 'w1_tightFakeRate',
+}
+
 wzScaleMap = {
     'P': wzTightScale,
     'F': wzLooseScale,
 }
 
 wzScaleFactorMap = {}
+wzFakeScaleFactorMap = {}
 wzCutMap = {}
-for region in ['PPP','PPF','PFP','FPP','PFF','FPF','FFP','FFF']:
+fakeRegions = ['PPP','PPF','PFP','FPP','PFF','FPF','FFP','FFF']
+for region in fakeRegions:
     wzScaleFactorMap[region] = '*'.join([wzScaleMap[region[x]][x] for x in range(3)])
+    wzFakeScaleFactorMap[region] = '*'.join(['{0}/(1-{0})'.format(wzFakeRate[f]) for f in range(3) if region[f]=='F'] + ['-1' if region.count('F')%2==0 and region.count('F')>0 else '1'])
     wzCutMap[region] = ' && '.join(['{0}=={1}'.format(wzTightVar[x],1 if region[x]=='P' else 0) for x in range(3)]+[wzBaseCut])
 
 selectionParams['WZ'] = {
     'default' : {'args': [wzBaseCut],       'kwargs': {'mcscalefactor': '*'.join([wzScaleFactorMap['PPP'],wzBaseScaleFactor]), 'directory': 'default'}},
-    'PPP'     : {'args': [wzCutMap['PPP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PPP'],wzBaseScaleFactor]), 'directory': 'PPP'}},
-    'PPF'     : {'args': [wzCutMap['PPF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PPF'],wzBaseScaleFactor]), 'directory': 'PPF'}},
-    'PFP'     : {'args': [wzCutMap['PFP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PFP'],wzBaseScaleFactor]), 'directory': 'PFP'}},
-    'FPP'     : {'args': [wzCutMap['FPP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FPP'],wzBaseScaleFactor]), 'directory': 'FPP'}},
-    'PFF'     : {'args': [wzCutMap['PFF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['PFF'],wzBaseScaleFactor]), 'directory': 'PFF'}},
-    'FPF'     : {'args': [wzCutMap['FPF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FPF'],wzBaseScaleFactor]), 'directory': 'FPF'}},
-    'FFP'     : {'args': [wzCutMap['FFP']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FFP'],wzBaseScaleFactor]), 'directory': 'FFP'}},
-    'FFF'     : {'args': [wzCutMap['FFF']], 'kwargs': {'mccut': wzPromptCut, 'mcscalefactor': '*'.join([wzScaleFactorMap['FFF'],wzBaseScaleFactor]), 'directory': 'FFF'}},
 }
+
+for region in fakeRegions:
+    selectionParams['WZ'][region] = {
+        'args': [wzCutMap[region]], 
+        'kwargs': {
+            'mccut': wzMCCut, 
+            'mcscalefactor': '*'.join([wzScaleFactorMap[region],wzFakeScaleFactorMap[region],wzBaseScaleFactor,'1' if region=='PPP' else '-1']),
+            'datascalefactor': wzFakeScaleFactorMap[region], 
+            'directory': region,
+        }
+    }
 
 #############
 ### hpp4l ###
@@ -334,6 +359,22 @@ selectionParams['Hpp4l'] = {
 
 masses = [200,300,400,500,600,700,800,900,1000]
 
+# define categories
+# higgscat = num taus
+higgscats = [0,1,2]
+# recocat = based on background
+# I  : 0,0
+# II : 0,1
+# III: 0,2
+# IV : 1,1
+# V  : 1,2
+# VI : 2,2
+recocats = ['I','II','III','IV','V','VI']
+
+recocatMap = {}
+for rc in recocats:
+    recocatMap[rc] = []
+
 # setup old working points
 hpp4lOldSelections = {}
 for mass in masses:
@@ -342,12 +383,27 @@ for mass in masses:
 
 # setup reco channel selections
 channels = {}
-higgsChannels = [''.join(x) for x in product('em',repeat=2)]
+higgsChannels = [''.join(x) for x in product('emt',repeat=2)]
 for hpp in higgsChannels:
     for hmm in higgsChannels:
         chanString = ''.join(sorted(hpp))+''.join(sorted(hmm))
         if chanString not in channels: channels[chanString] = []
         channels[chanString] += [hpp+hmm]
+        ptc = hpp.count('t')
+        mtc = hmm.count('t')
+        if ptc+mtc==0:
+           cat = 'I'
+        elif ptc+mtc==1:
+           cat = 'II'
+        elif ((ptc==0 and mtc==2) or (ptc==2 and mtc==0)):
+           cat = 'III'
+        elif ptc==1 and mtc==1:
+           cat = 'IV'
+        elif ptc+mtc==3:
+           cat = 'V'
+        else:
+           cat = 'VI'
+        recocatMap[cat] += [hpp+hmm]
 
 sels = selectionParams['Hpp4l'].keys()
 for sel in sels:
@@ -357,6 +413,13 @@ for sel in sels:
         selectionParams['Hpp4l'][name] = deepcopy(selectionParams['Hpp4l'][sel])
         args = selectionParams['Hpp4l'][name]['args']
         selectionParams['Hpp4l'][name]['args'][0] = args[0] + ' && ' + '(' + ' || '.join(['channel=="{0}"'.format(c) for c in channels[chan]]) + ')'
+        selectionParams['Hpp4l'][name]['kwargs']['directory'] = directory
+    for cat in recocats:
+        directory = '{0}/{1}'.format('/'.join(sel.split('_')),cat)
+        name = '{0}_{1}'.format(sel,cat)
+        selectionParams['Hpp4l'][name] = deepcopy(selectionParams['Hpp4l'][sel])
+        args = selectionParams['Hpp4l'][name]['args']
+        selectionParams['Hpp4l'][name]['args'][0] = args[0] + ' && ' + '(' + ' || '.join(['channel=="{0}"'.format(c) for c in recocatMap[cat]]) + ')'
         selectionParams['Hpp4l'][name]['kwargs']['directory'] = directory
 
 # setup gen channel selections

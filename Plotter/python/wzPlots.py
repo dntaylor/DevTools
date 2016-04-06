@@ -30,14 +30,31 @@ sigMap = {
              'SingleElectron'],
 }
 
-for s in ['TT','TTV','Z','ZG','WW','VVV','ZZ','WZ']:
+samples = ['TTV','ZG','VVV','ZZ','WZ']
+
+datadrivenSamples = []
+for s in samples + ['data']:
+    datadrivenSamples += sigMap[s]
+wzPlotter.addHistogramToStack('datadriven',datadrivenSamples)
+
+for s in samples:
     wzPlotter.addHistogramToStack(s,sigMap[s])
 
 wzPlotter.addHistogram('data',sigMap['data'])
 
 plotStyles = {
-    'zMass': {'xaxis': 'm_{l^{+}l^{#font[122]{\55}}}', 'yaxis': 'Events/1 GeV'},
+    'zMass': {'xaxis': 'm_{l^{+}l^{-}}', 'yaxis': 'Events/1 GeV', 'rangex':[60,120]},
 }
 
+def getDataDrivenPlot(plot):
+    histMap = {}
+    plotdirs = plot.split('/')
+    for s in samples + ['data']: histMap[s] = '/'.join(plotdirs[:-1]+['PPP']+plotdirs[-1:])
+    regions = ['PPF','PFP','FPP','PFF','FPF','FFP','FFF']
+    histMap['datadriven'] = ['/'.join(plotdirs[:-1]+[reg]+plotdirs[-1:]) for reg in regions]
+    return histMap
+
 for plot in ['zMass']:
-    wzPlotter.plot(plot,plot,**plotStyles[plot])
+    plotvars = getDataDrivenPlot(plot)
+    savename = plot
+    wzPlotter.plot(plotvars,savename,**plotStyles[plot])
