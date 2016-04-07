@@ -290,7 +290,8 @@ class Plotter(PlotterBase):
         xaxis = kwargs.pop('xaxis', 'Variable')
         yaxis = kwargs.pop('yaxis', 'Events')
         ymin = kwargs.pop('ymax',None)
-        ymax = kwargs.pop('ymax',None)
+        ymax = kwargs.pop('ymin',None)
+        yscale = kwargs.pop('yscale',1.2)
         numcol = kwargs.pop('numcol',1)
         legendpos = kwargs.pop('legendpos',33)
         lumipos = kwargs.pop('lumipos',11)
@@ -368,7 +369,7 @@ class Plotter(PlotterBase):
             stack.Draw("hist")
             stack.GetXaxis().SetTitle(xaxis)
             stack.GetYaxis().SetTitle(yaxis)
-            stack.SetMaximum(1.2*highestMax)
+            stack.SetMaximum(yscale*highestMax)
             if len(rangex)==2: stack.GetXaxis().SetRangeUser(*rangex)
             if ymax!=None: stack.SetMaximum(ymax)
             if ymin!=None: stack.SetMinimum(ymin)
@@ -443,8 +444,9 @@ class Plotter(PlotterBase):
         '''Plot a histogram of counts for each bin and save'''
         xaxis = kwargs.pop('xaxis', '')
         yaxis = kwargs.pop('yaxis', 'Events')
-        ymin = kwargs.pop('ymax',None)
+        ymin = kwargs.pop('ymin',None)
         ymax = kwargs.pop('ymax',None)
+        yscale = kwargs.pop('yscale',1.2)
         numcol = kwargs.pop('numcol',1)
         legendpos = kwargs.pop('legendpos',33)
         lumipos = kwargs.pop('lumipos',11)
@@ -513,7 +515,7 @@ class Plotter(PlotterBase):
             stack.Draw("hist")
             stack.GetXaxis().SetTitle(xaxis)
             stack.GetYaxis().SetTitle(yaxis)
-            stack.SetMaximum(1.2*highestMax)
+            stack.SetMaximum(yscale*highestMax)
             for b,label in enumerate(labels):
                 stack.GetHistogram().GetXaxis().SetBinLabel(b+1,label)
             if ymax!=None: stack.SetMaximum(ymax)
@@ -594,6 +596,7 @@ class Plotter(PlotterBase):
         yaxis = kwargs.pop('yaxis', 'Events')
         ymin = kwargs.pop('ymin',None)
         ymax = kwargs.pop('ymax',None)
+        yscale = kwargs.pop('yscale',1.2)
         numcol = kwargs.pop('numcol',1)
         legendpos = kwargs.pop('legendpos',33)
         logy = kwargs.pop('logy',False)
@@ -637,7 +640,7 @@ class Plotter(PlotterBase):
             else:
                 num.Draw('e0 same')
             highestMax = max(highestMax,num.GetMaximum())
-            if ymax==None: num.SetMaximum(1.2*highestMax)
+            if ymax==None: num.SetMaximum(yscale*highestMax)
             hists[histName] = num
 
         if getHists: return hists

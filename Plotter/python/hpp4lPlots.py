@@ -1,4 +1,5 @@
 import os
+import json
 import sys
 import logging
 from itertools import product, combinations_with_replacement
@@ -16,8 +17,122 @@ hpp4lPlotter = Plotter(
     outputDirectory = 'plots/Hpp4l',
 )
 
+#########################
+### Define categories ###
+#########################
+
+cats = ['I','II','III','IV','V','VI']
+catLabelMap = {
+    'I'  : 'Cat I',
+    'II' : 'Cat II',
+    'III': 'Cat III',
+    'IV' : 'Cat IV',
+    'V'  : 'Cat V',
+    'VI' : 'Cat VI',
+}
+catLabels = [catLabelMap[cat] for cat in cats]
+# based on number of taus in each higgs
+catContentMap = {
+    'I'  : [0,0],
+    'II' : [0,1],
+    'III': [0,2],
+    'IV' : [1,1],
+    'V'  : [1,2],
+    'VI' : [2,2],
+}
+# based on flavor of light lepton relative to first
+# 0,1,2 = e/m,m/e,t
+# each cat = [n,n,n,n]
+subCats = {
+    'I' : {
+        'a': [0,0,0,0], # all same flavor
+        'b': [0,0,0,1], # on different flavor
+        'c': [0,0,1,1], # hpp and hmm same flavor (cleanest)
+        'd': [0,1,0,1], # hpp and hmm flavor violating
+    },
+    'II' : {
+        'a': [0,0,0,2], # single tau, rest same
+        'b': [0,0,1,2], # one higgs same flavor, other to opposite flavor/tau
+        'c': [0,1,0,2], # one flavor violating, other to light + tau
+    },
+    'III' : {
+        'a': [0,0,2,2], # one same, other taus
+        'b': [0,1,2,2], # one flavor violating, other taus
+    },
+    'IV' : {
+        'a': [0,2,0,2], # each to same light plus tau
+        'b': [0,2,1,2], # each to different light plus tau
+    },
+    'V' : {
+        'a': [0,2,2,2], # to three taus + light
+    },
+    'VI' : {
+        'a': [2,2,2,2], # to 4 taus
+    },
+}
+subCatLabelMap = {
+    'I' : {
+        'a': 'llll',
+        'b': 'llll\'',
+        'c': 'lll\'l\'',
+        'd': 'll\'ll\'',
+    },
+    'II' : {
+        'a': 'lll#tau',
+        'b': 'lll\'#tau',
+        'c': 'll\'l#tau',
+    },
+    'III' : {
+        'a': 'll#tau#tau',
+        'b': 'll\'#tau#tau',
+    },
+    'IV' : {
+        'a': 'l#tau l#tau',
+        'b': 'l#tau l\'#tau',
+    },
+    'V' : {
+        'a': 'l#tau#tau#tau',
+    },
+    'VI' : {
+        'a': '#tau#tau#tau#tau',
+    },
+}
+subCatChannels = {}
+for cat in cats:
+    subCatChannels[cat] = {}
+    for subCat in subCats[cat]:
+        strings = []
+        for i,l in enumerate(subCats[cat][subCat]):
+            if i==0 and l==0:                          # start with a light lepton
+                strings = ['e','m']
+            elif i==0 and l==2:                        # start with a tau
+                strings = ['t']
+            elif i>0:                                  # add a character
+                if l==2:                               # add a tau
+                    for s in range(len(strings)):
+                        strings[s] += 't'
+                else:                                  # add a light lepton
+                    for s in range(len(strings)):
+                        if l==subCats[cat][subCat][0]: # add the same light lepton
+                            strings[s] += strings[s][0]
+                        else:                          # add a different light lepton
+                            strings[s] += 'e' if strings[s][0]=='m' else 'm'
+        result = []
+        for string in strings:
+            hpphmm = ''.join(sorted(string[:2]) + sorted(string[2:]))
+            if hpphmm not in result: result += [hpphmm]
+            hmmhpp = ''.join(sorted(string[2:]) + sorted(string[:2]))
+            if hmmhpp not in result: result += [hmmhpp]
+        subCatChannels[cat][subCat] = result
+
+subCatLabelList = []
+for cat in cats:
+    for subCat in sorted(subCatLabelMap[cat]):
+        subCatLabelList += [subCatLabelMap[cat][subCat]]
+
+# get individual channels
 chans = []
-higgsChannels = [''.join(x) for x in product('em',repeat=2)]
+higgsChannels = [''.join(x) for x in product('emt',repeat=2)]
 for hpp in higgsChannels:
     for hmm in higgsChannels:
         chanString = ''.join(sorted(hpp))+''.join(sorted(hmm))
@@ -35,8 +150,8 @@ sigMap = {
     'WZ'  : [
              'WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8',
              'WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8',
-             #'WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8',
-             #'WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8',
+             'WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8',
+             'WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8',
             ],
     'ZZ'  : [
              'ZZTo4L_13TeV_powheg_pythia8',
@@ -60,7 +175,7 @@ sigMap = {
             ],
     'WW'  : [
              'WWTo2L2Nu_13TeV-powheg',
-             #'WWToLNuQQ_13TeV-powheg',
+             'WWToLNuQQ_13TeV-powheg',
             ],
     'Z'   : [
              'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
@@ -95,7 +210,7 @@ samples = ['TT','TTV','Z','WW','WZ','VVV','ZZ']
 for s in samples:
     hpp4lPlotter.addHistogramToStack(s,sigMap[s])
 
-hpp4lPlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'],signal=True,scale=10)
+hpp4lPlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'],signal=True)#,scale=10)
 
 if not blind:
     hpp4lPlotter.addHistogram('data',sigMap['data'])
@@ -104,7 +219,24 @@ if not blind:
 countVars = ['default/count'] + ['default/{0}/count'.format(chan) for chan in chans]
 countLabels = ['Total'] + chanLabels
 savename = 'individualChannels'
-hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=2)
+hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,yscale=10)
+
+# per category counts
+countVars = ['default/count'] + ['default/{0}/count'.format(cat) for cat in cats]
+countLabels = ['Total'] + catLabels
+savename = 'individualCategories'
+hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,yscale=10)
+
+# per subcategory counts
+countVars = ['default/count']
+for cat in cats:
+    for subCat in sorted(subCatChannels[cat]):
+        countVars += [['default/{0}/count'.format(chan) for chan in subCatChannels[cat][subCat]]]
+countLabels = ['Total'] + subCatLabelList
+savename = 'individualSubCategories'
+hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,yscale=10,ymin=0.001)
+
+
 
 
 plots = {
@@ -132,6 +264,10 @@ plots = {
 for plot in plots:
     plotname = 'default/{0}'.format(plot)
     hpp4lPlotter.plot(plotname,plot,**plots[plot])
+    for cat in cats:
+        plotname = 'default/{0}/{1}'.format(cat,plot)
+        savename = '{0}/{1}'.format(cat,plot)
+        hpp4lPlotter.plot(plotname,savename,**plots[plot])
 
 if blind:
     hpp4lPlotter.addHistogram('data',sigMap['data'])
@@ -148,6 +284,10 @@ if blind:
         plotname = 'default/{0}'.format(plot)
         savename = '{0}_blinder'.format(plot)
         hpp4lPlotter.plot(plotname,savename,blinder=blinders[plot],**plots[plot])
+        for cat in cats:
+            plotname = 'default/{0}/{1}'.format(cat,plot)
+            savename = '{0}/{1}_blinder'.format(cat,plot)
+            hpp4lPlotter.plot(plotname,savename,blinder=blinders[plot],**plots[plot])
 
 
 # low mass control
@@ -162,6 +302,23 @@ countVars = ['lowmass/count'] + ['lowmass/{0}/count'.format(chan) for chan in ch
 countLabels = ['Total'] + chanLabels
 savename = 'lowmass/individualChannels'
 hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=2)
+
+# per category counts
+countVars = ['lowmass/count'] + ['lowmass/{0}/count'.format(cat) for cat in cats]
+countLabels = ['Total'] + catLabels
+savename = 'lowmass/individualCategories'
+hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,yscale=10)
+
+# per subcategory counts
+countVars = ['default/count']
+for cat in cats:
+    for subCat in sorted(subCatChannels[cat]):
+        countVars += [['lowmass/{0}/count'.format(chan) for chan in subCatChannels[cat][subCat]]]
+countLabels = ['Total'] + subCatLabelList
+savename = 'lowmass/individualSubCategories'
+hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,yscale=10,ymin=0.001)
+
+
 
 lowmass_cust = {
     # hpp
@@ -186,6 +343,9 @@ for plot in plots:
     kwargs = deepcopy(plots[plot])
     if plot in lowmass_cust: kwargs.update(lowmass_cust[plot])
     hpp4lPlotter.plot(plotname,plotname,**kwargs)
+    for cat in cats:
+        plotname = 'lowmass/{0}/{1}'.format(cat,plot)
+        hpp4lPlotter.plot(plotname,plotname,**kwargs)
 
 
 # normalized plots
@@ -227,6 +387,10 @@ for plot in plots:
     kwargs = deepcopy(plots[plot])
     if plot in norm_cust: kwargs.update(norm_cust[plot])
     hpp4lPlotter.plotNormalized(plotname,savename,**kwargs)
+    for cat in cats:
+        plotname = 'default/{0}/{1}'.format(cat,plot)
+        savename = 'normalized/{0}/{1}'.format(cat,plot)
+        hpp4lPlotter.plotNormalized(plotname,savename,**kwargs)
 
 # all signal on one plot
 hpp4lPlotter.clearHistograms()
@@ -258,3 +422,7 @@ for plot in norm_cust:
     kwargs = deepcopy(plots[plot])
     if plot in norm_cust: kwargs.update(norm_cust[plot])
     hpp4lPlotter.plotNormalized(plotname,savename,**kwargs)
+    for cat in cats:
+        plotname = 'default/{0}/{1}'.format(cat,plot)
+        savename = 'signal/{0}/{1}'.format(cat,plot)
+        hpp4lPlotter.plotNormalized(plotname,savename,**kwargs)

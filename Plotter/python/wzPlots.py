@@ -17,30 +17,60 @@ wzPlotter = Plotter(
 )
 
 sigMap = {
-    'WZ'  : ['WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8'],
-    'ZZ'  : ['ZZTo4L_13TeV_powheg_pythia8',
+    'WZ'  : [
+             'WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8',
+             #'WZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8',
+             #'WZTo1L3Nu_13TeV_amcatnloFXFX_madspin_pythia8',
+             #'WZTo1L1Nu2Q_13TeV_amcatnloFXFX_madspin_pythia8',
+            ],
+    'ZG'  : [
+             'ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+            ],
+    'ZZ'  : [
+             'ZZTo4L_13TeV_powheg_pythia8',
              'GluGluToContinToZZTo2e2mu_13TeV_MCFM701_pythia8',
              'GluGluToContinToZZTo2mu2tau_13TeV_MCFM701_pythia8',
              'GluGluToContinToZZTo4e_13TeV_MCFM701_pythia8',
              'GluGluToContinToZZTo4mu_13TeV_MCFM701_pythia8',
              'GluGluToContinToZZTo4tau_13TeV_MCFM701_pythia8',
              'ZZTo2L2Nu_13TeV_powheg_pythia8',
-             'ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8'],
-    'VVV' : ['WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8'],
-    'TTV' : ['TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8'],
-    'ZG'  : ['ZGTo2LG_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'],
-    'WW'  : ['WWTo2L2Nu_13TeV-powheg'],
-    'Z'   : ['DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
-             'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'],
-    'TT'  : ['TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'],
-    'data': ['DoubleMuon',
+             'ZZTo2L2Q_13TeV_amcatnloFXFX_madspin_pythia8',
+            ],
+    'VVV' : [
+             'WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
+             'WWG_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
+            ],
+    'TTV' : [
+             #'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8',
+             #'TTZToLLNuNu_M-10_TuneCUETP8M1_13TeV-amcatnlo-pythia8',
+             'ttWJets_13TeV_madgraphMLM',
+             'ttZJets_13TeV_madgraphMLM',
+            ],
+    'WW'  : [
+             'WWTo2L2Nu_13TeV-powheg',
+             'WWToLNuQQ_13TeV-powheg',
+            ],
+    'Z'   : [
+             'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+             'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+            ],
+    'TT'  : [
+             'TTJets_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+             'TTJets_DiLept_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+             'TTJets_SingleLeptFromT_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+             'TTJets_SingleLeptFromTbar_TuneCUETP8M1_13TeV-madgraphMLM-pythia8',
+            ],
+    'data': [
+             'DoubleMuon',
              'DoubleEG',
              'MuonEG',
              'SingleMuon',
-             'SingleElectron'],
+             'SingleElectron',
+            ],
 }
 
 samples = ['TTV','ZG','VVV','ZZ','WZ']
+samples = ['TTV','VVV','ZZ','WZ']
 
 datadrivenSamples = []
 for s in samples + ['data']:
@@ -79,5 +109,20 @@ def getDataDrivenPlot(plot):
 
 for plot in plotStyles:
     plotvars = getDataDrivenPlot(plot)
-    savename = plot
+    savename = 'datadriven/{0}'.format(plot)
     wzPlotter.plot(plotvars,savename,**plotStyles[plot])
+
+wzPlotter.clearHistograms()
+
+samples = ['TT','TTV','Z','WW','VVV','ZZ','WZ']
+
+for s in samples:
+    wzPlotter.addHistogramToStack(s,sigMap[s])
+
+wzPlotter.addHistogram('data',sigMap['data'])
+
+for plot in plotStyles:
+    plotname = 'default/{0}'.format(plot)
+    savename = plot
+    wzPlotter.plot(plotname,savename,**plotStyles[plot])
+
