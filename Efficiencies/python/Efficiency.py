@@ -6,6 +6,13 @@ import time
 import ROOT
 from array import array
 
+try:
+    from progressbar import ProgressBar, ETA, Percentage, Bar, SimpleProgress
+    hasProgress = True
+except:
+    hasProgress = False
+
+
 class Efficiency(object):
     '''Calculates the efficiency on a tree'''
 
@@ -15,6 +22,9 @@ class Efficiency(object):
         inputTreeName = kwargs.pop('inputTreeName','MiniTree')
         inputLumiName = kwargs.pop('inputTreeName','LumiTree')
         outputFileName = kwargs.pop('outputFileName','efficiency.root')
+        if hasProgress:
+            self.pbar = kwargs.pop('progressbar',ProgressBar(widgets=['Efficiency: ',' ',SimpleProgress(),' events ',Percentage(),' ',Bar(),' ',ETA()]))
+
         # input files
         self.fileNames = []
         if isinstance(inputFileNames, basestring): # inputFiles is a file name
@@ -30,11 +40,15 @@ class Efficiency(object):
         if not isinstance(outputFileName, basestring): # its a cms.string(), get value
             outputFileName = outputFileName.value()
         # input tchain
-        self.tchain = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputTreeName))
+        self.treename = '{0}/{1}'.format(inputTreeDirectory,inputTreeName)
         self.tchainLumi = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputLumiName))
+        self.totalEntries = 0
         for fName in self.fileNames:
             if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
-            self.tchain.Add(fName)
+            tfile = ROOT.TFile.Open(fName)
+            tree = tfile.Get(self.treename)
+            self.totalEntries += tree.GetEntries()
+            tfile.Close('R')
             self.tchainLumi.Add(fName)
         # get the lumi info
         self.numLumis = self.tchainLumi.GetEntries()
@@ -85,24 +99,49 @@ class Efficiency(object):
         '''
         logging.info('Beginning Analysis')
         start = time.time()
-        treeEvents = self.tchain.GetEntries()
-        rtrow = self.tchain
         try:
-            for r in xrange(treeEvents):
-                if r==2: start = time.time() # just ignore first event for timing
-                rtrow.GetEntry(r)
-                if r % 1000 == 1:
-                    cur = time.time()
-                    elapsed = cur-start
-                    remaining = float(elapsed)/r * float(treeEvents) - float(elapsed)
-                    mins, secs = divmod(int(remaining),60)
-                    hours, mins = divmod(mins,60)
-                    logging.info('Processing event {0}/{1} - {2}:{3:02d}:{4:02d} remaining'.format(r,treeEvents,hours,mins,secs))
-                    self.flush()
+            if hasProgress:
+                self.pbar.maxval = self.totalEntries
+                self.pbar.start()
+                total = 0
+                for f, fName in enumerate(self.fileNames):
+                    if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
+                    tfile = ROOT.TFile.Open(fName,'READ')
+                    tree = tfile.Get(self.treename)
+                    treeEvents = tree.GetEntries()
+                    rtrow = tree
+                    for r in xrange(treeEvents):
+                        total += 1
+                        rtrow.GetEntry(r)
+                        self.pbar.update(total)
+                        self.cache = {}
+                        self.fill(rtrow)
+                    tfile.Close('R')
+            else:
+                total = 0
+                for f, fName in enumerate(self.fileNames):
+                    if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
+                    logging.info('Processing file {0} of {1}'.format(f+1, len(self.fileNames)))
+                    tfile = ROOT.TFile.Open(fName,'READ')
+                    tree = tfile.Get(self.treename)
+                    treeEvents = tree.GetEntries()
+                    rtrow = tree
+                    for r in xrange(treeEvents):
+                        total += 1
+                        if total==2: start = time.time() # just ignore first event for timing
+                        rtrow.GetEntry(r)
+                        if total % 1000 == 1:
+                            cur = time.time()
+                            elapsed = cur-start
+                            remaining = float(elapsed)/total * float(self.totalEntries) - float(elapsed)
+                            mins, secs = divmod(int(remaining),60)
+                            hours, mins = divmod(mins,60)
+                            logging.info('Processing event {0}/{1} - {2}:{3:02d}:{4:02d} remaining'.format(total,self.totalEntries,hours,mins,secs))
+                            self.flush()
 
-                self.cache = {} # cache variables so you dont read from tree as much
+                        self.cache = {} # cache variables so you dont read from tree as much
 
-                self.fill(rtrow)
+                        self.fill(rtrow)
 
             self.__ratio()
         except KeyboardInterrupt:
