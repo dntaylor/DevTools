@@ -97,6 +97,35 @@ class AnalysisBase(object):
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[0], 'pileupWeight', 'F')
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[1], 'pileupWeightUp', 'F')
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[2], 'pileupWeightDown', 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'vertices_count'), 'numVertices', 'I')
+
+        # gen
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'nTrueVertices'), 'numTrueVertices', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'NUP'), 'NUP', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'isData'), 'isData', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'genWeight'), 'genWeight', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'numGenJets'), 'numGenJets', 'I')
+        # scale shifts
+        weightMap = {
+            0: {'muR':1.0, 'muF':1.0},
+            1: {'muR':1.0, 'muF':2.0},
+            2: {'muR':1.0, 'muF':0.5},
+            3: {'muR':2.0, 'muF':1.0},
+            4: {'muR':2.0, 'muF':2.0},
+            5: {'muR':2.0, 'muF':0.5},
+            6: {'muR':0.5, 'muF':1.0},
+            7: {'muR':0.5, 'muF':2.0},
+            8: {'muR':0.5, 'muF':0.5},
+        }
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',0), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[0]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',1), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[1]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',2), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[2]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',3), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[3]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',4), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[4]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',5), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[5]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',6), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[6]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',7), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[7]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',8), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[8]), 'F')
 
 
     def __exit__(self, type, value, traceback):
@@ -352,6 +381,22 @@ class AnalysisBase(object):
                 val = 0
         else:
             val = 0
+
+        self.cache[key] = val
+        return val
+
+    def getTreeVectorVariable(self, rtrow, var, pos):
+        '''
+        Get event wide variables
+        '''
+        key = '{0}_{1}'.format(var,pos)
+        if key in self.cache: return self.cache[key]
+
+        if hasattr(rtrow,var):
+            val = getattr(rtrow,var)[pos] if len(getattr(rtrow,var))>pos else 0
+        else:
+            val = 0
+            logging.info("{0} not found.".format(var))
 
         self.cache[key] = val
         return val

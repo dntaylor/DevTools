@@ -42,15 +42,6 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'taus',self.passLoose)), 'numLooseTaus', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'taus',self.passTight)), 'numTightTaus', 'I')
 
-        # pileup
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'vertices_count'), 'numVertices', 'I')
-
-        # gen
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'nTrueVertices'), 'numTrueVertices', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'NUP'), 'NUP', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'isData'), 'isData', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'genWeight'), 'genWeight', 'I')
-
         # trigger
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ', 'I')
@@ -62,7 +53,6 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'DoubleMediumIsoPFTau35_Trk1_eta2p1_RegPass'), 'pass_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg', 'I')
         self.tree.add(self.triggerEfficiency, 'triggerEfficiency', 'F')
-
 
         # vbf
         self.addJet('leadJet')
