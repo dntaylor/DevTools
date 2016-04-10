@@ -105,7 +105,12 @@ savename = 'individualChannels'
 hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,yscale=10)
 
 # per category counts
-countVars = ['default/count'] + ['default/{0}/count'.format(cat) for cat in cats]
+countVars = ['default/count']
+for cat in cats:
+    tempCountVars = []
+    for subcat in subCatChannels[cat]:
+        tempCountVars += ['default/{0}/count'.format(chan) for chan in subCatChannels[cat][subcat]]
+    countVars += [tempCountVars]
 countLabels = ['Total'] + catLabels
 savename = 'individualCategories'
 hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,yscale=10)
@@ -118,7 +123,6 @@ for cat in cats:
 countLabels = ['Total'] + subCatLabels
 savename = 'individualSubCategories'
 hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,yscale=10,ymin=0.001)
-
 
 
 
@@ -148,9 +152,11 @@ for plot in plots:
     plotname = 'default/{0}'.format(plot)
     hpp4lPlotter.plot(plotname,plot,**plots[plot])
     for cat in cats:
-        plotname = 'default/{0}/{1}'.format(cat,plot)
+        plotnames = []
+        for subcat in subCatChannels[cat]:
+            plotnames += ['default/{0}/{1}'.format(chan,plot) for chan in subCatChannels[cat][subcat]]
         savename = '{0}/{1}'.format(cat,plot)
-        hpp4lPlotter.plot(plotname,savename,**plots[plot])
+        hpp4lPlotter.plot(plotnames,savename,**plots[plot])
 
 if blind:
     hpp4lPlotter.addHistogram('data',sigMap['data'])
@@ -168,9 +174,11 @@ if blind:
         savename = '{0}_blinder'.format(plot)
         hpp4lPlotter.plot(plotname,savename,blinder=blinders[plot],**plots[plot])
         for cat in cats:
-            plotname = 'default/{0}/{1}'.format(cat,plot)
+            plotnames = []
+            for subcat in subCatChannels[cat]:
+                plotnames += ['default/{0}/{1}'.format(chan,plot) for chan in subCatChannels[cat][subcat]]
             savename = '{0}/{1}_blinder'.format(cat,plot)
-            hpp4lPlotter.plot(plotname,savename,blinder=blinders[plot],**plots[plot])
+            hpp4lPlotter.plot(plotnames,savename,blinder=blinders[plot],**plots[plot])
 
 
 # low mass control
@@ -187,13 +195,18 @@ savename = 'lowmass/individualChannels'
 hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=2)
 
 # per category counts
-countVars = ['lowmass/count'] + ['lowmass/{0}/count'.format(cat) for cat in cats]
+countVars = ['lowmass/count']
+for cat in cats:
+    tempCountVars = []
+    for subcat in subCatChannels[cat]:
+        tempCountVars += ['lowmass/{0}/count'.format(chan) for chan in subCatChannels[cat][subcat]]
+    countVars += [tempCountVars]
 countLabels = ['Total'] + catLabels
 savename = 'lowmass/individualCategories'
 hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,yscale=10)
 
 # per subcategory counts
-countVars = ['default/count']
+countVars = ['lowmass/count']
 for cat in cats:
     for subCat in sorted(subCatChannels[cat]):
         countVars += [['lowmass/{0}/count'.format(chan) for chan in subCatChannels[cat][subCat]]]
