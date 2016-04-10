@@ -41,15 +41,6 @@ class WZAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passMedium)), 'numMediumMuons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passTight)), 'numTightMuons', 'I')
 
-        # pileup
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'vertices_count'), 'numVertices', 'I')
-
-        # gen
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'nTrueVertices'), 'numTrueVertices', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'NUP'), 'NUP', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'isData'), 'isData', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'genWeight'), 'genWeight', 'I')
-
         # trigger
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ', 'I')
@@ -58,8 +49,8 @@ class WZAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu20Pass'), 'pass_IsoMu20', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoTkMu20Pass'), 'pass_IsoTkMu20', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu27Pass'), 'pass_IsoMu27', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
+        self.tree.add(self.triggerEfficiency, 'triggerEfficiency', 'F')
 
         # vbf
         self.addJet('leadJet')
@@ -81,6 +72,8 @@ class WZAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z1']), 'z1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z1']), 'z1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z1']), 'z1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['z1']), 'z1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['z1']), 'z1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1']), 'z1_zeppenfeld','F')
         self.addLepton('z2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z2']), 'z2_passMedium', 'I')
@@ -88,6 +81,8 @@ class WZAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z2']), 'z2_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z2']), 'z2_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z2']), 'z2_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['z2']), 'z2_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['z2']), 'z2_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z2']), 'z2_zeppenfeld','F')
 
         # w lepton
@@ -98,6 +93,8 @@ class WZAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['w1']), 'w1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['w1']), 'w1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['w1']), 'w1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['w1']), 'w1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['w1']), 'w1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['w1']), 'w1_zeppenfeld','F')
 
         # wrong combination
@@ -212,6 +209,12 @@ class WZAnalysis(AnalysisBase):
         else:
             return 1.
 
+    def mediumFakeRate(self,rtrow,cand):
+        return self.fakeRates.getFakeRate(rtrow,cand,'WZMedium','WZLoose')
+
+    def tightFakeRate(self,rtrow,cand):
+        return self.fakeRates.getFakeRate(rtrow,cand,'WZTight','WZLoose')
+
     def getPassingCands(self,rtrow,mode):
         if mode=='Loose':
             passMode = self.passLoose
@@ -286,6 +289,8 @@ class WZAnalysis(AnalysisBase):
         return len(self.getPassingCands(rtrow,'Medium'))<=3
 
     def trigger(self,rtrow,cands):
+        # accept MC, check trigger for data
+        if rtrow.isData<0.5: return True
         triggerNames = {
             'DoubleMuon'     : [
                 'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ',
@@ -336,6 +341,10 @@ class WZAnalysis(AnalysisBase):
             if dataset in self.fileNames[0]: break
         return False
 
+    def triggerEfficiency(self,rtrow,cands):
+        candList = [cands[c] for c in ['z1','z2','w1']]
+        triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','Mu17_Mu8','Ele17_Ele12']
+        return self.triggerScales.getDataEfficiency(rtrow,triggerList,candList)
 
 
 

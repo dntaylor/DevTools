@@ -1,7 +1,9 @@
 # AnalysisTree.py
-
+import sys
 import logging
+sys.argv.append('-b')
 import ROOT
+sys.argv.pop()
 from array import array
 
 
@@ -59,7 +61,8 @@ class AnalysisTree(object):
             if self.branches[label]['rootType']=='C': # special handling of string
                 strSize = self.branches[label]['size']
                 funcVal = pyType(self.branches[label]['function'](rtrow,cands))
-                if len(funcVal)==strSize-1:
+                #if len(funcVal)==strSize-1:
+                if len(funcVal)<strSize:
                     self.branches[label]['var'][:strSize] = funcVal
                 else:
                     logging.error('Size mismatch function with label {0}.'.format(label))

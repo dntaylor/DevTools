@@ -311,6 +311,13 @@ def get_condor_workArea(args):
     return '/{0}/{1}/condor_projects/{2}'.format(scratchDir,uname,args.jobName)
 
 
+def hdfs_directory_size(directory):
+    '''Get the size of a hdfs directory (in bytes).'''
+    directory = strip_hdfs(directory)
+    command = 'gsido hdfs dfs -du -s {0}'.format(directory)
+    out = subprocess.Popen(command, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()[0]
+    return float(out.split()[0])
+
 def submit_untracked_condor(args):
     '''Submit to condor using an input directory'''
     uname = os.environ['USER']
@@ -344,9 +351,9 @@ def submit_untracked_condor(args):
                     f.write('\n'.join(inputFiles))
                 filesPerJob = args.filesPerJob
                 if args.gigabytesPerJob:
-                    totalSize = sum([os.path.getsize('/hdfs/{0}'.format(f)) for f in inputFiles])
+                    totalSize = hdfs_directory_size(os.path.join(inputDirectory,sample))
                     averageSize = totalSize/totalFiles
-                    GB = 1000000000.
+                    GB = 1024.*1024.*1024.
                     filesPerJob = int(math.ceil(args.gigabytesPerJob*GB/averageSize))
                 command += ' --input-file-list={0} --assume-input-files-exist --input-files-per-job={1}'.format(fileList,filesPerJob)
                 # output directory

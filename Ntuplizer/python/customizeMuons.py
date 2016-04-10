@@ -54,6 +54,7 @@ def customizeMuons(process,coll,**kwargs):
         "MuonIpEmbedder",
         src = cms.InputTag(mSrc),
         vertexSrc = cms.InputTag(pvSrc),
+        beamspotSrc = cms.InputTag("offlineBeamSpot"),
     )
     mSrc = 'mPV'
 

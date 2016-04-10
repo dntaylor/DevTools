@@ -31,6 +31,7 @@ def customizeTaus(process,coll,**kwargs):
         "TauIpEmbedder",
         src = cms.InputTag(tSrc),
         vertexSrc = cms.InputTag(pvSrc),
+        beamspotSrc = cms.InputTag("offlineBeamSpot"),
     )
     tSrc = 'tPV'
 

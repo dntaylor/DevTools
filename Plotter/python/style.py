@@ -22,6 +22,8 @@ colors = {
 }
 
 colorMap = {
+    'MC'        : 'Red',
+    'BG'        : 'Blue',
     'EWK'       : 'Blue',
     'QCD'       : 'Pink',
     'datadriven': 'Gray',
@@ -38,12 +40,15 @@ colorMap = {
     'TTZ'       : 'BlueGreen', 
     'TTW'       : 'BlueGreen', 
     'Z'         : 'DarkYellow',
+    'W'         : 'Aqua',
     'TT'        : 'Green',
     'HppHmm'    : 'Orange',
     'HppHm'     : 'Orange',
 }
 
 labelMap = {
+    'MC'        : 'Simulation',
+    'BG'        : 'Background',
     'EWK'       : 'Electroweak',
     'QCD'       : 'QCD',
     'datadriven': 'Non-Prompt',
@@ -60,13 +65,14 @@ labelMap = {
     'TTZ'       : 't#bar{t}Z',
     'TTW'       : 't#bar{t}W',
     'Z'         : 'Drell-Yan',
+    'W'         : 'W',
     'TT'        : 't#bar{t}',
     'HppHmm'    : '#Phi^{++}#Phi^{#font[122]{\55}#font[122]{\55}}',
     'HppHm'     : '#Phi^{#pm#pm}#Phi^{#mp}',
 }
 
 for sig in ['HppHmm','HppHm']:
-    for mass in [200,250,300,350,400,450,500,600,700,800,900]:
+    for mass in [200,250,300,350,400,450,500,600,700,800,900,1000]:
         key = '{0}{1}GeV'.format(sig,mass)
         colorMap[key] = colorMap[sig]
         labelMap[key] = labelMap[sig] + ' ({0} GeV)'.format(mass)
@@ -79,7 +85,7 @@ for sig in ['HppHmm','HppHm']:
 
 def getStyle(sample):
     style = {}
-    if sample=='data':
+    if 'data'==sample:
         style['legendstyle'] = 'ep'
         style['drawstyle'] = 'ex0'
         style['name'] = 'Observed'

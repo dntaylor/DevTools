@@ -2,13 +2,16 @@ import logging
 import os
 import sys
 import glob
+import json
 
+sys.argv.append('-b')
 import ROOT
+sys.argv.pop()
 
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
 from DevTools.Plotter.xsec import getXsec
-from DevTools.Plotter.utilities import getLumi, isData
+from DevTools.Plotter.utilities import getLumi, isData, hashFile, hashString, python_mkdir
 
 try:
     from progressbar import ProgressBar, ETA, Percentage, Bar, SimpleProgress
@@ -32,20 +35,28 @@ class FlattenTree(object):
         self.preinitialized = False
         self.selections = []
         self.sample = ''
-        self.currVal = 0
+        self.j = 0
+        self.hashDir = '.hash'
+        self.files = []
 
     def __initializeSample(self,sample):
         self.sample = sample
         tchain = ROOT.TChain(self.treeName)
-        sampleDirectory = '{0}/{1}'.format(self.ntupleDirectory,sample)
+        sampleFile = '{0}/{1}.root'.format(self.ntupleDirectory,sample)
+        if os.path.isfile(sampleFile):
+            allFiles = [sampleFile]
+        else:
+            sampleDirectory = '{0}/{1}'.format(self.ntupleDirectory,sample)
+            allFiles = glob.glob('{0}/*.root'.format(sampleDirectory))
         summedWeights = 0.
-        for f in glob.glob('{0}/*.root'.format(sampleDirectory)):
+        for f in allFiles:
             tfile = ROOT.TFile.Open(f)
             summedWeights += tfile.Get("summedWeights").GetBinContent(1)
             tfile.Close()
             tchain.Add(f)
         self.sampleLumi = float(summedWeights)/getXsec(sample) if getXsec(sample) else 0.
         self.sampleTree = tchain
+        self.files = allFiles
         
     def __exit__(self, type, value, traceback):
         self.__finish()
@@ -57,12 +68,30 @@ class FlattenTree(object):
         if self.outfile:
             self.outfile.Close()
 
-    def __open(self,outputFileName):
-        self.outfile = ROOT.TFile(outputFileName,'update')
+    def __write(self,hist,directory=''):
+        self.outfile = ROOT.TFile(self.outputFileName,'update')
+        if not self.outfile.GetDirectory(directory): self.outfile.mkdir(directory)
+        self.outfile.cd('{0}:/{1}'.format(self.outputFileName,directory))
+        hist.Write('',ROOT.TObject.kOverwrite)
+        self.outfile.Close()
 
-    def __write(self):
-        self.outfile.Write('',ROOT.TObject.kOverwrite)
-        self.__finish()
+    def __checkHash(self,name,directory,strings=[]):
+        'Check the hash for a sample'''
+        self.outfile = ROOT.TFile(self.outputFileName,'update')
+        hashDirectory = 'hash/{0}'.format(directory)
+        hashObj = self.outfile.Get('{0}/{1}'.format(hashDirectory,name))
+        if not hashObj:
+            hashObj = ROOT.TNamed(name,'')
+        oldHash = hashObj.GetTitle()
+        newHash = hashFile(*self.files) + hashString(*strings)
+        if oldHash==newHash:
+            return True
+        hashObj.SetTitle(newHash)
+        if not self.outfile.GetDirectory(hashDirectory): self.outfile.mkdir(hashDirectory)
+        self.outfile.cd('{0}:/{1}'.format(self.outputFileName,hashDirectory))
+        hashObj.Write('',ROOT.TObject.kOverwrite)
+        self.outfile.Close()
+        return False
 
     def addHistogram(self,name,**params):
         '''
@@ -96,77 +125,138 @@ class FlattenTree(object):
         self.outputFileName = outputFileName
         self.preinitialized = True
 
-    def addSelection(self,selection,postfix=''):
+    def addSelection(self,selection,**kwargs):
         '''Add selection and postfix name to flatten'''
-        self.selections += [(selection,postfix)]
+        self.selections += [(selection,kwargs)]
 
     def flattenAll(self,**kwargs):
         '''Flatten all selections'''
         if hasProgress:
-            maxval = len(self.selections)*len(self.histParameters)
-            self.pbar = kwargs.pop('progressbar',ProgressBar(widgets=['{0}: '.format(self.sample),' ',SimpleProgress(),' histograms ',Percentage(),' ',Bar(),' ',ETA()]))
-            self.pbar.maxval = maxval
-            self.pbar.start()
+            pbar = kwargs.pop('progressbar',ProgressBar(widgets=['{0}: '.format(self.sample),' ',SimpleProgress(),' histograms ',Percentage(),' ',Bar(),' ',ETA()]))
         else:
-            self.pbar = None
-        self.currVal = 0
-        for sel,post in self.selections:
-            self.__flatten(sel,postfix=post,**kwargs)
+            pbar = None
+        allJobs = []
+        for sel,sel_kwargs in self.selections:
+            countOnly = sel_kwargs.pop('countOnly',False)
+            for histName,params in self.histParameters.iteritems():
+                if countOnly and 'count' not in histName: continue
+                allJobs += [[sel,sel_kwargs,histName,params]]
+        if hasProgress:
+            for args in pbar(allJobs):
+                sel,sel_kwargs,histName,params = args
+                self.__flatten(sel,histName,params,**sel_kwargs)
+        else:
+            for args in allJobs:
+                sel,sel_kwargs,histName,params = args
+                self.__flatten(sel,histName,params,**sel_kwargs)
 
     def flattenAll2D(self,**kwargs):
         '''Flatten all selections 2D'''
         if hasProgress:
-            maxval = len(self.selections)*len(self.histParameters2D)
-            self.pbar = kwargs.pop('progressbar',ProgressBar(widgets=['{0}: '.format(self.sample),' ',SimpleProgress(),' histograms ',Percentage(),' ',Bar(),' ',ETA()]))
-            self.pbar.maxval = maxval
-            self.pbar.start()
+            pbar = kwargs.pop('progressbar',ProgressBar(widgets=['{0}: '.format(self.sample),' ',SimpleProgress(),' histograms ',Percentage(),' ',Bar(),' ',ETA()]))
         else:
-            self.pbar = None
-        for sel,post in self.selections:
-            self.__flatten2D(sel,postfix=post,**kwargs)
+            pbar = None
+        allJobs = []
+        for sel,sel_kwargs in self.selections:
+            countOnly = sel_kwargs.pop('countOnly',False)
+            for histName,params in self.histParameters2D.iteritems():
+                if countOnly and 'count' not in histName: continue
+                allJobs += [[sel,sel_kwargs,histName,params]]
+        if hasProgress:
+            for args in pbar(allJobs):
+                sel,sel_kwargs,histName,params = args
+                self.__flatten2D(sel,histName,params,**sel_kwargs)
+        else:
+            for args in allJobs:
+                sel,sel_kwargs,histName,params = args
+                self.__flatten2D(sel,histName,params,**sel_kwargs)
 
-    def __flatten(self,selection,**kwargs):
+    def __flatten(self,selection,histName,params,**kwargs):
         '''Produce flat histograms for a given selection.'''
+        mccut = kwargs.pop('mccut','')
+        datacut = kwargs.pop('datacut','')
+        if datacut and isData(self.sample): selection += ' && {0}'.format(datacut)
+        if mccut and not isData(self.sample): selection += ' && {0}'.format(mccut)
         scalefactor = kwargs.pop('scalefactor','1' if isData(self.sample) else 'genWeight')
-        postfix = kwargs.pop('postfix','')
-        if not hasProgress: logging.info('Flattening {0} {1}'.format(self.sample,postfix))
-        # copy try from selection
-        #tree = self.sampleTree.CopyTree(selection)
+        mcscalefactor = kwargs.pop('mcscalefactor','')
+        datascalefactor = kwargs.pop('datascalefactor','')
+        if datascalefactor and isData(self.sample): scalefactor = datascalefactor
+        if mcscalefactor and not isData(self.sample): scalefactor = mcscalefactor
+        directory = kwargs.pop('directory','')
+        if not hasProgress: logging.info('Flattening {0} {1} {2}'.format(self.sample,directory,histName))
         tree = self.sampleTree
         if not tree: return
-        # setup outputs
         os.system('mkdir -p {0}'.format(os.path.dirname(self.outputFileName)))
-        self.__open(self.outputFileName)
         if not isData(self.sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
-        # make each histogram
-        for histName, params in self.histParameters.iteritems():
-            name = histName
-            if postfix: name += '_{0}'.format(postfix)
-            drawString = '{0}>>{1}({2})'.format(params['variable'],name,', '.join([str(x) for x in params['binning']]))
-            selectionString = '{0}*({1})'.format(scalefactor,'1')
-            tree.Draw(drawString,selectionString,'goff')
-            self.currVal += 1
-            if hasProgress: self.pbar.update(self.currVal)
-        self.__write()
+        name = histName
+        self.j += 1
+        tempName = '{0}_{1}_{2}'.format(name,self.sample,self.j)
+        drawString = '{0}>>{1}({2})'.format(params['variable'],tempName,', '.join([str(x) for x in params['binning']]))
+        if 'scale' in params: scalefactor += '*{0}'.format(params['scale'])
+        if 'mcscale' in params and not isData(self.sample): scalefactor += '*{0}'.format(params['mcscale'])
+        if 'datascale' in params and isData(self.sample): scalefactor += '*{0}'.format(params['datascale'])
+        if 'selection' in params: selection += ' && {0}'.format(params['selection'])
+        selectionString = '{0}*({1})'.format(scalefactor,selection)
+        # check if we need to draw the hist, or if the one in the ntuple is the latest
+        hashExists = self.__checkHash(name,directory,strings=[params['variable'],', '.join([str(x) for x in params['binning']]),scalefactor,selection])
+        if hashExists:
+            self.__finish()
+            return
+        tree.Draw(drawString,selectionString,'goff')
+        # see if hist exists
+        if ROOT.gDirectory.Get(tempName):
+            hist = ROOT.gDirectory.Get(tempName)
+            hist.SetTitle(name)
+            hist.SetName(name)
+            self.__write(hist,directory=directory)
+        else:
+            bins = params['binning']
+            hist = ROOT.TH1F(tempName,tempName,*bins)
+            hist.SetTitle(name)
+            hist.SetName(name)
+            self.__write(hist,directory=directory)
 
-    def __flatten2D(self,selection,**kwargs):
+    def __flatten2D(self,selection,histName,params,**kwargs):
         '''Produce flat 2D histograms for a given selection.'''
-        if not hasProgress: logging.info('Flattening {0}'.format(self.sample))
+        mccut = kwargs.pop('mccut','')
+        datacut = kwargs.pop('datacut','')
+        if datacut and isData(self.sample): selection += ' && {0}'.format(datacut)
+        if mccut and not isData(self.sample): selection += ' && {0}'.format(mccut)
         scalefactor = kwargs.pop('scalefactor','1' if isData(self.sample) else 'genWeight')
-        postfix = kwargs.pop('postfix','')
-        # copy try from selection
-        #tree = self.sampleTree.CopyTree(selection)
+        mcscalefactor = kwargs.pop('mcscalefactor','')
+        datascalefactor = kwargs.pop('datascalefactor','')
+        if datascalefactor and isData(self.sample): scalefactor = datascalefactor
+        if mcscalefactor and not isData(self.sample): scalefactor = mcscalefactor
+        directory = kwargs.pop('directory','')
+        if not hasProgress: logging.info('Flattening {0} {1} {2}'.format(self.sample,directory,histName))
         tree = self.sampleTree
         if not tree: return
-        # setup outputs
         os.system('mkdir -p {0}'.format(os.path.dirname(self.outputFileName)))
-        self.__open(self.outputFileName)
         if not isData(self.sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
-        # make each histogram
-        for histName, params in self.histParameters2D.iteritems():
-            drawString = '{0}:{1}>>{2}({3})'.format(params['yVariable'],params['xVariable'],histName,', '.join([str(x) for x in params['xBinning']+params['yBinning']]))
-            selectionString = '{0}*({1})'.format(scalefactor,'1')
-            tree.Draw(drawString,selectionString,'goff')
-            self.currVal += 1
-            if hasProgress: self.pbar.update(self.currVal)
-        self.__write()
+        name = histName
+        self.j += 1
+        tempName = '{0}_{1}_{2}'.format(name,self.sample,self.j)
+        drawString = '{0}:{1}>>{2}({3})'.format(params['yVariable'],params['xVariable'],tempName,', '.join([str(x) for x in params['xBinning']+params['yBinning']]))
+        if 'scale' in params: scalefactor += '*{0}'.format(params['scale'])
+        if 'mcscale' in params and not isData(self.sample): scalefactor += '*{0}'.format(params['mcscale'])
+        if 'datascale' in params and isData(self.sample): scalefactor += '*{0}'.format(params['datascale'])
+        if 'selection' in params: selection += ' && {0}'.format(params['selection'])
+        selectionString = '{0}*({1})'.format(scalefactor,selection)
+        # check if we need to draw the hist, or if the one in the ntuple is the latest
+        hashExists = self.__checkHash(name,directory,strings=[params['yvariable'],params['xVariable'],', '.join([str(x) for x in params['xBinning']+params['yBinning']]),scalefactor,selection])
+        if hashExists:
+            self.__finish()
+            return
+        tree.Draw(drawString,selectionString,'goff')
+        # see if hist exists
+        if ROOT.gDirectory.Get(tempName):
+            hist = ROOT.gDirectory.Get(tempName)
+            hist.SetTitle(name)
+            hist.SetName(name)
+            self.__write(hist,directory=directory)
+        else:
+            bins = params['xBinning']+params['yBinning']
+            hist = ROOT.TH2F(tempName,tempName,*bins)
+            hist.SetTitle(name)
+            hist.SetName(name)
+            self.__write(hist,directory=directory)

@@ -45,8 +45,11 @@ xsecs = {
     'TTZToQQ_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                      :      0.5297   * PB,
     'TTWJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8'     :      0.2043   * PB,
     'TTWJetsToQQ_TuneCUETP8M1_13TeV-amcatnloFXFX-madspin-pythia8'      :      0.4062   * PB,
+    'ttZJets_13TeV_madgraphMLM'                                        :      0.259    * PB,
+    'ttWJets_13TeV_madgraphMLM'                                        :      0.243    * PB,
 
     'tZq_ll_4f_13TeV-amcatnlo-pythia8_TuneCUETP8M1'                    :      0.0758   * PB,
+    'tZq_nunu_4f_13TeV-amcatnlo-pythia8_TuneCUETP8M1'                  :      0.1379   * PB,
 
     'WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8'               :  61526.7      * PB,
 
@@ -94,16 +97,17 @@ xsecs = {
     'WZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                          :      0.05565  * PB,
     'ZZZ_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                          :      0.01398  * PB,
     'WWG_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                          :      0.2147   * PB,
+    'WZG_TuneCUETP8M1_13TeV-amcatnlo-pythia8'                          :      0.04123  * PB,
 
-    'HPlusPlusHMinusMinusHTo4L_M-200_13TeV-pythia8'                    :      1.605    * FB,
-    'HPlusPlusHMinusMinusHTo4L_M-300_13TeV-pythia8'                    :      1.605    * FB,
-    'HPlusPlusHMinusMinusHTo4L_M-400_13TeV-pythia8'                    :      1.605    * FB,
-    'HPlusPlusHMinusMinusHTo4L_M-500_13TeV-pythia8'                    :      1.605    * FB, # LO output from pythia8
-    'HPlusPlusHMinusMinusHTo4L_M-600_13TeV-pythia8'                    :      1.605    * FB,
-    'HPlusPlusHMinusMinusHTo4L_M-700_13TeV-pythia8'                    :      1.605    * FB,
-    'HPlusPlusHMinusMinusHTo4L_M-800_13TeV-pythia8'                    :      1.605    * FB,
-    'HPlusPlusHMinusMinusHTo4L_M-900_13TeV-pythia8'                    :      1.605    * FB,
-    'HPlusPlusHMinusMinusHTo4L_M-1000_13TeV-pythia8'                   :      1.605    * FB,
+    'HPlusPlusHMinusMinusHTo4L_M-200_13TeV-pythia8'                    :      6.787e-02 * PB, # LO output from pythia8
+    'HPlusPlusHMinusMinusHTo4L_M-300_13TeV-pythia8'                    :      1.413e-02 * PB,
+    'HPlusPlusHMinusMinusHTo4L_M-400_13TeV-pythia8'                    :      4.160e-03 * PB,
+    'HPlusPlusHMinusMinusHTo4L_M-500_13TeV-pythia8'                    :      1.487e-03 * PB,
+    'HPlusPlusHMinusMinusHTo4L_M-600_13TeV-pythia8'                    :      6.080e-04 * PB,
+    'HPlusPlusHMinusMinusHTo4L_M-700_13TeV-pythia8'                    :      2.806e-04 * PB,
+    'HPlusPlusHMinusMinusHTo4L_M-800_13TeV-pythia8'                    :      1.300e-04 * PB,
+    'HPlusPlusHMinusMinusHTo4L_M-900_13TeV-pythia8'                    :      6.820e-05 * PB,
+    'HPlusPlusHMinusMinusHTo4L_M-1000_13TeV-pythia8'                   :      3.477e-05 * PB,
 }
 
 

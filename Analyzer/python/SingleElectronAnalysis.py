@@ -35,15 +35,6 @@ class SingleElectronAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passLoose)), 'numLooseMuons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passTight)), 'numTightMuons', 'I')
 
-        # pileup
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'vertices_count'), 'numVertices', 'I')
-
-        # gen
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'nTrueVertices'), 'numTrueVertices', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'NUP'), 'NUP', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'isData'), 'isData', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'genWeight'), 'genWeight', 'I')
-
         # trigger
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele12_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele12_CaloIdL_TrackIdL_IsoVL', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele17_CaloIdL_TrackIdL_IsoVLPass'), 'pass_Ele17_CaloIdL_TrackIdL_IsoVL', 'I')

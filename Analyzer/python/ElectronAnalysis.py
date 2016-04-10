@@ -21,15 +21,6 @@ class ElectronAnalysis(AnalysisBase):
 
         # setup analysis tree
 
-        # pileup
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'vertices_count'), 'numVertices', 'I')
-
-        # gen
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'nTrueVertices'), 'numTrueVertices', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'NUP'), 'NUP', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'isData'), 'isData', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'genWeight'), 'genWeight', 'I')
-
         # w lepton
         self.addLeptonMet('w','e',('pfmet',0))
         self.addLepton('e')

@@ -1,7 +1,10 @@
 # CutTree.py
 # Hold the pass fail decision of events
+import sys
 import logging
+sys.argv.append('-b')
 import ROOT
+sys.argv.pop()
 from array import array
 
 class CutTree(object):

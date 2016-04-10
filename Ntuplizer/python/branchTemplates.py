@@ -308,6 +308,10 @@ electronBranches = commonPatCandidates.clone(
     # pv
     dz                             = cms.vstring('userFloat("dz")','F'),
     dxy                            = cms.vstring('userFloat("dxy")','F'),
+    dz_beamspot                    = cms.vstring('userFloat("dz_beamspot")','F'),
+    dxy_beamspot                   = cms.vstring('userFloat("dxy_beamspot")','F'),
+    dz_zero                        = cms.vstring('userFloat("dz_zero")','F'),
+    dxy_zero                       = cms.vstring('userFloat("dxy_zero")','F'),
     dB2D                           = cms.vstring('userFloat("dB2D")','F'),
     dB3D                           = cms.vstring('userFloat("dB3D")','F'),
     edB2D                          = cms.vstring('userFloat("edB2D")','F'),
@@ -409,6 +413,10 @@ muonBranches = commonPatCandidates.clone(
     # pv
     dz                    = cms.vstring('userFloat("dz")','F'),
     dxy                   = cms.vstring('userFloat("dxy")','F'),
+    dz_beamspot           = cms.vstring('userFloat("dz_beamspot")','F'),
+    dxy_beamspot          = cms.vstring('userFloat("dxy_beamspot")','F'),
+    dz_zero               = cms.vstring('userFloat("dz_zero")','F'),
+    dxy_zero              = cms.vstring('userFloat("dxy_zero")','F'),
     dB2D                  = cms.vstring('userFloat("dB2D")','F'),
     dB3D                  = cms.vstring('userFloat("dB3D")','F'),
     edB2D                 = cms.vstring('userFloat("edB2D")','F'),
@@ -553,6 +561,10 @@ tauBranches = commonJetCandidates.clone(
     # pv
     dz                                              = cms.vstring('userFloat("dz")','F'),
     dxy                                             = cms.vstring('userFloat("dxy")','F'),
+    dz_beamspot                                     = cms.vstring('userFloat("dz_beamspot")','F'),
+    dxy_beamspot                                    = cms.vstring('userFloat("dxy_beamspot")','F'),
+    dz_zero                                         = cms.vstring('userFloat("dz_zero")','F'),
+    dxy_zero                                        = cms.vstring('userFloat("dxy_zero")','F'),
     # trigger matching
     # double tau
     matches_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg   = cms.vstring('userInt("matches_DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg")','I'),

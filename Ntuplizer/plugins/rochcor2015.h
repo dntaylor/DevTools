@@ -13,7 +13,7 @@
 #include "TLorentzVector.h"
 #include "TRandom3.h"
 
-#include "muresolution_run2.h"
+#include "RoccoR.h"
 
 class rochcor2015 {
  public:
@@ -39,21 +39,32 @@ class rochcor2015 {
   static const double anetabin[13];
   
   static constexpr double mu_mass = 0.105658;
-  static constexpr double genm_smr = 9.09901e+01; //gen mass peak with eta dependent gaussian smearing => better match in Z mass profile vs. eta/phi
+  static constexpr double genm_smr = 9.09923e+01; //gen mass peak with eta dependent gaussian smearing => better match in Z mass profile vs. eta/phi
   static constexpr double genm = 91.06; //gen mass peak without smearing => Z mass profile vs. eta/phi in CMS note
   
-  static constexpr double mrecm = 9.08821e+01; //rec mass peak in MC 
-  static constexpr double drecm = 9.09900e+01; //rec mass peak in data 
-  static constexpr double mgscl_stat = 4.53668e-05; //stat. error of global factor for mass peak in MC 
+  static constexpr double mrecm = 9.08509e+01; //rec mass peak in MC 
+  static constexpr double drecm = 9.07902e+01; //rec mass peak in data 
+  static constexpr double mgscl_stat = 2.62939e-03 ; //stat. error of global factor for mass peak in MC 
   static constexpr double mgscl_syst = 3.81651e-03; //syst. error of global factor for mass peak in MC  
-  static constexpr double dgscl_stat = 3.57033e-05; //stat. error of global factor for mass peak in data 
+  static constexpr double dgscl_stat = 2.42830e-03; //stat. error of global factor for mass peak in data 
   static constexpr double dgscl_syst = 0.0008; //syst. error of global factor for mass peak in data 
-        
+  static constexpr double dgscl_iter = 1.00026; //one more iteration to fix offset
+  static constexpr double mgscl_iter = 1.00054; //one more iteration to fix offset
   //static const double sf[3];
   //static const double sfer[3];
 
   //---------------------------------------------------------------------------------------------
-  
+  /*
+  static const double dcor_m[16][24];  
+  static const double dcor_p[16][24];
+  static const double mcor_m[16][24];
+  static const double mcor_p[16][24];
+  static const double dcor_mer[16][24];  
+  static const double dcor_per[16][24];
+  static const double mcor_mer[16][24];
+  static const double mcor_per[16][24];
+  */
+
   static const double dcor_bf[16][24];  
   static const double dcor_ma[16][24];
   static const double mcor_bf[16][24];
@@ -69,6 +80,10 @@ class rochcor2015 {
   static const double dpavg[16][24];  
   static const double mmavg[16][24];  
   static const double mpavg[16][24];
+  static const double dmavger[16][24];  
+  static const double dpavger[16][24];  
+  static const double mmavger[16][24];  
+  static const double mpavger[16][24];
 
   static const double dd[12];
   static const double dder[12];

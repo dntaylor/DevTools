@@ -6,14 +6,19 @@ import sys
 import math
 import time
 
+sys.argv.append('-b')
 import ROOT
+sys.argv.pop()
 from array import array
 
 from CutTree import CutTree
 from AnalysisTree import AnalysisTree
 
 from PileupWeights import PileupWeights
+from FakeRates import FakeRates
 from LeptonScales import LeptonScales
+from TriggerScales import TriggerScales
+from TriggerPrescales import TriggerPrescales
 
 from utilities import deltaR, deltaPhi
 
@@ -52,11 +57,16 @@ class AnalysisBase(object):
         if not isinstance(outputFileName, basestring): # its a cms.string(), get value
             outputFileName = outputFileName.value()
         # input tchain
-        self.tchain = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputTreeName))
+        self.treename = '{0}/{1}'.format(inputTreeDirectory,inputTreeName)
         tchainLumi = ROOT.TChain('{0}/{1}'.format(inputTreeDirectory,inputLumiName))
+        self.totalEntries = 0
+        logging.info('Getting Lumi information')
         for fName in self.fileNames:
             if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
-            self.tchain.Add(fName)
+            tfile = ROOT.TFile.Open(fName)
+            tree = tfile.Get(self.treename)
+            self.totalEntries += tree.GetEntries()
+            tfile.Close('R')
             tchainLumi.Add(fName)
         # get the lumi info
         self.numLumis = tchainLumi.GetEntries()
@@ -70,7 +80,10 @@ class AnalysisBase(object):
         self.flush()
         # other input files
         self.pileupWeights = PileupWeights()
+        self.fakeRates = FakeRates()
         self.leptonScales = LeptonScales()
+        self.triggerScales = TriggerScales()
+        self.triggerPrescales = TriggerPrescales()
         # tfile
         self.outfile = ROOT.TFile(outputFileName,"recreate")
         # cut tree
@@ -84,6 +97,35 @@ class AnalysisBase(object):
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[0], 'pileupWeight', 'F')
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[1], 'pileupWeightUp', 'F')
         self.tree.add(lambda rtrow,cands: self.pileupWeights.weight(rtrow)[2], 'pileupWeightDown', 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'vertices_count'), 'numVertices', 'I')
+
+        # gen
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'nTrueVertices'), 'numTrueVertices', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'NUP'), 'NUP', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'isData'), 'isData', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'genWeight'), 'genWeight', 'I')
+        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'numGenJets'), 'numGenJets', 'I')
+        # scale shifts
+        weightMap = {
+            0: {'muR':1.0, 'muF':1.0},
+            1: {'muR':1.0, 'muF':2.0},
+            2: {'muR':1.0, 'muF':0.5},
+            3: {'muR':2.0, 'muF':1.0},
+            4: {'muR':2.0, 'muF':2.0},
+            5: {'muR':2.0, 'muF':0.5},
+            6: {'muR':0.5, 'muF':1.0},
+            7: {'muR':0.5, 'muF':2.0},
+            8: {'muR':0.5, 'muF':0.5},
+        }
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',0), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[0]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',1), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[1]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',2), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[2]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',3), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[3]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',4), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[4]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',5), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[5]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',6), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[6]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',7), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[7]), 'F')
+        self.tree.add(lambda rtrow,cands: self.getTreeVectorVariable(rtrow,'genWeights',8), 'genWeight_muR{muR:3.1f}_muF{muF:3.1f}'.format(**weightMap[8]), 'F')
 
 
     def __exit__(self, type, value, traceback):
@@ -117,26 +159,45 @@ class AnalysisBase(object):
         start = time.time()
         new = start
         old = start
-        treeEvents = self.tchain.GetEntries()
-        rtrow = self.tchain
         if hasProgress:
-            for r in self.pbar(xrange(treeEvents)):
-                rtrow.GetEntry(r)
-                self.perRowAction(rtrow)
+            self.pbar.maxval = self.totalEntries
+            self.pbar.start()
+            total = 0
+            for f, fName in enumerate(self.fileNames):
+                if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
+                tfile = ROOT.TFile.Open(fName,'READ')
+                tree = tfile.Get(self.treename)
+                treeEvents = tree.GetEntries()
+                rtrow = tree
+                for r in xrange(treeEvents):
+                    total += 1
+                    rtrow.GetEntry(r)
+                    self.pbar.update(total)
+                    self.perRowAction(rtrow)
+                tfile.Close('R')
         else:
-            for r in xrange(treeEvents):
-                if r==2: start = time.time() # just ignore first event for timing
-                rtrow.GetEntry(r)
-                if r % 1000 == 1:
-                    cur = time.time()
-                    elapsed = cur-start
-                    remaining = float(elapsed)/r * float(treeEvents) - float(elapsed)
-                    mins, secs = divmod(int(remaining),60)
-                    hours, mins = divmod(mins,60)
-                    logging.info('Processing event {0}/{1} - {2}:{3:02d}:{4:02d} remaining'.format(r,treeEvents,hours,mins,secs))
-                    self.flush()
-
-                self.perRowAction(rtrow)
+            total = 0
+            for f, fName in enumerate(self.fileNames):
+                if fName.startswith('/store'): fName = 'root://cmsxrootd.hep.wisc.edu//{0}'.format(fName)
+                logging.info('Processing file {0} of {1}'.format(f+1, len(self.fileNames)))
+                tfile = ROOT.TFile.Open(fName,'READ')
+                tree = tfile.Get(self.treename)
+                treeEvents = tree.GetEntries()
+                rtrow = tree
+                for r in xrange(treeEvents):
+                    total += 1
+                    if total==2: start = time.time() # just ignore first event for timing
+                    rtrow.GetEntry(r)
+                    if total % 1000 == 1:
+                        cur = time.time()
+                        elapsed = cur-start
+                        remaining = float(elapsed)/total * float(self.totalEntries) - float(elapsed)
+                        mins, secs = divmod(int(remaining),60)
+                        hours, mins = divmod(mins,60)
+                        logging.info('Processing event {0}/{1} - {2}:{3:02d}:{4:02d} remaining'.format(total,self.totalEntries,hours,mins,secs))
+                        self.flush()
+                    self.perRowAction(rtrow)
+                tfile.Close('R')
 
     def perRowAction(self,rtrow):
         '''Per row action, can be overridden'''
@@ -167,6 +228,22 @@ class AnalysisBase(object):
         logging.warning("You must override selectCandidates.")
         return {}
 
+    #################
+    ### utilities ###
+    #################
+    def findDecay(self,rtrow,m_pdgid,d1_pdgid,d2_pdgid):
+        '''Check if requested decay present in event'''
+        for g in range(rtrow.genParticles_count):
+            if m_pdgid==rtrow.genParticles_pdgId[g]:
+                if (
+                    (d1_pdgid==rtrow.genParticles_daughter_1[g]
+                    and d2_pdgid==rtrow.genParticles_daughter_2[g])
+                    or (d1_pdgid==rtrow.genParticles_daughter_2[g]
+                    and d2_pdgid==rtrow.genParticles_daughter_1[g])
+                   ):
+                    return True
+        return False
+
     ########################
     ### object variables ###
     ########################
@@ -186,6 +263,13 @@ class AnalysisBase(object):
             eta    = self.getObjectVariable(rtrow,cand,'eta')
             phi    = self.getObjectVariable(rtrow,cand,'phi')
             energy = self.getObjectVariable(rtrow,cand,'energy')
+            val = ROOT.TLorentzVector()
+            val.SetPtEtaPhiE(pt,eta,phi,energy)
+        elif var=='p4_uncorrected':
+            pt     = self.getObjectVariable(rtrow,cand,'pt_uncorrected')
+            eta    = self.getObjectVariable(rtrow,cand,'eta_uncorrected')
+            phi    = self.getObjectVariable(rtrow,cand,'phi_uncorrected')
+            energy = self.getObjectVariable(rtrow,cand,'energy_uncorrected')
             val = ROOT.TLorentzVector()
             val.SetPtEtaPhiE(pt,eta,phi,energy)
 
@@ -211,15 +295,17 @@ class AnalysisBase(object):
         self.cache[key] = val
         return val
 
-    def getCompositeVariable(self,rtrow,var,*cands):
+    def getCompositeVariable(self,rtrow,var,*cands,**kwargs):
         '''Create a composite candidate'''
+        uncorrected = kwargs.pop('uncorrected',False)
 
         key = '_'.join(['{0}_{1}'.format(*cand) for cand in cands] + [var])
         if key in self.cache: return self.cache[key]
 
         vec = ROOT.TLorentzVector()
+        p4Name = 'p4_uncorrected' if uncorrected else 'p4'
         for cand in cands:
-            vec += self.getObjectVariable(rtrow,cand,'p4')
+            vec += self.getObjectVariable(rtrow,cand,p4Name)
 
         if var=='p4':
             val = vec
@@ -256,7 +342,7 @@ class AnalysisBase(object):
         self.cache[key] = val
         return val
 
-    def getCompositeMetVariable(self,rtrow,var,met,*cands):
+    def getCompositeMetVariable(self,rtrow,var,met,*cands,**kwargs):
         '''Get composite met variables'''
 
         key = '_'.join(['{0}_{1}'.format(*cand) for cand in cands] + ['{0}_{1}'.format(*met)] + [var])
@@ -295,6 +381,22 @@ class AnalysisBase(object):
                 val = 0
         else:
             val = 0
+
+        self.cache[key] = val
+        return val
+
+    def getTreeVectorVariable(self, rtrow, var, pos):
+        '''
+        Get event wide variables
+        '''
+        key = '{0}_{1}'.format(var,pos)
+        if key in self.cache: return self.cache[key]
+
+        if hasattr(rtrow,var):
+            val = getattr(rtrow,var)[pos] if len(getattr(rtrow,var))>pos else 0
+        else:
+            val = 0
+            logging.info("{0} not found.".format(var))
 
         self.cache[key] = val
         return val
@@ -389,7 +491,7 @@ class AnalysisBase(object):
 
     def addFlavorDependentCandVar(self,label,varLabel,varMap,rootType):
         '''Add a variable for a cand based on flavor'''
-        self.tree.add(lambda rtrow,cands: self.getObjectVariable(rtrow,cands[label],varMap[cands[label][0]]), '{0}_{1}'.format(label,varLabel), rootType)
+        self.tree.add(lambda rtrow,cands: self.getObjectVariable(rtrow,cands[label],varMap[cands[label][0]]) if cands[label][0] in varMap else 0., '{0}_{1}'.format(label,varLabel), rootType)
 
     def addDiJet(self,label,obj1,obj2):
         '''Add variables relevant for a dijet candidate'''
@@ -413,9 +515,9 @@ class AnalysisBase(object):
         self.addDiCandVar(label,obj1,obj2,'deltaPhi','deltaPhi','F')
         self.addDiCandVar(label,obj1,obj2,'energy','energy','F')
 
-    def addDiCandVar(self,label,obj1,obj2,varLabel,var,rootType):
+    def addDiCandVar(self,label,obj1,obj2,varLabel,var,rootType,**kwargs):
         '''Add a variable for a dilepton candidate'''
-        self.tree.add(lambda rtrow,cands: self.getCompositeVariable(rtrow,var,cands[obj1],cands[obj2]), '{0}_{1}'.format(label,varLabel), rootType)
+        self.tree.add(lambda rtrow,cands: self.getCompositeVariable(rtrow,var,cands[obj1],cands[obj2],**kwargs), '{0}_{1}'.format(label,varLabel), rootType)
 
     def addLeptonMet(self,label,obj,met):
         '''Add variables related to a lepton + met'''
@@ -425,9 +527,9 @@ class AnalysisBase(object):
         self.addCandMetVar(label,obj,met,'deltaPhi','deltaPhi','F')
         self.addCandMetVar(label,obj,met,'mt','mt','F')
 
-    def addCandMetVar(self,label,obj,met,varLabel,var,rootType):
+    def addCandMetVar(self,label,obj,met,varLabel,var,rootType,**kwargs):
         '''Add a single lepton met var'''
-        self.tree.add(lambda rtrow,cands: self.getCompositeMetVariable(rtrow,var,met,cands[obj]), '{0}_{1}'.format(label,varLabel), rootType)
+        self.tree.add(lambda rtrow,cands: self.getCompositeMetVariable(rtrow,var,met,cands[obj],**kwargs), '{0}_{1}'.format(label,varLabel), rootType)
 
     def addComposite(self,label,*objs):
         '''Add variables realated to multi object variables'''
@@ -437,7 +539,7 @@ class AnalysisBase(object):
         self.addCompositeVar(label,objs,'phi','phi','F')
         self.addCompositeVar(label,objs,'energy','energy','F')
 
-    def addCompositeVar(self,label,objs,varLabel,var,rootType):
+    def addCompositeVar(self,label,objs,varLabel,var,rootType,**kwargs):
         '''Add single variable for multiple objects'''
-        self.tree.add(lambda rtrow,cands: self.getCompositeVariable(rtrow,var,*[cands[obj] for obj in objs]), '{0}_{1}'.format(label,varLabel), rootType)
+        self.tree.add(lambda rtrow,cands: self.getCompositeVariable(rtrow,var,*[cands[obj] for obj in objs],**kwargs), '{0}_{1}'.format(label,varLabel), rootType)
 

@@ -21,15 +21,6 @@ class MuonAnalysis(AnalysisBase):
 
         # setup analysis tree
 
-        # pileup
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'vertices_count'), 'numVertices', 'I')
-
-        # gen
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'nTrueVertices'), 'numTrueVertices', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'NUP'), 'NUP', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'isData'), 'isData', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'genWeight'), 'genWeight', 'I')
-
         # w lepton
         self.addLeptonMet('w','m',('pfmet',0))
         self.addLepton('m')
@@ -44,9 +35,9 @@ class MuonAnalysis(AnalysisBase):
     def perRowAction(self,rtrow):
         '''Per row action, can be overridden'''
         self.cache = {} # cache variables so you dont read from tree as much
-        muons = self.getCands(rtrow,'msons',lambda rtrow,cands: True)
-        for muons in muons:
-            cands = {'e':muon}
+        muons = self.getCands(rtrow,'muons',lambda rtrow,cands: True)
+        for muon in muons:
+            cands = {'m':muon}
             self.tree.fill(rtrow,cands,allowDuplicates=True)
 
         self.eventsStored += 1
@@ -64,4 +55,18 @@ class MuonAnalysis(AnalysisBase):
         self.addCandVar(label,'isGlobalMuon','isGlobalMuon','I')
         self.addCandVar(label,'isTrackerMuon','isTrackerMuon','I')
         self.addCandVar(label,'muonBestTrackType','muonBestTrackType','I')
+        self.addCandVar(label,'segmentCompatibility','segmentCompatibility','F')
+        self.addCandVar(label,'isGoodMuon','isGoodMuon','I')
+        self.addCandVar(label,'highPurityTrack','highPurityTrack','I')
+        self.addCandVar(label,'matchedStations','matchedStations','I')
+        self.addCandVar(label,'validMuonHits','validMuonHits','I')
+        self.addCandVar(label,'normalizedChi2','normalizedChi2','F')
+        self.addCandVar(label,'validPixelHits','validPixelHits','I')
+        self.addCandVar(label,'trackerLayers','trackerLayers','I')
+        self.addCandVar(label,'pixelLayers','pixelLayers','I')
+        self.addCandVar(label,'validTrackerFractionl','validTrackerFractionl','F')
+        self.addCandVar(label,'bestTrackPtError','bestTrackPtError','F')
+        self.addCandVar(label,'bestTrackPt','bestTrackPt','F')
+        self.addCandVar(label,'trackerStandalone','trackerStandalone','F')
+        self.addCandVar(label,'trackKink','trackKink','F')
         self.tree.add(lambda rtrow,cands: self.getObjectVariable(rtrow,cands[label],'trackIso')/self.getObjectVariable(rtrow,cands[label],'pt'), '{0}_trackRelIso'.format(label), 'F')

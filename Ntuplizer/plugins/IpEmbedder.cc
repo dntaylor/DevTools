@@ -8,12 +8,15 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "DataFormats/PatCandidates/interface/PackedCandidate.h"
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/Tau.h"
+
+typedef math::XYZPoint Point;
 
 template<typename T>
 class IpEmbedder : public edm::stream::EDProducer<>
@@ -30,8 +33,8 @@ private:
   virtual void produce(edm::Event& iEvent, const edm::EventSetup& iSetup);
   void endJob() {}
 
-  double dz(T obj, const reco::Vertex&) { return 0.; }
-  double dxy(T obj, const reco::Vertex&) { return 0.; }
+  double dz(T obj, const Point&) { return 0.; }
+  double dxy(T obj, const Point&) { return 0.; }
   double dB2D(T obj) { return 0.; }
   double dB3D(T obj) { return 0.; }
   double edB2D(T obj) { return 0.; }
@@ -40,6 +43,7 @@ private:
   // Data
   edm::EDGetTokenT<edm::View<T> > collectionToken_;      // input collection
   edm::EDGetTokenT<reco::VertexCollection> vertexToken_; // pv collection
+  edm::EDGetTokenT<reco::BeamSpot> beamspotToken_;       // the beamspot
   std::auto_ptr<std::vector<T> > out;                    // Collection we'll output at the end
 };
 
@@ -47,7 +51,8 @@ private:
 template<typename T>
 IpEmbedder<T>::IpEmbedder(const edm::ParameterSet& iConfig):
   collectionToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
-  vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexSrc")))
+  vertexToken_(consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertexSrc"))),
+  beamspotToken_(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("beamspotSrc")))
 {
   produces<std::vector<T> >();
 }
@@ -63,14 +68,23 @@ void IpEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<reco::VertexCollection> vertices;
   iEvent.getByToken(vertexToken_, vertices);
 
+  edm::Handle<reco::BeamSpot> beamspot;
+  iEvent.getByToken(beamspotToken_, beamspot);
+
   const reco::Vertex& pv = *vertices->begin();
+
+  Point zero = Point(0,0,0);
 
   for (size_t c = 0; c < collection->size(); ++c) {
     const auto obj = collection->at(c);
     T newObj = obj;
 
-    newObj.addUserFloat("dz", dz(obj, pv));
-    newObj.addUserFloat("dxy", dxy(obj, pv));
+    newObj.addUserFloat("dz", dz(obj, pv.position()));
+    newObj.addUserFloat("dxy", dxy(obj, pv.position()));
+    newObj.addUserFloat("dz_beamspot", dz(obj, beamspot->position()));
+    newObj.addUserFloat("dxy_beamspot", dxy(obj, beamspot->position()));
+    newObj.addUserFloat("dz_zero", dz(obj, zero));
+    newObj.addUserFloat("dxy_zero", dxy(obj, zero));
     newObj.addUserFloat("dB2D", dB2D(obj));
     newObj.addUserFloat("dB3D", dB3D(obj));
     newObj.addUserFloat("edB2D", edB2D(obj));
@@ -82,35 +96,35 @@ void IpEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 template<>
-double IpEmbedder<pat::Electron>::dz(pat::Electron obj, const reco::Vertex& pv) {
-  return obj.gsfTrack()->dz(pv.position());
+double IpEmbedder<pat::Electron>::dz(pat::Electron obj, const Point& p) {
+  return obj.gsfTrack()->dz(p);
 }
 
 template<>
-double IpEmbedder<pat::Muon>::dz(pat::Muon obj, const reco::Vertex& pv) {
-  return obj.muonBestTrack()->dz(pv.position());
+double IpEmbedder<pat::Muon>::dz(pat::Muon obj, const Point& p) {
+  return obj.muonBestTrack()->dz(p);
 }
 
 template<>
-double IpEmbedder<pat::Tau>::dz(pat::Tau obj, const reco::Vertex& pv) {
+double IpEmbedder<pat::Tau>::dz(pat::Tau obj, const Point& p) {
     pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(obj.leadChargedHadrCand().get());
-    return packedLeadTauCand->dz();
+    return packedLeadTauCand->dz(p);
 }
 
 template<>
-double IpEmbedder<pat::Electron>::dxy(pat::Electron obj, const reco::Vertex& pv) {
-  return obj.gsfTrack()->dxy(pv.position());
+double IpEmbedder<pat::Electron>::dxy(pat::Electron obj, const Point& p) {
+  return obj.gsfTrack()->dxy(p);
 }
 
 template<>
-double IpEmbedder<pat::Muon>::dxy(pat::Muon obj, const reco::Vertex& pv) {
-  return obj.muonBestTrack()->dxy(pv.position());
+double IpEmbedder<pat::Muon>::dxy(pat::Muon obj, const Point& p) {
+  return obj.muonBestTrack()->dxy(p);
 }
 
 template<>
-double IpEmbedder<pat::Tau>::dxy(pat::Tau obj, const reco::Vertex& pv) {
+double IpEmbedder<pat::Tau>::dxy(pat::Tau obj, const Point& p) {
     pat::PackedCandidate const* packedLeadTauCand = dynamic_cast<pat::PackedCandidate const*>(obj.leadChargedHadrCand().get());
-    return packedLeadTauCand->dxy();
+    return packedLeadTauCand->dxy(p);
 }
 
 template<>
