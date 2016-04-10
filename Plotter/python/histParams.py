@@ -6,6 +6,7 @@ from copy import deepcopy
 from itertools import product, combinations_with_replacement
 
 from DevTools.Plotter.utilities import ZMASS
+from DevTools.Plotter.higgsUtilities import getChannels, getGenChannels
 
 ################
 ### 1d hists ###
@@ -204,13 +205,14 @@ frBaseCut = 'w_mass<25 && met_pt<25'
 frBaseCutLoose = '{0}'.format(frBaseCut)
 frBaseCutMedium = '{0} && l1_passMedium==1'.format(frBaseCut)
 frBaseCutTight = '{0} && l1_passTight==1'.format(frBaseCut)
-frScaleFactorLoose = 'l1_looseScale*genWeight*pileupWeight*triggerEfficiency/triggerPrescale'
-frScaleFactorMedium = 'l1_mediumScale*genWeight*pileupWeight*triggerEfficiency/triggerPrescale'
-frScaleFactorTight = 'l1_tightScale*genWeight*pileupWeight*triggerEfficiency/triggerPrescale'
+frScaleFactorLoose = 'l1_looseScale*genWeight*pileupWeight*triggerEfficiency'#/triggerPrescale'
+frScaleFactorMedium = 'l1_mediumScale*genWeight*pileupWeight*triggerEfficiency'#/triggerPrescale'
+frScaleFactorTight = 'l1_tightScale*genWeight*pileupWeight*triggerEfficiency'#/triggerPrescale'
+dataScaleFactor = 'triggerPrescale'
 selectionParams['DijetFakeRate'] = {
-    'loose' : {'args': [frBaseCutLoose],        'kwargs': {'mcscalefactor': frScaleFactorLoose,  'directory': 'loose'}},
-    'medium': {'args': [frBaseCutMedium],       'kwargs': {'mcscalefactor': frScaleFactorMedium, 'directory': 'medium'}},
-    'tight' : {'args': [frBaseCutTight],        'kwargs': {'mcscalefactor': frScaleFactorTight,  'directory': 'tight'}},
+    'loose' : {'args': [frBaseCutLoose],        'kwargs': {'mcscalefactor': frScaleFactorLoose,  'datascalefactor': dataScaleFactor, 'directory': 'loose'}},
+    'medium': {'args': [frBaseCutMedium],       'kwargs': {'mcscalefactor': frScaleFactorMedium, 'datascalefactor': dataScaleFactor, 'directory': 'medium'}},
+    'tight' : {'args': [frBaseCutTight],        'kwargs': {'mcscalefactor': frScaleFactorTight,  'datascalefactor': dataScaleFactor, 'directory': 'tight'}},
 }
 
 channels = ['e','m']
@@ -368,22 +370,6 @@ selectionParams['Hpp4l'] = {
 
 masses = [200,300,400,500,600,700,800,900,1000]
 
-# define categories
-# higgscat = num taus
-higgscats = [0,1,2]
-# recocat = based on background
-# I  : 0,0
-# II : 0,1
-# III: 0,2
-# IV : 1,1
-# V  : 1,2
-# VI : 2,2
-recocats = ['I','II','III','IV','V','VI']
-
-recocatMap = {}
-for rc in recocats:
-    recocatMap[rc] = []
-
 # setup old working points
 hpp4lOldSelections = {}
 for mass in masses:
@@ -391,28 +377,7 @@ for mass in masses:
     selectionParams['Hpp4l']['old_{0}'.format(mass)] = {'args': [hpp4lOldSelections[mass]], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'old/{0}'.format(mass), 'countOnly': True}}
 
 # setup reco channel selections
-channels = {}
-higgsChannels = [''.join(x) for x in product('emt',repeat=2)]
-for hpp in higgsChannels:
-    for hmm in higgsChannels:
-        chanString = ''.join(sorted(hpp))+''.join(sorted(hmm))
-        if chanString not in channels: channels[chanString] = []
-        channels[chanString] += [hpp+hmm]
-        ptc = hpp.count('t')
-        mtc = hmm.count('t')
-        if ptc+mtc==0:
-           cat = 'I'
-        elif ptc+mtc==1:
-           cat = 'II'
-        elif ((ptc==0 and mtc==2) or (ptc==2 and mtc==0)):
-           cat = 'III'
-        elif ptc==1 and mtc==1:
-           cat = 'IV'
-        elif ptc+mtc==3:
-           cat = 'V'
-        else:
-           cat = 'VI'
-        recocatMap[cat] += [hpp+hmm]
+channels = getChannels('Hpp4')
 
 sels = selectionParams['Hpp4l'].keys()
 for sel in sels:
@@ -423,24 +388,11 @@ for sel in sels:
         args = selectionParams['Hpp4l'][name]['args']
         selectionParams['Hpp4l'][name]['args'][0] = args[0] + ' && ' + '(' + ' || '.join(['channel=="{0}"'.format(c) for c in channels[chan]]) + ')'
         selectionParams['Hpp4l'][name]['kwargs']['directory'] = directory
-    for cat in recocats:
-        directory = '{0}/{1}'.format('/'.join(sel.split('_')),cat)
-        name = '{0}_{1}'.format(sel,cat)
-        selectionParams['Hpp4l'][name] = deepcopy(selectionParams['Hpp4l'][sel])
-        args = selectionParams['Hpp4l'][name]['args']
-        selectionParams['Hpp4l'][name]['args'][0] = args[0] + ' && ' + '(' + ' || '.join(['channel=="{0}"'.format(c) for c in recocatMap[cat]]) + ')'
-        selectionParams['Hpp4l'][name]['kwargs']['directory'] = directory
 
 # setup gen channel selections
-genChannelsPP = []
-genChannelsAP = []
-genHiggsChannels = [''.join(x) for x in combinations_with_replacement('emt',2)]
-genHiggsChannels2 = [''.join(x) for x in combinations_with_replacement('emt',1)]
-for hpp in genHiggsChannels:
-    for hmm in genHiggsChannels:
-        genChannelsPP += [hpp+hmm]
-    for hm in genHiggsChannels2:
-        genChannelsAP += [hpp+hm]
+genChans = getGenChannels('Hpp4l')
+genChannelsPP = genChans['PP']
+genChannelsAP = genChans['AP']
 
 hpp4l_pp_selections = {}
 hpp4l_ap_selections = {}
@@ -479,14 +431,7 @@ selectionParams['Hpp3l'] = {
 }
 
 # setup reco channel selections
-channels = {}
-higgsChannels = [''.join(x) for x in product('em',repeat=2)]
-higgsChannels2 = [''.join(x) for x in product('em',repeat=1)]
-for hpp in higgsChannels:
-    for hm in higgsChannels2:
-        chanString = ''.join(sorted(hpp))+''.join(sorted(hm))
-        if chanString not in channels: channels[chanString] = []
-        channels[chanString] += [hpp+hm]
+channels = getChannels('Hpp3l')
 
 for sel in ['default','lowmass']:
     for chan in channels:
@@ -498,15 +443,9 @@ for sel in ['default','lowmass']:
         selectionParams['Hpp3l'][name]['kwargs']['directory'] = directory
 
 # setup gen channel selections
-genChannelsPP = []
-genChannelsAP = []
-genHiggsChannels = [''.join(x) for x in combinations_with_replacement('emt',2)]
-genHiggsChannels2 = [''.join(x) for x in combinations_with_replacement('emt',1)]
-for hpp in genHiggsChannels:
-    for hmm in genHiggsChannels:
-        genChannelsPP += [hpp+hmm]
-    for hm in genHiggsChannels2:
-        genChannelsAP += [hpp+hm]
+genChans = getGenChannels('Hpp3l')
+genChannelsPP = genChans['PP']
+genChannelsAP = genChans['AP']
 
 hpp3l_pp_selections = {}
 hpp3l_ap_selections = {}

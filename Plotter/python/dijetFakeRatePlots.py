@@ -78,6 +78,11 @@ sigMap = {
 
 samples = ['TT','Z','W']
 
+allSamplesDict = {'MC':[]}
+
+for s in samples:
+    allSamplesDict['MC'] += sigMap[s]
+
 for s in samples:
     dijetFakeRatePlotter.addHistogramToStack(s,sigMap[s])
 
@@ -99,14 +104,42 @@ for plot in plots:
             savename = '{0}/{1}/{2}'.format(lepton,chan,plot)
             dijetFakeRatePlotter.plot(plotname,savename,**plots[plot])
 
-# ratios of SS/OS as func of pt/eta
+
+# plots of multiple ptcuts on same plot
 dijetFakeRatePlotter.clearHistograms()
+jetPts = [10,15,20,25,30,35,40,45,45,50]
+jetPtColors = {
+    10 : ROOT.TColor.GetColor('#000000'),
+    15 : ROOT.TColor.GetColor('#330000'),
+    20 : ROOT.TColor.GetColor('#660000'),
+    25 : ROOT.TColor.GetColor('#800000'),
+    30 : ROOT.TColor.GetColor('#990000'),
+    35 : ROOT.TColor.GetColor('#B20000'),
+    40 : ROOT.TColor.GetColor('#CC0000'),
+    45 : ROOT.TColor.GetColor('#FF0000'),
+    50 : ROOT.TColor.GetColor('#FF3333'),
+}
+for jetPt in jetPts:
+    name = 'jetPt{0}'.format(jetPt)
+    dijetFakeRatePlotter.addHistogram(name,sigMap['data'],style={'linecolor':jetPtColors[jetPt],'linestyle':3,'name':'Jet p_{{T}} > {0} GeV'.format(jetPt)})
 
-allSamplesDict = {'MC':[]}
+jet_cust = {
+    'pt'      : {'yaxis': 'Events/0.1 GeV', 'rebin': 1, 'rangex': [0,100]},
+}
 
-for s in samples:
-    allSamplesDict['MC'] += sigMap[s]
+for plot in ['pt']:
+    kwargs = deepcopy(plots[plot])
+    if plot in jet_cust: kwargs.update(jet_cust[plot])
+    for lepton in ['loose','medium','tight']:
+        for chan in chans:
+            plotname = {}
+            for jetPt in jetPts:
+                plotname['jetPt{0}'.format(jetPt)] = '{0}/{1}/jetPt{2}/{3}'.format(lepton,chan,jetPt,plot)
+            savename = '{0}/{1}/allJetPts_{2}'.format(lepton,chan,plot)
+            dijetFakeRatePlotter.plotNormalized(plotname,savename,legendpos=34,numcol=2,**kwargs)
 
+# ratios of tight/loose as func of pt/eta
+dijetFakeRatePlotter.clearHistograms()
 dijetFakeRatePlotter.addHistogram('MC',allSamplesDict['MC'])
 dijetFakeRatePlotter.addHistogram('data',sigMap['data'],style={'linecolor':ROOT.kBlack,'name':'EWK Corrected'})
 dijetFakeRatePlotter.addHistogram('data_uncorrected',sigMap['data'],style={'linecolor':ROOT.kRed,'name':'Uncorrected'})

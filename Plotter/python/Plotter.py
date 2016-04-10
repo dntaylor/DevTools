@@ -153,6 +153,8 @@ class Plotter(PlotterBase):
             if 'linecolor' in style:
                 hist.SetLineColor(style['linecolor'])
                 hist.SetMarkerColor(style['linecolor'])
+            if 'linestyle' in style:
+                hist.SetLineStyle(style['linestyle'])
             if not nofill:
                 if 'fillstyle' in style: hist.SetFillStyle(style['fillstyle'])
                 if 'fillcolor' in style: hist.SetFillColor(style['fillcolor'])
@@ -185,6 +187,8 @@ class Plotter(PlotterBase):
         if 'linecolor' in style:
             hist.SetLineColor(style['linecolor'])
             hist.SetMarkerColor(style['linecolor'])
+        if 'linestyle' in style:
+            hist.SetLineStyle(style['linestyle'])
         if not nofill:
             if 'fillstyle' in style: hist.SetFillStyle(style['fillstyle'])
             if 'fillcolor' in style: hist.SetFillColor(style['fillcolor'])
@@ -718,7 +722,9 @@ class Plotter(PlotterBase):
         legendpos = kwargs.pop('legendpos',33)
         logy = kwargs.pop('logy',False)
         logx = kwargs.pop('logx',False)
+        rangex = kwargs.pop('rangex',[])
         customOrder = kwargs.pop('customOrder',[])
+        subtractMap = kwargs.pop('subtractMap',{})
 
         logging.info('Plotting {0}'.format(savename))
         canvas = ROOT.TCanvas(savename,savename,50,50,600,600)
@@ -731,6 +737,10 @@ class Plotter(PlotterBase):
         histOrder = customOrder if customOrder else self.histOrder
         for i,histName in enumerate(histOrder):
             hist = self._getHistogram(histName,variable,nofill=True,**kwargs)
+            if histName in subtractMap:
+                for subName in subtractMap[histName]:
+                    histsub = self._getHistogram(subName,variable,nofill=True,**kwargs)
+                    hist.Add(histsub,-1)
             hist.Scale(1./hist.Integral())
             hist.SetLineWidth(3)
             highestMax = max(highestMax,hist.GetMaximum())
@@ -745,6 +755,7 @@ class Plotter(PlotterBase):
                 hist.GetXaxis().SetTitle(xaxis)
                 hist.GetYaxis().SetTitle(yaxis)
                 hist.GetYaxis().SetTitleOffset(1.5)
+                if len(rangex)==2: hist.GetXaxis().SetRangeUser(*rangex)
                 if ymax!=None: hist.SetMaximum(ymax)
                 if ymin!=None: hist.SetMinimum(ymin)
                 if ymax==None: hist.SetMaximum(1.2*highestMax)

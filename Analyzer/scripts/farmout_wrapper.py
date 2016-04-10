@@ -15,11 +15,12 @@ from DevTools.Analyzer.runSingleMuonAnalysis import main as runSingleMuon
 from DevTools.Analyzer.runDijetFakeRateAnalysis import main as runDijetFakeRate
 from DevTools.Analyzer.runElectronAnalysis import main as runElectron
 from DevTools.Analyzer.runMuonAnalysis import main as runMuon
+from DevTools.Analyzer.runTauAnalysis import main as runTau
 
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Submit analyzers')
 
-    parser.add_argument('analysis', type=str, choices=['WZ', 'DY', 'Charge', 'Hpp3l', 'Hpp4l', 'SingleElectron', 'SingleMuon', 'Electron', 'Muon', 'DijetFakeRate'], help='Analysis to submit')
+    parser.add_argument('analysis', type=str, choices=['WZ', 'DY', 'Charge', 'Hpp3l', 'Hpp4l', 'SingleElectron', 'SingleMuon', 'Electron', 'Muon','Tau', 'DijetFakeRate'], help='Analysis to submit')
 
     return parser.parse_args(argv)
 
@@ -55,6 +56,8 @@ def main(argv=None):
         status = runElectron(argv)
     elif args.analysis=='Muon':
         status = runMuon(argv)
+    elif args.analysis=='Tau':
+        status = runTau(argv)
     else:
         status = 0
 

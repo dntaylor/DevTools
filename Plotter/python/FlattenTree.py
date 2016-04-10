@@ -73,28 +73,24 @@ class FlattenTree(object):
         if not self.outfile.GetDirectory(directory): self.outfile.mkdir(directory)
         self.outfile.cd('{0}:/{1}'.format(self.outputFileName,directory))
         hist.Write('',ROOT.TObject.kOverwrite)
-        self.__finish()
+        self.outfile.Close()
 
     def __checkHash(self,name,directory,strings=[]):
-        #TODO: think of better way
-        return False
-        outputFileDir = self.outputFileName.rstrip('.root')
-        hashFileName = '{0}/{1}/{2}/{3}.json'.format(self.hashDir,outputFileDir,directory,name)
-        if os.path.isfile(hashFileName):
-            hashvals = json.load(hashFileName)
-        else:
-            hashvals = {'files':'','strings':''}
-        oldFileHash = hashvals['files']
-        oldStringHash = hashvals['strings']
-        newFileHash = hashFile(*self.files)
-        newStringHash = hashString(*strings)
-        if oldFileHash==newFileHash and oldStringHash==newStringHash:
+        'Check the hash for a sample'''
+        self.outfile = ROOT.TFile(self.outputFileName,'update')
+        hashDirectory = 'hash/{0}'.format(directory)
+        hashObj = self.outfile.Get('{0}/{1}'.format(hashDirectory,name))
+        if not hashObj:
+            hashObj = ROOT.TNamed(name,'')
+        oldHash = hashObj.GetTitle()
+        newHash = hashFile(*self.files) + hashString(*strings)
+        if oldHash==newHash:
             return True
-        hashvals['files'] = newFileHash
-        hashvals['strings'] = newStringHash
-        python_mkdir(os.path.dirname(hashFileName))
-        with open(hashFileName,'w') as f:
-            json.dump(hashvals,f)
+        hashObj.SetTitle(newHash)
+        if not self.outfile.GetDirectory(hashDirectory): self.outfile.mkdir(hashDirectory)
+        self.outfile.cd('{0}:/{1}'.format(self.outputFileName,hashDirectory))
+        hashObj.Write('',ROOT.TObject.kOverwrite)
+        self.outfile.Close()
         return False
 
     def addHistogram(self,name,**params):
