@@ -240,8 +240,11 @@ for plot in plots:
     if plot in lowmass_cust: kwargs.update(lowmass_cust[plot])
     hpp4lPlotter.plot(plotname,plotname,**kwargs)
     for cat in cats:
-        plotname = 'lowmass/{0}/{1}'.format(cat,plot)
-        hpp4lPlotter.plot(plotname,plotname,**kwargs)
+        plotnames = []
+        for subcat in subCatChannels[cat]:
+            plotnames += ['lowmass/{0}/{1}'.format(chan,plot) for chan in subCatChannels[cat][subcat]]
+        savename = 'lowmass/{0}/{1}'.format(cat,plot)
+        hpp4lPlotter.plot(plotnames,savename,**kwargs)
 
 
 # normalized plots
@@ -284,9 +287,11 @@ for plot in plots:
     if plot in norm_cust: kwargs.update(norm_cust[plot])
     hpp4lPlotter.plotNormalized(plotname,savename,**kwargs)
     for cat in cats:
-        plotname = 'default/{0}/{1}'.format(cat,plot)
+        plotnames = []
+        for subcat in subCatChannels[cat]:
+            plotnames += ['default/{0}/{1}'.format(chan,plot) for chan in subCatChannels[cat][subcat]]
         savename = 'normalized/{0}/{1}'.format(cat,plot)
-        hpp4lPlotter.plotNormalized(plotname,savename,**kwargs)
+        hpp4lPlotter.plotNormalized(plotnames,savename,**kwargs)
 
 # all signal on one plot
 hpp4lPlotter.clearHistograms()
@@ -319,6 +324,13 @@ for plot in norm_cust:
     if plot in norm_cust: kwargs.update(norm_cust[plot])
     hpp4lPlotter.plotNormalized(plotname,savename,**kwargs)
     for cat in cats:
-        plotname = 'default/{0}/{1}'.format(cat,plot)
+        plotnames = []
+        for subcat in subCatChannels[cat]:
+            plotnames += ['default/{0}/{1}'.format(chan,plot) for chan in subCatChannels[cat][subcat]]
         savename = 'signal/{0}/{1}'.format(cat,plot)
-        hpp4lPlotter.plotNormalized(plotname,savename,**kwargs)
+        hpp4lPlotter.plotNormalized(plotnames,savename,**kwargs)
+    if 'hpp' in plot: # plot just the channels of the type
+        for higgsChan in ['ee','em','et','mm','mt','tt']:
+            plotnames = ['default/{0}/{1}'.format(chan,plot) for chan in chans if chan[:2]==higgsChan]
+            savename = 'signal/{0}/{1}'.format(higgsChan,plot)
+            hpp4lPlotter.plotNormalized(plotnames,savename,**kwargs)
