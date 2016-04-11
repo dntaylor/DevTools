@@ -3,6 +3,8 @@
 template<typename T>
 CandidateCollectionFunction<T>::CandidateCollectionFunction(TTree * tree, std::string functionName, std::string functionString):
   function_(functionString),
+  functionString_(functionString),
+  functionName_(functionName),
   vectorBranch_(tree->Branch(functionName.c_str(), &values_))
 {
 }
@@ -11,11 +13,16 @@ template<typename T>
 void CandidateCollectionFunction<T>::evaluate(const reco::CandidateView& candidates)
 {
   values_.clear();
-  for (const auto& candidate: candidates) {
-    values_.push_back(function_(candidate));
+  try {
+    for (const auto& candidate: candidates) {
+      values_.push_back(function_(candidate));
+    }
+  } catch(cms::Exception& iException) {
+    iException << "Caught exception in evaluating branch: "
+    << functionName_ << " with formula: " << functionString_;
+    throw;
   }
 }
-
 
 CandidateCollectionBranches::CandidateCollectionBranches(TTree * tree, std::string collectionName,  const edm::ParameterSet& iConfig, edm::ConsumesCollector cc):
   collectionToken_(cc.consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("collection"))),

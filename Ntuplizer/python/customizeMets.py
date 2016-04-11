@@ -20,7 +20,7 @@ def customizeMets(process,coll,**kwargs):
     from PhysicsTools.PatUtils.tools.runMETCorrectionsAndUncertainties import runMetCorAndUncFromMiniAOD
     runMetCorAndUncFromMiniAOD(process,
                                jetCollUnskimmed="slimmedJets",
-                               jetColl=jSrc,
+                               #jetColl=jSrc,
                                photonColl=pSrc,
                                electronColl=eSrc,
                                muonColl=mSrc,
@@ -35,6 +35,16 @@ def customizeMets(process,coll,**kwargs):
     del getattr(process,'slimmedMETs{0}'.format(postfix)).caloMET
 
     metSrc = "slimmedMETs{0}".format(postfix)
+
+    # and once again fix
+    getattr(process,'shiftedPatJetEnUp{0}'.format(postfix)).src = cms.InputTag("cleanedPatJets{0}".format(postfix))
+    getattr(process,'shiftedPatJetEnDown{0}'.format(postfix)).src = cms.InputTag("cleanedPatJets{0}".format(postfix))
+    getattr(process,'shiftedPatMETCorrJetEnUp{0}'.format(postfix)).srcOriginal = cms.InputTag("cleanedPatJets{0}".format(postfix))
+    getattr(process,'shiftedPatMETCorrJetEnDown{0}'.format(postfix)).srcOriginal = cms.InputTag("cleanedPatJets{0}".format(postfix))
+    getattr(process,'shiftedPatMETCorrJetResUp{0}'.format(postfix)).srcOriginal = cms.InputTag("cleanedPatJets{0}".format(postfix))
+    getattr(process,'shiftedPatMETCorrJetResDown{0}'.format(postfix)).srcOriginal = cms.InputTag("cleanedPatJets{0}".format(postfix))
+    getattr(process,'pfCandsNoJets{0}'.format(postfix)).veto = cms.InputTag("cleanedPatJets{0}".format(postfix))
+    getattr(process,'patPFMetTxyCorr{0}'.format(postfix)).srcPFlow = cms.InputTag(pfSrc)
     
     ####################
     ### embed shifts ###

@@ -7,6 +7,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 template<typename T>
 class ShiftedObjectEmbedder : public edm::stream::EDProducer<>
@@ -25,7 +26,7 @@ private:
 
   // Data
   edm::EDGetTokenT<edm::View<T> > srcToken_;        // input collection
-  edm::EDGetTokenT<edm::View<T> > shiftedSrcToken_; // shifted collection
+  edm::EDGetTokenT<edm::View<reco::Candidate> > shiftedSrcToken_; // shifted collection
   std::string label_;                               // label for embedding
   std::auto_ptr<std::vector<T> > out;               // Collection we'll output at the end
 };
@@ -34,7 +35,7 @@ private:
 template<typename T>
 ShiftedObjectEmbedder<T>::ShiftedObjectEmbedder(const edm::ParameterSet& iConfig):
   srcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("src"))),
-  shiftedSrcToken_(consumes<edm::View<T> >(iConfig.getParameter<edm::InputTag>("shiftedSrc"))),
+  shiftedSrcToken_(consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("shiftedSrc"))),
   label_(iConfig.getParameter<std::string>("label"))
 {
   produces<std::vector<T> >();
@@ -48,7 +49,7 @@ void ShiftedObjectEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup
   edm::Handle<edm::View<T> > src;
   iEvent.getByToken(srcToken_, src);
 
-  edm::Handle<edm::View<T> > shiftedSrc;
+  edm::Handle<edm::View<reco::Candidate> > shiftedSrc;
   iEvent.getByToken(shiftedSrcToken_, shiftedSrc);
 
   for (size_t o = 0; o < src->size(); ++o) {
@@ -56,7 +57,8 @@ void ShiftedObjectEmbedder<T>::produce(edm::Event& iEvent, const edm::EventSetup
     T newObj = obj;
 
     if (o<shiftedSrc->size()){
-      newObj.addUserCand(label_, shiftedSrc->ptrAt(o));
+      reco::CandidatePtr shiftObj = shiftedSrc->ptrAt(o);
+      newObj.addUserCand(label_, shiftObj);
     }
     else {
       newObj.addUserCand(label_, edm::Ptr<T>());

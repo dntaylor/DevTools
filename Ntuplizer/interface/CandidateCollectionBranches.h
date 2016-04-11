@@ -17,6 +17,8 @@ class CandidateCollectionFunction {
 
   private:
     StringObjectFunction<reco::Candidate, true> function_;
+    std::string functionString_;
+    std::string functionName_;
     TBranch * vectorBranch_;
     std::vector<T> values_;
 };

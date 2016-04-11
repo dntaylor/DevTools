@@ -22,20 +22,20 @@ def customizeElectrons(process,coll,**kwargs):
     eSrc = "uncorElec"
     process.electronCustomization *= process.uncorElec
 
-    # first need to add a manual protection for the corrections
-    process.selectedElectrons = cms.EDFilter(
-        "PATElectronSelector",
-        src = cms.InputTag(eSrc),
-        cut = cms.string("pt > 5 && abs(eta)<2.5")
-    )
-    eSrc = "selectedElectrons"
-    process.electronCustomization *= process.selectedElectrons
+    ## first need to add a manual protection for the corrections
+    #process.selectedElectrons = cms.EDFilter(
+    #    "PATElectronSelector",
+    #    src = cms.InputTag(eSrc),
+    #    cut = cms.string("pt > 5 && abs(eta)<2.5")
+    #)
+    #eSrc = "selectedElectrons"
+    #process.electronCustomization *= process.selectedElectrons
 
-    process.load('EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi')
-    process.calibratedPatElectrons.electrons = eSrc
-    process.calibratedPatElectrons.isMC = isMC
-    process.electronCustomization *= process.calibratedPatElectrons
-    eSrc = 'calibratedPatElectrons'
+    #process.load('EgammaAnalysis.ElectronTools.calibratedElectronsRun2_cfi')
+    #process.calibratedPatElectrons.electrons = eSrc
+    #process.calibratedPatElectrons.isMC = isMC
+    #process.electronCustomization *= process.calibratedPatElectrons
+    #eSrc = 'calibratedPatElectrons'
 
     #################
     ### embed VID ###

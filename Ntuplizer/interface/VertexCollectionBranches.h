@@ -18,6 +18,8 @@ class VertexCollectionFunction {
 
   private:
     StringObjectFunction<reco::Vertex, true> function_;
+    std::string functionString_;
+    std::string functionName_;
     TBranch * vectorBranch_;
     std::vector<T> values_;
 };
