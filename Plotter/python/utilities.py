@@ -67,8 +67,10 @@ def getNtupleDirectory(analysis):
         return os.path.join(baseDir,latestNtuples[analysis])
 
 treeMap = {
+    ''               : 'Tree',
     'Electron'       : 'ETree',
     'Muon'           : 'MTree',
+    'Tau'            : 'TTree',
     'SingleElectron' : 'ETree',
     'SingleMuon'     : 'MTree',
     'WZ'             : 'WZTree',

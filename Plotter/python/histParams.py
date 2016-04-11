@@ -482,7 +482,7 @@ def getHistParams(analysis):
 
 def getHistParams2D(analysis):
     histParams = deepcopy(params2D['common'])
-    if analysis in params: histParams.update(params2D[analysis])
+    if analysis in params2D: histParams.update(params2D[analysis])
     return histParams
 
 def getHistSelections(analysis,sample):

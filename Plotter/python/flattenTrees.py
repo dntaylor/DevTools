@@ -35,18 +35,19 @@ def flatten(directory,**kwargs):
     else:
         pbar = None
 
-    flattener = FlattenTree(
-        ntupleDirectory=getNtupleDirectory(analysis),
-        treeName=getTreeName(analysis),
-    )
+    #flattener = FlattenTree(
+    #    ntupleDirectory=getNtupleDirectory(analysis),
+    #    treeName=getTreeName(analysis),
+    #)
+    flattener = FlattenTree(analysis,sample)
 
-    flattener.initializeSample(sample,'flat/{0}/{1}.root'.format(analysis,sample))
+    #flattener.initializeSample(sample,'flat/{0}/{1}.root'.format(analysis,sample))
 
     for histName, params in histParams.iteritems():
         flattener.addHistogram(histName,**params)
 
     for selName, sel in histSelections.iteritems():
-        flattener.addSelection(*sel['args'],**sel['kwargs'])
+        flattener.addSelection(selName,**sel['kwargs'])
 
     flattener.flattenAll(progressbar=pbar)
 
