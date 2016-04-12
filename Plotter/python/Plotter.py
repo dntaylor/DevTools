@@ -8,6 +8,7 @@ from collections import OrderedDict
 import ROOT
 
 from DevTools.Plotter.PlotterBase import PlotterBase
+from DevTools.Plotter.NtupleWrapper import NtupleWrapper
 from DevTools.Plotter.utilities import python_mkdir, getLumi
 from DevTools.Plotter.style import getStyle
 import DevTools.Plotter.CMS_lumi as CMS_lumi
@@ -35,14 +36,13 @@ ROOT.gStyle.SetNumberContours(255)
 class Plotter(PlotterBase):
     '''Basic plotter utilities'''
 
-    def __init__(self,**kwargs):
+    def __init__(self,analysis,**kwargs):
         '''Initialize the plotter'''
-        super(Plotter, self).__init__(**kwargs)
-        # histogram directory
-        self.inputDirectory = kwargs.pop('inputDirectory','flat/WZ')
+        super(Plotter, self).__init__(analysis,**kwargs)
 
         # empty initialization
         self.histDict = {}
+        self.analysisDict = {}
         self.stackOrder = []
         self.histOrder = []
         self.sampleFiles = {}
@@ -62,36 +62,38 @@ class Plotter(PlotterBase):
         logging.info('Finished plotting')
         #self.saveFile.Close()
 
-    def _openFile(self,sampleName):
+    def _openFile(self,sampleName,**kwargs):
         '''Verify and open a sample'''
-        fname = '{0}/{1}.root'.format(self.inputDirectory,sampleName)
-        if os.path.isfile(fname):
-            if sampleName not in self.sampleFiles:
-                self.sampleFiles[sampleName] = ROOT.TFile.Open(fname,'READ')
-                ROOT.gROOT.cd()
-            else:
-                logging.warning('Sample {0} already added to plot.'.format(sampleName))
+        analysis = kwargs.pop('analysis',self.analysis)
+        if analysis not in self.sampleFiles: self.sampleFiles[analysis] = {}
+        if sampleName not in self.sampleFiles:
+            self.sampleFiles[analysis][sampleName] = NtupleWrapper(analysis,sampleName,**kwargs)
+            ROOT.gROOT.cd()
         else:
-            logging.error('{0} does not exist.'.format(fname))
+            logging.warning('Sample {0} for analysis {1} already added to plot.'.format(sampleName,analysis))
 
-    def addHistogramToStack(self,histName,histConstituents,style={}):
+    def addHistogramToStack(self,histName,histConstituents,style={},**kwargs):
         '''
         Add a histogram to the stack. histConstituents is a list.
         '''
+        analysis = kwargs.pop('analysis',self.analysis)
         for sampleName in histConstituents:
-            self._openFile(sampleName)
+            self._openFile(sampleName,analysis=analysis,**kwargs)
+        self.analysisDict[histName] = analysis
         self.histDict[histName] = histConstituents
         self.stackOrder += [histName]
         self.styles[histName] = getStyle(histName)
         self.styles[histName].update(style)
 
-    def addHistogram(self,histName,histConstituents,style={},signal=False,scale=1):
+    def addHistogram(self,histName,histConstituents,style={},signal=False,scale=1,**kwargs):
         '''
         Add histogram to plot. histConstituents is a list.
         Style is a custom styling.
         '''
+        analysis = kwargs.pop('analysis',self.analysis)
         for sampleName in histConstituents:
-            self._openFile(sampleName)
+            self._openFile(sampleName,analysis=analysis,**kwargs)
+        self.analysisDict[histName] = analysis
         self.histDict[histName] = histConstituents
         self.histOrder += [histName]
         self.styles[histName] = getStyle(histName)
@@ -100,11 +102,8 @@ class Plotter(PlotterBase):
         if scale!=1: self.histScales[histName] = scale
 
     def clearHistograms(self):
-        samples = self.sampleFiles.keys()
-        for sampleName in samples:
-            tfile = self.sampleFiles.pop(sampleName)
-            tfile.Close()
         self.sampleFiles = {}
+        self.analysisDict = {}
         self.histDict = {}
         self.histOrder = []
         self.stackOrder = []
@@ -112,21 +111,17 @@ class Plotter(PlotterBase):
         self.signals = []
         self.histScales = {}
 
-    def _readSampleVariable(self,sampleName,variable):
+    def _readSampleVariable(self,sampleName,variable,**kwargs):
         '''Read the histogram from file'''
-        hist = self.sampleFiles[sampleName].Get(variable)
-        if hist:
-            hist = hist.Clone('h_{0}_{1}'.format(sampleName,variable.replace('/','_')))
-            #hist.Sumw2()
-            return hist
-        else:
-            logging.error('Variable {0} does not exist for {1}'.format(variable,sampleName))
-            return 0
+        analysis = kwargs.pop('analysis',self.analysis)
+        hist = self.sampleFiles[analysis][sampleName].getHist(variable)
+        return hist
 
     def _getHistogram(self,histName,variable,**kwargs):
         '''Get a styled histogram'''
         rebin = kwargs.pop('rebin',0)
         nofill = kwargs.pop('nofill',False)
+        analysis = self.analysisDict[histName]
         # check if it is a variable map, variable list, or single variable
         if isinstance(variable,dict):       # its a map
             variable = variable[histName]
@@ -137,7 +132,7 @@ class Plotter(PlotterBase):
             hists = ROOT.TList()
             for varName in variable:
                 for sampleName in self.histDict[histName]:
-                    hist = self._readSampleVariable(sampleName,varName)
+                    hist = self._readSampleVariable(sampleName,varName,analysis=analysis)
                     if hist: hists.Add(hist)
             if hists.IsEmpty(): return 0
             hist = hists[0].Clone('h_{0}_{1}'.format(histName,varName.replace('/','_')))
@@ -167,11 +162,12 @@ class Plotter(PlotterBase):
         '''Get the integral of each given histogram'''
         savename = kwargs.pop('savename','')
         nofill = kwargs.pop('nofill',False)
+        analysis = self.analysisDict[histName]
         numBins = len(variables)
         histTitle = 'h_{0}_{1}'.format(savename.replace('/','_'),histName)
         hist = ROOT.TH1F(histTitle,histTitle,numBins,0,numBins)
         for b,variable in enumerate(variables):
-            varHist = self._getHistogram(histName,variable,**kwargs)
+            varHist = self._getHistogram(histName,variable,analysis=analysis)
             if not varHist:
                hist.SetBinContent(b+1,0)
                hist.SetBinError(b+1,0)
@@ -199,12 +195,13 @@ class Plotter(PlotterBase):
         '''Get a styled histogram'''
         rebinx = kwargs.pop('rebinx',0)
         rebiny = kwargs.pop('rebiny',0)
+        analysis = self.analysisDict[histName]
         # check if it is a variable map
         varName = variable if isinstance(variable,basestring) else variable[histName]
         if histName in self.histDict:
             hists = ROOT.TList()
             for sampleName in self.histDict[histName]:
-                hist = self._readSampleVariable(sampleName,varName)
+                hist = self._readSampleVariable(sampleName,varName,analysis=analysis)
                 if hist: hists.Add(hist)
             if hists.IsEmpty(): return 0
             hist = hists[0].Clone('h_{0}_{1}'.format(histName,varName.replace('/','_')))

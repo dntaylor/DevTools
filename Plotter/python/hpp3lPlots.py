@@ -3,10 +3,7 @@ from copy import deepcopy
 
 blind = True
 
-hpp3lPlotter = Plotter(
-    inputDirectory  = 'flat/Hpp3l',
-    outputDirectory = 'plots/Hpp3l',
-)
+hpp3lPlotter = Plotter('Hpp3l')
 
 hppChans = ['ee','em','me','mm']
 hmChans = ['e','m']

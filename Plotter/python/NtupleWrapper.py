@@ -11,7 +11,7 @@ sys.argv.pop()
 ROOT.gROOT.SetBatch(ROOT.kTRUE)
 
 from DevTools.Plotter.xsec import getXsec
-from DevTools.Plotter.utilities import getLumi, isData, hashFile, hashString, python_mkdir, getTreeName
+from DevTools.Plotter.utilities import getLumi, isData, hashFile, hashString, python_mkdir, getTreeName, getNtupleDirectory
 from DevTools.Plotter.histParams import getHistParams, getHistParams2D, getHistSelections
 
 class NtupleWrapper(object):
@@ -23,7 +23,7 @@ class NtupleWrapper(object):
         self.sample = sample
         # backup passing custom parameters
         self.ntuple = kwargs.pop('ntuple','ntuples/{0}/{1}.root'.format(self.analysis,self.sample))
-        self.ntupleDirectory = kwargs.pop('ntupleDirectory','ntuples/{0}/{1}'.format(self.analysis,self.sample))
+        self.ntupleDirectory = kwargs.pop('ntupleDirectory','{0}/{1}'.format(getNtupleDirectory(self.analysis),self.sample))
         self.treeName = kwargs.pop('treeName',getTreeName(self.analysis))
         self.flat = kwargs.pop('flat','flat/{0}/{1}.root'.format(self.analysis,self.sample))
         # get stuff needed to flatten
@@ -63,6 +63,7 @@ class NtupleWrapper(object):
         self.sampleTree = tchain
         self.files = allFiles
         self.initialized = True
+        self.fileHash = hashFile(*self.files)
 
     def __write(self,hist,directory=''):
         self.outfile = ROOT.TFile(self.flat,'update')
@@ -78,8 +79,11 @@ class NtupleWrapper(object):
         hist = infile.Get(variable)
         if hist:
             hist = hist.Clone('h_{0}_{1}'.format(self.sample,variable.replace('/','_')))
-            hist.Sumw2()
+            #hist.Sumw2()
+            hist.SetDirectory(0)
             return hist
+        else:
+            logging.info('Histogram {0} not found for {1}, attempt to flatten'.format(variable,self.sample))
         infile.Close()
         # attempt to flatten the histogram
         varComponents = variable.split('/')
@@ -87,7 +91,7 @@ class NtupleWrapper(object):
         selection = ''
         for sel in self.selections:
             if 'directory' in self.selections[sel]['kwargs']:
-                if directory == self.selections[sel]['directory']: selection = sel
+                if directory == self.selections[sel]['kwargs']['directory']: selection = sel
             else:
                 if directory == '': selection = sel
         if not selection:
@@ -95,7 +99,7 @@ class NtupleWrapper(object):
             return 0
         sels = self.selections[selection]
         histName = varComponents[-1]
-        if histName not in self.histParams + self.histParams2D:
+        if histName not in self.histParams and histName not in self.histParams2D:
             logging.error('{0}: unknown, {1} not found in histParams.'.format(variable,histName))
             return 0
         if histName in self.histParams: # 1D
@@ -121,15 +125,17 @@ class NtupleWrapper(object):
         if not hashObj:
             hashObj = ROOT.TNamed(name,'')
         oldHash = hashObj.GetTitle()
-        newHash = hashFile(*self.files) + hashString(*strings)
+        newHash = self.fileHash + hashString(*strings)
         if oldHash==newHash:
+            self.outfile.Close()
             return True
-        hashObj.SetTitle(newHash)
-        if not self.outfile.GetDirectory(hashDirectory): self.outfile.mkdir(hashDirectory)
-        self.outfile.cd('{0}:/{1}'.format(self.flat,hashDirectory))
-        hashObj.Write('',ROOT.TObject.kOverwrite)
-        self.outfile.Close()
-        return False
+        else:
+            hashObj.SetTitle(newHash)
+            if not self.outfile.GetDirectory(hashDirectory): self.outfile.mkdir(hashDirectory)
+            self.outfile.cd('{0}:/{1}'.format(self.flat,hashDirectory))
+            hashObj.Write('',ROOT.TObject.kOverwrite)
+            self.outfile.Close()
+            return False
 
     def __flatten(self,selection,histName,params,**kwargs):
         '''Produce flat histograms for a given selection.'''

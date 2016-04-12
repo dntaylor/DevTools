@@ -2,11 +2,7 @@ from DevTools.Plotter.Plotter import Plotter
 
 blind = True
 
-ePlotter = Plotter(
-    inputDirectory  = 'flat/SingleElectron',
-    outputDirectory = 'plots/SingleElectron',
-    saveFileName    = 'plots.root',
-)
+ePlotter = Plotter('SingleElectron')
 
 sigMap = {
     'WZ'  : ['WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8'],

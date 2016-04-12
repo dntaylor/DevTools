@@ -213,6 +213,9 @@ selectionParams['DijetFakeRate'] = {
     'loose' : {'args': [frBaseCutLoose],        'kwargs': {'mcscalefactor': frScaleFactorLoose,  'datascalefactor': dataScaleFactor, 'directory': 'loose'}},
     'medium': {'args': [frBaseCutMedium],       'kwargs': {'mcscalefactor': frScaleFactorMedium, 'datascalefactor': dataScaleFactor, 'directory': 'medium'}},
     'tight' : {'args': [frBaseCutTight],        'kwargs': {'mcscalefactor': frScaleFactorTight,  'datascalefactor': dataScaleFactor, 'directory': 'tight'}},
+    'loose_pt20' : {'args': [frBaseCutLoose + ' && l1_pt>20'],        'kwargs': {'mcscalefactor': frScaleFactorLoose,  'datascalefactor': dataScaleFactor, 'directory': 'loose/pt20'}},
+    'medium_pt20': {'args': [frBaseCutMedium + ' && l1_pt>20'],       'kwargs': {'mcscalefactor': frScaleFactorMedium, 'datascalefactor': dataScaleFactor, 'directory': 'medium/pt20'}},
+    'tight_pt20' : {'args': [frBaseCutTight + ' && l1_pt>20'],        'kwargs': {'mcscalefactor': frScaleFactorTight,  'datascalefactor': dataScaleFactor, 'directory': 'tight/pt20'}},
 }
 
 channels = ['e','m']
@@ -228,23 +231,24 @@ ptBins = {
 
 jetPtBins = [10,15,20,25,30,35,40,45,50]
 
-for sel in ['loose','medium','tight']:
+for sel in ['loose','medium','tight','loose_pt20','medium_pt20','tight_pt20']:
     for chan in channels:
-        directory = '{0}/{1}'.format(sel,chan)
+        directory = '{0}/{1}'.format('/'.join(sel.split('_')),chan)
         name = '{0}_{1}'.format(sel,chan)
         selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
         args = selectionParams['DijetFakeRate'][name]['args']
         selectionParams['DijetFakeRate'][name]['args'][0] = args[0] + '&& channel=="{0}"'.format(chan)
         selectionParams['DijetFakeRate'][name]['kwargs']['directory'] = directory
         for jetPt in jetPtBins:
-            directory = '{0}/{1}/jetPt{2}'.format(sel,chan,jetPt)
+            directory = '{0}/{1}/jetPt{2}'.format('/'.join(sel.split('_')),chan,jetPt)
             name = '{0}_{1}_jetPt{2}'.format(sel,chan,jetPt)
             selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
             args = selectionParams['DijetFakeRate'][name]['args']
             selectionParams['DijetFakeRate'][name]['args'][0] = args[0] + '&& channel=="{0}" && leadJet_pt>{1}'.format(chan,jetPt)
             selectionParams['DijetFakeRate'][name]['kwargs']['directory'] = directory
+        if 'pt20' in sel: continue
         for eb in range(len(etaBins[chan])-1):
-            directory = '{0}/{1}/etaBin{2}'.format(sel,chan,eb)
+            directory = '{0}/{1}/etaBin{2}'.format('/'.join(sel.split('_')),chan,eb)
             name = '{0}_{1}_etaBin{2}'.format(sel,chan,eb)
             selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
             args = selectionParams['DijetFakeRate'][name]['args']
@@ -339,6 +343,15 @@ for region in fakeRegions:
     wzScaleFactorMap[region] = '*'.join([wzScaleMap[region[x]][x] for x in range(3)])
     wzFakeScaleFactorMap[region] = '*'.join(['{0}/(1-{0})'.format(wzFakeRate[f]) for f in range(3) if region[f]=='F'] + ['-1' if region.count('F')%2==0 and region.count('F')>0 else '1'])
     wzCutMap[region] = ' && '.join(['{0}=={1}'.format(wzTightVar[x],1 if region[x]=='P' else 0) for x in range(3)]+[wzBaseCut])
+# loose/medium/tight
+wzSimpleCut = 'met_pt>30 && numBjetsTight30==0 && fabs(z_mass-{0})<15 && 3l_mass>100'.format(ZMASS)
+wzSimpleCut = wzBaseCut
+wzScaleFactorMap['loose'] = '*'.join(['{0}_looseScale'.format(x) for x in ['z1','z2','w1']])
+wzCutMap['loose'] = wzSimpleCut
+wzScaleFactorMap['medium'] = '*'.join(['{0}_mediumScale'.format(x) for x in ['z1','z2','w1']])
+wzCutMap['medium'] =  ' && '.join(['{0}_passMedium==1'.format(x) for x in ['z1','z2','w1']]+[wzSimpleCut])
+wzScaleFactorMap['tight'] = '*'.join(['{0}_tightScale'.format(x) for x in ['z1','z2','w1']])
+wzCutMap['tight'] =  ' && '.join(['{0}_passTight==1'.format(x) for x in ['z1','z2','w1']]+[wzSimpleCut])
 
 selectionParams['WZ'] = {
     'default' : {'args': [wzCutMap['PPP']],       'kwargs': {'mcscalefactor': '*'.join([wzScaleFactorMap['PPP'],wzBaseScaleFactor]), 'directory': 'default'}},
@@ -354,6 +367,28 @@ for region in fakeRegions:
             'directory': region,
         }
     }
+
+leptons = ['loose','medium','tight']
+for lepton in leptons:
+    selectionParams['WZ'][lepton] = {
+        'args': [wzCutMap[lepton]],
+        'kwargs': {
+            'mccut': wzMCCut,
+            'mcscalefactor': '*'.join([wzScaleFactorMap[lepton],wzBaseScaleFactor]),
+            'directory': lepton,
+        }
+    }
+
+channels = ['eee','eem','mme','mmm']
+sels = selectionParams['WZ'].keys()
+for sel in sels:
+    for chan in channels:
+        name = '{0}_{1}'.format(sel,chan)
+        directory = chan if sel=='default' else '{0}/{1}'.format(sel,chan)
+        selectionParams['WZ'][name] = deepcopy(selectionParams['WZ'][sel])
+        args = selectionParams['WZ'][name]['args']
+        selectionParams['WZ'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
+        selectionParams['WZ'][name]['kwargs']['directory'] = directory
 
 #############
 ### hpp4l ###

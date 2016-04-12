@@ -46,14 +46,15 @@ def getLumi():
 
 
 latestNtuples = {
-    'Hpp3l'          : '2016-03-21_Hpp3lAnalysis_v1',
-    'Hpp4l'          : '2016-03-21_Hpp4lAnalysis_v1',
-    'WZ'             : '2016-03-20_WZAnalysis_v1',
-    'Electron'       : '2016-03-20_ElectronAnalysis_v2',
-    'Muon'           : '2016-03-20_MuonAnalysis_v2',
+    'Hpp3l'          : '',
+    'Hpp4l'          : '',
+    'WZ'             : '',
+    'Electron'       : '2016-04-10_ElectronAnalysis_v1-merge',
+    'Muon'           : '2016-04-10_MuonAnalysis_v1-merge',
+    'Tau'            : '2016-04-10_TauAnalysis_v1-merge',
     'SingleElectron' : '',
     'SingleMuon'     : '',
-    'DijetFakeRate'  : '2016-03-20_DijetFakeRateAnalysis_v1',
+    'DijetFakeRate'  : '',
 }
 
 def getNtupleDirectory(analysis):

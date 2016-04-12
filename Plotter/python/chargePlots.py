@@ -9,10 +9,7 @@ import ROOT
 
 logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
-chargePlotter = Plotter(
-    inputDirectory  = 'flat/Charge',
-    outputDirectory = 'plots/Charge',
-)
+chargePlotter = Plotter('Charge')
 
 chans = ['ee','mm']
 

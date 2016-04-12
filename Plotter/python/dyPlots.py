@@ -7,10 +7,7 @@ from copy import deepcopy
 
 logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
-dyPlotter = Plotter(
-    inputDirectory  = 'flat/DY',
-    outputDirectory = 'plots/DY',
-)
+dyPlotter = Plotter('DY')
 
 chans = ['ee','mm']
 

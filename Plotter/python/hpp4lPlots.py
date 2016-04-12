@@ -13,10 +13,7 @@ logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%
 
 blind = True
 
-hpp4lPlotter = Plotter(
-    inputDirectory  = 'flat/Hpp4l',
-    outputDirectory = 'plots/Hpp4l',
-)
+hpp4lPlotter = Plotter('Hpp4l')
 
 #########################
 ### Define categories ###

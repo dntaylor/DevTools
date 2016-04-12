@@ -3,11 +3,7 @@ import ROOT
 
 blind = True
 
-ePlotter = Plotter(
-    inputDirectory  = 'flat/Electron',
-    outputDirectory = 'plots/Electron',
-    saveFileName    = 'plots.root',
-)
+ePlotter = Plotter('Electron')
 
 sigMap = {
     'WZ'  : ['WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8'],

@@ -2,15 +2,15 @@ from DevTools.Plotter.Plotter import Plotter
 import ROOT
 
 sigPlotter = Plotter(
+    'Efficiency',
     inputDirectory  = 'efficiency',
     outputDirectory = 'plots/Efficiency/signal',
-    saveFileName    = 'signalEfficiencies.root',
 )
 
 effPlotter = Plotter(
+    'Efficiency',
     inputDirectory  = 'efficiency',
     outputDirectory = 'plots/Efficiency',
-    saveFileName    = 'efficiencies.root',
 )
 
 sigMap = {
