@@ -22,18 +22,18 @@ params = {
     },
     # overrides for Electron
     'Electron': {
-        'pt'               : {'variable': 'e_pt',            'binning': [200,0,1000]},
+        'pt'               : {'variable': 'e_pt',            'binning': [1000,0,1000]},
         'eta'              : {'variable': 'e_eta',           'binning': [60,-3.,3.]},
-        'dz'               : {'variable': 'e_dz',            'binning': [50,0,0.5]},
-        'dxy'              : {'variable': 'e_dxy',           'binning': [50,0,0.3]},
+        #'dz'               : {'variable': 'e_dz',            'binning': [50,0,0.5]},
+        #'dxy'              : {'variable': 'e_dxy',           'binning': [50,0,0.3]},
         'mvaTrig'          : {'variable': 'e_mvaTrigValues', 'binning': [100,-1.,1.]},
     },
     # overrides for Muon
     'Muon': {
-        'pt'               : {'variable': 'm_pt',            'binning': [200,0,1000]},
+        'pt'               : {'variable': 'm_pt',            'binning': [1000,0,1000]},
         'eta'              : {'variable': 'm_eta',           'binning': [60,-3.,3.]},
-        'dz'               : {'variable': 'm_dz',            'binning': [50,0,0.5]},
-        'dxy'              : {'variable': 'm_dxy',           'binning': [50,0,0.3]},
+        #'dz'               : {'variable': 'm_dz',            'binning': [50,0,0.5]},
+        #'dxy'              : {'variable': 'm_dxy',           'binning': [50,0,0.3]},
     },
     # overrides for DijetFakeRate
     'DijetFakeRate': {
@@ -166,8 +166,8 @@ params2D = {
     },
     # overrides for Electron
     'Electron' : {
-        'pt_v_dz' : {'xVariable': 'e_pt', 'yVariable': 'fabs(e_dz)',  'xBinning': [50,0,500], 'yBinning': [50,0,0.5]},
-        'pt_v_dxy': {'xVariable': 'e_pt', 'yVariable': 'fabs(e_dxy)', 'xBinning': [50,0,500], 'yBinning': [50,0,0.3]},
+        #'pt_v_dz' : {'xVariable': 'e_pt', 'yVariable': 'fabs(e_dz)',  'xBinning': [50,0,500], 'yBinning': [50,0,0.5]},
+        #'pt_v_dxy': {'xVariable': 'e_pt', 'yVariable': 'fabs(e_dxy)', 'xBinning': [50,0,500], 'yBinning': [50,0,0.3]},
     },
 }
 
@@ -190,13 +190,62 @@ fakeCut = '({0}_genMatch==0 || ({0}_genMatch==1 && {0}_genIsFromHadron && {0}_ge
 ### electron specific ###
 #########################
 selectionParams['Electron'] = {
-    'default'      : {'args': [promptCut.format('e')],                                       'kwargs': {'directory': 'default/prompt'}},
-    'fake'         : {'args': [fakeCut.format('e')],                                         'kwargs': {'directory': 'default/fake'}},
-    'barrel'       : {'args': [' && '.join([promptCut.format('e'),eBarrelCut.format('e')])], 'kwargs': {'directory': 'barrel/prompt'}},
-    'barrel_fake'  : {'args': [' && '.join([fakeCut.format('e'),eBarrelCut.format('e')])],   'kwargs': {'directory': 'barrel/fake'}},
-    'endcap'       : {'args': [' && '.join([promptCut.format('e'),eEndcapCut.format('e')])], 'kwargs': {'directory': 'endcap/prompt'}},
-    'edncap_fake'  : {'args': [' && '.join([fakeCut.format('e'),eEndcapCut.format('e')])],   'kwargs': {'directory': 'endcap/fake'}},
+    'default_prompt' : {'args': [promptCut.format('e')],                                       'kwargs': {'directory': 'default/prompt'}},
+    'default_fake'   : {'args': [fakeCut.format('e')],                                         'kwargs': {'directory': 'default/fake'}},
+    'barrel_prompt'  : {'args': [' && '.join([promptCut.format('e'),eBarrelCut.format('e')])], 'kwargs': {'directory': 'barrel/prompt'}},
+    'barrel_fake'    : {'args': [' && '.join([fakeCut.format('e'),eBarrelCut.format('e')])],   'kwargs': {'directory': 'barrel/fake'}},
+    'endcap_prompt'  : {'args': [' && '.join([promptCut.format('e'),eEndcapCut.format('e')])], 'kwargs': {'directory': 'endcap/prompt'}},
+    'edncap_fake'    : {'args': [' && '.join([fakeCut.format('e'),eEndcapCut.format('e')])],   'kwargs': {'directory': 'endcap/fake'}},
 }
+
+sels = selectionParams['Electron'].keys()
+idCuts = {
+    'cutBasedVeto'   : 'e_cutBasedVeto==1',
+    'cutBasedLoose'  : 'e_cutBasedLoose==1',
+    'cutBasedMedium' : 'e_cutBasedMedium==1',
+    'cutBasedTight'  : 'e_cutBasedTight==1',
+    'wwLoose'        : 'e_wwLoose==1',
+    'heepV60'        : 'e_heepV60==1',
+    'NonTrigWP80'    : 'e_mvaNonTrigWP80==1',
+    'NonTrigWP90'    : 'e_mvaNonTrigWP90==1',
+    'TrigPre'        : 'e_mvaTrigPre==1',
+    'TrigWP80'       : 'e_mvaTrigPre==1 && e_mvaTrigWP80==1',
+    'TrigWP90'       : 'e_mvaTrigPre==1 && e_mvaTrigWP90==1',
+}
+for sel in sels:
+    for idName in idCuts:
+        directory = '{0}/{1}'.format('/'.join(sel.split('_')),idName)
+        name = '{0}_{1}'.format(sel,idName)
+        selectionParams['Electron'][name] = deepcopy(selectionParams['Electron'][sel])
+        args = selectionParams['Electron'][name]['args']
+        selectionParams['Electron'][name]['args'][0] = args[0] + ' && ' + idCuts[idName]
+        selectionParams['Electron'][name]['kwargs']['directory'] = directory
+
+#####################
+### muon specific ###
+#####################
+selectionParams['Muon'] = {
+    'default_prompt' : {'args': [promptCut.format('m')],                                       'kwargs': {'directory': 'default/prompt'}},
+    'default_fake'   : {'args': [fakeCut.format('m')],                                         'kwargs': {'directory': 'default/fake'}},
+}
+
+sels = selectionParams['Muon'].keys()
+idCuts = {
+    'isLooseMuon_looseIso'   : 'm_isLooseMuon==1 && m_isolation<0.4',
+    'isMediumMuon_tightIso'  : 'm_isMediumMuon==1 && m_isolation<0.15',
+    'isTightMuon_tightIso'   : 'm_isTightMuon==1 && m_isolation<0.15',
+    'isHighPtMuon_tightIso'  : 'm_isHighPtMuon==1 && m_isolation<0.15',
+    'wzLooseMuon'   : 'm_isMediumMuon==1 && m_trackRelIso<0.4 && m_isolation<0.4',
+    'wzMediumMuon'  : 'm_isMediumMuon==1 && m_trackRelIso<0.4 && m_isolation<0.15 && m_dz<0.1 && (m_pt<20 ? m_dxy<0.01 : m_dxy<0.02)',
+}
+for sel in sels:
+    for idName in idCuts:
+        directory = '{0}/{1}'.format('/'.join(sel.split('_')),idName)
+        name = '{0}_{1}'.format(sel,idName)
+        selectionParams['Muon'][name] = deepcopy(selectionParams['Muon'][sel])
+        args = selectionParams['Muon'][name]['args']
+        selectionParams['Muon'][name]['args'][0] = args[0] + ' && ' + idCuts[idName]
+        selectionParams['Muon'][name]['kwargs']['directory'] = directory
 
 ##############################
 ### DijetFakeRate specific ###
@@ -400,7 +449,7 @@ hpp4lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hmm1_mediumScale*hmm2_medi
 selectionParams['Hpp4l'] = {
     'default'   : {'args': [hpp4lBaseCut],                           'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'default'}},
     'lowmass'   : {'args': [hpp4lLowMassControl],                    'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'lowmass'}},
-    'matchSign' : {'args': [hpp4lBaseCut + ' && ' + hpp4lMatchSign], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'matchSign'}},
+    #'matchSign' : {'args': [hpp4lBaseCut + ' && ' + hpp4lMatchSign], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'matchSign'}},
 }
 
 masses = [200,300,400,500,600,700,800,900,1000]

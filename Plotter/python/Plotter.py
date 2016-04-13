@@ -594,12 +594,12 @@ class Plotter(PlotterBase):
     def plotRatio(self,numerator,denominator,savename,**kwargs):
         '''Plot a ratio of two variables and save'''
         xaxis = kwargs.pop('xaxis', 'Variable')
-        yaxis = kwargs.pop('yaxis', 'Events')
+        yaxis = kwargs.pop('yaxis', 'Efficiency')
         ymin = kwargs.pop('ymin',None)
         ymax = kwargs.pop('ymax',None)
         yscale = kwargs.pop('yscale',1.2)
         numcol = kwargs.pop('numcol',1)
-        legendpos = kwargs.pop('legendpos',33)
+        legendpos = kwargs.pop('legendpos',34)
         logy = kwargs.pop('logy',False)
         logx = kwargs.pop('logx',False)
         customOrder = kwargs.pop('customOrder',[])

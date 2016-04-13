@@ -461,21 +461,20 @@ class AnalysisBase(object):
         self.addCandVar(label,'energy','energy','F')
         self.addCandVar(label,'charge','charge','I')
         self.addCandVar(label,'dz','dz','F')
-        #self.addCandVar(label,'dxy','dxy','F')
-        self.addFlavorDependentCandVar(label,'dxy',{'electrons':'dB2D','muons':'dB2D','taus':'dxy','':''},'F')
-        self.addCandVar(label,'genMatch','genMatch','I')
-        self.tree.add(lambda rtrow,cands: self.genDeltaR(rtrow,cands[label]), '{0}_genDeltaR'.format(label), 'F')
-        self.addCandVar(label,'genStatus','genStatus','I')
-        self.addCandVar(label,'genPdgId','genPdgId','I')
-        self.addCandVar(label,'genPt','genPt','F')
-        self.addCandVar(label,'genEta','genEta','F')
-        self.addCandVar(label,'genPhi','genPhi','F')
-        self.addCandVar(label,'genEnergy','genEnergy','F')
-        self.addCandVar(label,'genCharge','genCharge','I')
-        self.addCandVar(label,'genIsPrompt','genIsPrompt','I')
-        self.addCandVar(label,'genIsFromTau','genIsFromTau','I')
-        self.addCandVar(label,'genIsFromHadron','genIsFromHadron','I')
+        self.addFlavorDependentCandVar(label,'dxy',      {'electrons':'dB2D',          'muons':'dB2D', 'taus':'dxy',  '':''},'F')
         self.addFlavorDependentCandVar(label,'isolation',{'electrons':'relPFIsoRhoR03','muons':'relPFIsoDeltaBetaR04','':''},'F')
+        self.addFlavorDependentCandVar(label,'genMatch',       {'electrons':'genMatch',       'muons':'genMatch',  'taus':'genJetMatch', '':''},'I')
+        self.tree.add(lambda rtrow,cands: self.genDeltaR(rtrow,cands[label]) if cands[label][0] in ['electrons','muons'] else self.genJetDeltaR(rtrow,cands[label]), '{0}_genDeltaR'.format(label), 'F')
+        self.addFlavorDependentCandVar(label,'genStatus',      {'electrons':'genStatus',      'muons':'genStatus', 'taus':'genJetStatus','':''},'I')
+        self.addFlavorDependentCandVar(label,'genPdgId',       {'electrons':'genPdgId',       'muons':'genPdgId',  'taus':'genJetPdgId', '':''},'I')
+        self.addFlavorDependentCandVar(label,'genPt',          {'electrons':'genPt',          'muons':'genPt',     'taus':'genJetPt',    '':''},'F')
+        self.addFlavorDependentCandVar(label,'genEta',         {'electrons':'genEta',         'muons':'genEta',    'taus':'genJetEta',   '':''},'F')
+        self.addFlavorDependentCandVar(label,'genPhi',         {'electrons':'genPhi',         'muons':'genPhi',    'taus':'genJetPhi',   '':''},'F')
+        self.addFlavorDependentCandVar(label,'genEnergy',      {'electrons':'genEnergy',      'muons':'genEnergy', 'taus':'genJetEnergy','':''},'F')
+        self.addFlavorDependentCandVar(label,'genCharge',      {'electrons':'genCharge',      'muons':'genCharge', 'taus':'genJetCharge','':''},'I')
+        self.addFlavorDependentCandVar(label,'genIsPrompt',    {'electrons':'genIsPrompt',    'muons':'genIsPrompt',    '':''},'I')
+        self.addFlavorDependentCandVar(label,'genIsFromTau',   {'electrons':'genIsFromTau',   'muons':'genIsFromTau',   '':''},'I')
+        self.addFlavorDependentCandVar(label,'genIsFromHadron',{'electrons':'genIsFromHadron','muons':'genIsFromHadron','':''},'I')
 
     def genDeltaR(self,rtrow,cand):
         '''Get the gen level deltaR'''
@@ -483,6 +482,14 @@ class AnalysisBase(object):
         genEta = self.getObjectVariable(rtrow,cand,'genEta')
         phi = self.getObjectVariable(rtrow,cand,'phi')
         genPhi = self.getObjectVariable(rtrow,cand,'genPhi')
+        return deltaR(eta,phi,genEta,genPhi)
+
+    def genJetDeltaR(self,rtrow,cand):
+        '''Get the gen level deltaR'''
+        eta = self.getObjectVariable(rtrow,cand,'eta')
+        genEta = self.getObjectVariable(rtrow,cand,'genJetEta')
+        phi = self.getObjectVariable(rtrow,cand,'phi')
+        genPhi = self.getObjectVariable(rtrow,cand,'genJetPhi')
         return deltaR(eta,phi,genEta,genPhi)
 
     def addCandVar(self,label,varLabel,var,rootType):
