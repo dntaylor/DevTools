@@ -121,12 +121,13 @@ for jetPt in jetPts:
     name = 'jetPt{0}'.format(jetPt)
     dijetFakeRatePlotter.addHistogram(name,sigMap['data'],style={'linecolor':jetPtColors[jetPt],'linestyle':3,'name':'Jet p_{{T}} > {0} GeV'.format(jetPt)})
 # add the z + tt samples from WZ
-dijetFakeRatePlotter.addHistogram('dataWZ',sigMap['data'],style={'linecolor':ROOT.kBlue,'linestyle':1,'name':'Data (WZ)'},analysis='WZ')
-dijetFakeRatePlotter.addHistogram('mcWZ',sigMap['Z']+sigMap['TT'],style={'name':'MC (WZ)'},analysis='WZ')
+dijetFakeRatePlotter.addHistogram('dataDY',sigMap['data'],style={'linecolor':ROOT.kBlue,'linestyle':1,'name':'Data (DY)'},analysis='WZ')
+#dijetFakeRatePlotter.addHistogram('dataTT',sigMap['data'],style={'linecolor':ROOT.kGreen,'linestyle':1,'name':'Data (TT)'},analysis='WZ')
 
 
+ptbins = [0,20,25,30,40,60]
 jet_cust = {
-    'pt'      : {'yaxis': 'Events/10 GeV', 'rebin': 10, 'rangex': [0,100]},
+    'pt'      : {'yaxis': 'Unit Normalized', 'rebin': 5, 'rangex': [0,60], 'logy': 0},
 }
 
 ptVarMap = {
@@ -135,24 +136,45 @@ ptVarMap = {
     2 : 'wLeptonPt',
 }
 
+leptonBin = {
+    'e' : {
+        0 : ['eee','eem'],
+        1 : ['eee','eem'],
+        2 : ['eee','mme'],
+    },
+    'm' : {
+        0 : ['mme','mmm'],
+        1 : ['mme','mmm'],
+        2 : ['eem','mmm'],
+    },
+}
+
 for plot in ['pt']:
     kwargs = deepcopy(plots[plot])
     if plot in jet_cust: kwargs.update(jet_cust[plot])
-    for lepton in ['loose','medium','tight']:
+    for lepton in ['loose']:
         for chan in chans:
             plotname = {}
             for jetPt in jetPts:
-                plotname['jetPt{0}'.format(jetPt)] = '{0}/pt20/{1}/jetPt{2}/{3}'.format(lepton,chan,jetPt,plot)
-            if chan == 'e':
-                #ptvars = ['{0}/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [('eee',0),('eee',1),('eee',2),('eem',0),('eem',1),('mme',2)]]
-                ptvars = ['{0}/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [('eee',2),('mme',2)]]
-            else:
-                #ptvars = ['{0}/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [('mme',0),('mme',1),('eem',2),('mmm',0),('mmm',1),('mmm',2)]]
-                ptvars = ['{0}/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [('eem',2),('mmm',2)]]
-            plotname['dataWZ'] = ptvars
-            plotname['mcWZ'] = ptvars
+                #plotname['jetPt{0}'.format(jetPt)] = '{0}/pt20/{1}/jetPt{2}/{3}'.format(lepton,chan,jetPt,plot)
+                plotname['jetPt{0}'.format(jetPt)] = '{0}/{1}/jetPt{2}/{3}'.format(lepton,chan,jetPt,plot)
+            dyvars = ['dy/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [(c,i) for i in range(3) for c in leptonBin[chan][i]]]
+            ttvars = ['tt/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [(c,i) for i in range(3) for c in leptonBin[chan][i]]]
+            plotname['dataDY'] = dyvars
+            #plotname['dataTT'] = ttvars
             savename = '{0}/{1}/allJetPts_{2}'.format(lepton,chan,plot)
             dijetFakeRatePlotter.plotNormalized(plotname,savename,legendpos=34,numcol=2,**kwargs)
+            for lepBin in range(3):
+                plotname = {}
+                for jetPt in jetPts:
+                    #plotname['jetPt{0}'.format(jetPt)] = '{0}/pt20/{1}/jetPt{2}/{3}'.format(lepton,chan,jetPt,plot)
+                    plotname['jetPt{0}'.format(jetPt)] = '{0}/{1}/jetPt{2}/{3}'.format(lepton,chan,jetPt,plot)
+                dyvars = ['dy/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [(c,lepBin) for c in leptonBin[chan][lepBin]]]
+                ttvars = ['tt/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [(c,lepBin) for c in leptonBin[chan][lepBin]]]
+                plotname['dataDY'] = dyvars
+                #plotname['dataTT'] = ttvars
+                savename = '{0}/{1}/allJetPts_{2}_{3}'.format(lepton,chan,plot,lepBin)
+                dijetFakeRatePlotter.plotNormalized(plotname,savename,legendpos=34,numcol=2,**kwargs)
 
 # ratios of tight/loose as func of pt/eta
 dijetFakeRatePlotter.clearHistograms()

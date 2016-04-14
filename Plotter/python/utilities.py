@@ -51,7 +51,7 @@ latestNtuples = {
     'WZ'             : '',
     'Electron'       : '2016-04-10_ElectronAnalysis_v1-merge',
     'Muon'           : '2016-04-10_MuonAnalysis_v1-merge',
-    'Tau'            : '2016-04-10_TauAnalysis_v1-merge',
+    'Tau'            : '2016-04-13_TauAnalysis_v1-merge',
     'SingleElectron' : '',
     'SingleMuon'     : '',
     'DijetFakeRate'  : '',
