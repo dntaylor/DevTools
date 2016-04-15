@@ -35,6 +35,13 @@ params = {
         #'dz'               : {'variable': 'm_dz',            'binning': [50,0,0.5]},
         #'dxy'              : {'variable': 'm_dxy',           'binning': [50,0,0.3]},
     },
+    # overrides for Tau
+    'Tau': {
+        'pt'               : {'variable': 't_pt',            'binning': [1000,0,1000]},
+        'eta'              : {'variable': 't_eta',           'binning': [60,-3.,3.]},
+        #'dz'               : {'variable': 't_dz',            'binning': [50,0,0.5]},
+        #'dxy'              : {'variable': 't_dxy',           'binning': [50,0,0.3]},
+    },
     # overrides for DijetFakeRate
     'DijetFakeRate': {
         'pt'               : {'variable': 'l1_pt',   'binning': [2000,0,2000]},
@@ -231,12 +238,12 @@ selectionParams['Muon'] = {
 
 sels = selectionParams['Muon'].keys()
 idCuts = {
-    'isLooseMuon_looseIso'   : 'm_isLooseMuon==1 && m_isolation<0.4',
-    'isMediumMuon_tightIso'  : 'm_isMediumMuon==1 && m_isolation<0.15',
-    'isTightMuon_tightIso'   : 'm_isTightMuon==1 && m_isolation<0.15',
-    'isHighPtMuon_tightIso'  : 'm_isHighPtMuon==1 && m_isolation<0.15',
-    'wzLooseMuon'   : 'm_isMediumMuon==1 && m_trackRelIso<0.4 && m_isolation<0.4',
-    'wzMediumMuon'  : 'm_isMediumMuon==1 && m_trackRelIso<0.4 && m_isolation<0.15 && m_dz<0.1 && (m_pt<20 ? m_dxy<0.01 : m_dxy<0.02)',
+    'isLooseMuon_looseIso'  : 'm_isLooseMuon==1 && m_isolation<0.4',
+    'isMediumMuon_tightIso' : 'm_isMediumMuon==1 && m_isolation<0.15',
+    'isTightMuon_tightIso'  : 'm_isTightMuon==1 && m_isolation<0.15',
+    'isHighPtMuon_tightIso' : 'm_isHighPtMuon==1 && m_isolation<0.15',
+    'wzLooseMuon'           : 'm_isMediumMuon==1 && m_trackRelIso<0.4 && m_isolation<0.4',
+    'wzMediumMuon'          : 'm_isMediumMuon==1 && m_trackRelIso<0.4 && m_isolation<0.15 && m_dz<0.1 && (m_pt<20 ? m_dxy<0.01 : m_dxy<0.02)',
 }
 for sel in sels:
     for idName in idCuts:
@@ -246,6 +253,54 @@ for sel in sels:
         args = selectionParams['Muon'][name]['args']
         selectionParams['Muon'][name]['args'][0] = args[0] + ' && ' + idCuts[idName]
         selectionParams['Muon'][name]['kwargs']['directory'] = directory
+
+####################
+### tau specific ###
+####################
+selectionParams['Tau'] = {
+    'default_prompt' : {'args': [promptCut.format('t')],                                       'kwargs': {'directory': 'default/prompt'}},
+    'default_fake'   : {'args': [fakeCut.format('t')],                                         'kwargs': {'directory': 'default/fake'}},
+}
+
+sels = selectionParams['Tau'].keys()
+againstElectron = {
+    'vloose': 't_againstElectronVLooseMVA6==1',
+    'loose' : 't_againstElectronLooseMVA6==1',
+    'medium': 't_againstElectronMediumMVA6==1',
+    'tight' : 't_againstElectronTightMVA6==1',
+    'vtight': 't_againstElectronVTightMVA6==1',
+}
+againstMuon = {
+    'loose' : 't_againstMuonLoose3==1',
+    'tight' : 't_againstMuonTight3==1',
+}
+oldId = 't_decayModeFinding==1'
+oldIsolation = {
+    'loose' : 't_byLooseIsolationMVArun2v1DBoldDMwLT==1',
+    'medium': 't_byMediumIsolationMVArun2v1DBoldDMwLT==1',
+    'tight' : 't_byTightIsolationMVArun2v1DBoldDMwLT==1',
+    'vtight': 't_byVTightIsolationMVArun2v1DBoldDMwLT==1',
+}
+idCuts = {}
+cutLists = [
+    ('vloose','loose','loose'),
+    ('vloose','loose','tight'),
+    ('vloose','loose','vtight'),
+    ('tight','tight','loose'),
+    ('tight','tight','tight'),
+    ('tight','tight','vtight'),
+]
+for cl in cutLists:
+    idCuts['old_{0}Electron_{1}Muon_{2}Isolation'.format(*cl)] = ' && '.join([oldId, againstElectron[cl[0]], againstMuon[cl[1]], oldIsolation[cl[2]]])
+
+for sel in sels:
+    for idName in idCuts:
+        directory = '{0}/{1}'.format('/'.join(sel.split('_')),idName)
+        name = '{0}_{1}'.format(sel,idName)
+        selectionParams['Tau'][name] = deepcopy(selectionParams['Tau'][sel])
+        args = selectionParams['Tau'][name]['args']
+        selectionParams['Tau'][name]['args'][0] = args[0] + ' && ' + idCuts[idName]
+        selectionParams['Tau'][name]['kwargs']['directory'] = directory
 
 ##############################
 ### DijetFakeRate specific ###

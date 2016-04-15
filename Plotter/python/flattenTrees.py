@@ -78,7 +78,7 @@ def getSelectedHistSelections(analysis,sels,sample):
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Flatten Tree')
 
-    parser.add_argument('analysis', type=str, choices=['WZ','DY','Charge','Hpp3l','Hpp4l','SingleElectron','SingleMuon','Electron','Muon', 'DijetFakeRate'], help='Analysis to process')
+    parser.add_argument('analysis', type=str, choices=['WZ','DY','Charge','Hpp3l','Hpp4l','SingleElectron','SingleMuon','Electron','Muon','Tau','DijetFakeRate'], help='Analysis to process')
     parser.add_argument('--samples', nargs='+', type=str, default=['*'], help='Samples to flatten. Supports unix style wildcards.')
     parser.add_argument('--hists', nargs='+', type=str, default=['all'], help='Histograms to flatten.')
     parser.add_argument('--selections', nargs='+', type=str, default=['all'], help='Selections to flatten.')
