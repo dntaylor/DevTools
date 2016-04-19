@@ -74,6 +74,8 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hpp1']), 'hpp1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hpp1']), 'hpp1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hpp1']), 'hpp1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['hpp1']), 'hpp1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['hpp1']), 'hpp1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp1']), 'hpp1_zeppenfeld','F')
         self.addLepton('hpp2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hpp2']), 'hpp2_passMedium', 'I')
@@ -81,6 +83,8 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hpp2']), 'hpp2_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hpp2']), 'hpp2_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hpp2']), 'hpp2_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['hpp2']), 'hpp2_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['hpp2']), 'hpp2_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp2']), 'hpp2_zeppenfeld','F')
 
         # hmm leptons
@@ -93,6 +97,8 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hmm1']), 'hmm1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hmm1']), 'hmm1_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hmm1']), 'hmm1_zeppenfeld','F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['hmm1']), 'hmm1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['hmm1']), 'hmm1_tightFakeRate', 'F')
         self.addLepton('hmm2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hmm2']), 'hmm2_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['hmm2']), 'hmm2_passTight', 'I')
@@ -100,6 +106,8 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hmm2']), 'hmm2_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hmm2']), 'hmm2_tightScale', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hmm2']), 'hmm2_zeppenfeld','F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['hmm2']), 'hmm2_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['hmm2']), 'hmm2_tightFakeRate', 'F')
 
         # wrong combination
         self.addDiLepton('hmm1_hpp1','hmm1','hpp1')
@@ -116,6 +124,8 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z1']), 'z1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z1']), 'z1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z1']), 'z1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['z1']), 'z1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['z1']), 'z1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1']), 'z1_zeppenfeld','F')
         self.addLepton('z2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z2']), 'z2_passMedium', 'I')
@@ -123,6 +133,8 @@ class Hpp4lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z2']), 'z2_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z2']), 'z2_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z2']), 'z2_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['z2']), 'z2_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['z2']), 'z2_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z2']), 'z2_zeppenfeld','F')
 
         # met
@@ -258,6 +270,12 @@ class Hpp4lAnalysis(AnalysisBase):
             return self.leptonScales.getScale(rtrow,'CutbasedTight',cand)
         else:
             return 1.
+
+    def mediumFakeRate(self,rtrow,cand):
+        return self.fakeRates.getFakeRate(rtrow,cand,'WZMedium','WZLoose')
+
+    def tightFakeRate(self,rtrow,cand):
+        return self.fakeRates.getFakeRate(rtrow,cand,'WZTight','WZLoose')
 
     def getPassingCands(self,rtrow,mode):
         if mode=='Loose':

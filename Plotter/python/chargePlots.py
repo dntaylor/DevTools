@@ -11,6 +11,7 @@ logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%
 
 chargePlotter = Plotter('Charge')
 
+#chans = ['ee','mm','tt']
 chans = ['ee','mm']
 
 labelMap = {
@@ -19,6 +20,7 @@ labelMap = {
     't': '#tau',
 }
 chanLabels = [''.join([labelMap[c] for c in chan]) for chan in chans]
+#chanLabels[-1] = '#tau_{#mu}#tau_{h}'
 
 sigMap = {
     'WZ'  : [

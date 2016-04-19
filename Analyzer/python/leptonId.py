@@ -85,13 +85,13 @@ def passHppLoose(self,rtrow,cand):
         return passWZLoose(self,rtrow,cand)
     elif cand[0]=='taus':
         decayModeFinding = self.getObjectVariable(rtrow,cand,'decayModeFinding')
-        againstMuonTight3 = self.getObjectVariable(rtrow,cand,'againstMuonTight3')
-        againstElectronTightMVA6 = self.getObjectVariable(rtrow,cand,'againstElectronTightMVA6')
-        byVTightIsolationMVArun2v1DBoldDMwLT = self.getObjectVariable(rtrow,cand,'byVTightIsolationMVArun2v1DBoldDMwLT')
+        againstMuonLoose3 = self.getObjectVariable(rtrow,cand,'againstMuonLoose3')
+        againstElectronVLooseMVA6 = self.getObjectVariable(rtrow,cand,'againstElectronVLooseMVA6')
+        byLooseIsolationMVArun2v1DBoldDMwLT = self.getObjectVariable(rtrow,cand,'byLooseIsolationMVArun2v1DBoldDMwLT')
         return (decayModeFinding>0.5
-                and againstMuonTight3>0.5
-                and againstElectronTightMVA6>0.5
-                and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
+                and againstMuonLoose3>0.5
+                and againstElectronVLooseMVA6>0.5
+                and byLooseIsolationMVArun2v1DBoldDMwLT>0.5)
     else:
         return False
 

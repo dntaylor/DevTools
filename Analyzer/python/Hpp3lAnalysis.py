@@ -75,6 +75,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hpp1']), 'hpp1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hpp1']), 'hpp1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hpp1']), 'hpp1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['hpp1']), 'hpp1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['hpp1']), 'hpp1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp1']), 'hpp1_zeppenfeld','F')
         self.addLepton('hpp2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hpp2']), 'hpp2_passMedium', 'I')
@@ -82,6 +84,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hpp2']), 'hpp2_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hpp2']), 'hpp2_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hpp2']), 'hpp2_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['hpp2']), 'hpp2_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['hpp2']), 'hpp2_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp2']), 'hpp2_zeppenfeld','F')
 
         # hm lepton
@@ -92,6 +96,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hm1']), 'hm1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hm1']), 'hm1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hm1']), 'hm1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['hm1']), 'hm1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['hm1']), 'hm1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hm1']), 'hm1_zeppenfeld','F')
 
         # wrong combination
@@ -107,6 +113,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z1']), 'z1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z1']), 'z1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z1']), 'z1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['z1']), 'z1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['z1']), 'z1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1']), 'z1_zeppenfeld','F')
         self.addLepton('z2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z2']), 'z2_passMedium', 'I')
@@ -124,6 +132,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['w1']), 'w1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['w1']), 'w1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['w1']), 'w1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['w1']), 'w1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['w1']), 'w1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['w1']), 'w1_zeppenfeld','F')
 
         # wrong combination
@@ -265,6 +275,12 @@ class Hpp3lAnalysis(AnalysisBase):
             return self.leptonScales.getScale(rtrow,'CutbasedTight',cand)
         else:
             return 1.
+
+    def mediumFakeRate(self,rtrow,cand):
+        return self.fakeRates.getFakeRate(rtrow,cand,'WZMedium','WZLoose')
+
+    def tightFakeRate(self,rtrow,cand):
+        return self.fakeRates.getFakeRate(rtrow,cand,'WZTight','WZLoose')
 
     def getPassingCands(self,rtrow,mode):
         if mode=='Loose':

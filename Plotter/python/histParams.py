@@ -190,8 +190,10 @@ sampleSelectionParams = {}
 eBarrelCut = 'fabs({0}_eta)<1.479'
 eEndcapCut = 'fabs({0}_eta)>1.479'
 promptCut = '{0}_genMatch==1 && {0}_genIsPrompt==1 && {0}_genDeltaR<0.1'
+promptTauCut = '{0}_genMatch==1 && {0}_genDeltaR<0.1'
 genStatusOneCut = '{0}_genMatch==1 && {0}_genStatus==1 && {0}_genDeltaR<0.1'
 fakeCut = '({0}_genMatch==0 || ({0}_genMatch==1 && {0}_genIsFromHadron && {0}_genDeltaR<0.1))'
+fakeTauCut = '{0}_genMatch==0'
 
 #########################
 ### electron specific ###
@@ -258,8 +260,8 @@ for sel in sels:
 ### tau specific ###
 ####################
 selectionParams['Tau'] = {
-    'default_prompt' : {'args': [promptCut.format('t')],                                       'kwargs': {'directory': 'default/prompt'}},
-    'default_fake'   : {'args': [fakeCut.format('t')],                                         'kwargs': {'directory': 'default/fake'}},
+    'default_prompt' : {'args': [promptTauCut.format('t')],                                       'kwargs': {'directory': 'default/prompt'}},
+    'default_fake'   : {'args': [fakeTauCut.format('t')],                                         'kwargs': {'directory': 'default/fake'}},
 }
 
 sels = selectionParams['Tau'].keys()
@@ -383,24 +385,32 @@ for sel in ['default']:
 #######################
 ### Charge specific ###
 #######################
-chargeBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && fabs(z_mass-{0})<10. && z1_pt>20. && z2_pt>10.'.format(ZMASS)
-chargeOS = '{0} && z1_charge!=z2_charge'.format(chargeBaseCut)
-chargeSS = '{0} && z1_charge==z2_charge'.format(chargeBaseCut)
+chargeBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && z1_pt>20. && z2_pt>10.'
+OS = 'z1_charge!=z2_charge'
+SS = 'z1_charge==z2_charge'
+chargeOS = '{0} && {1}'.format(chargeBaseCut,OS)
+chargeSS = '{0} && {1}'.format(chargeBaseCut,SS)
+emZMassCut = 'fabs(z_mass-{1})<10.'.format(chargeBaseCut,ZMASS)
+tZMassCut = 'fabs(z_mass-60)<20.'.format(chargeBaseCut)
 chargeScaleFactor = 'z1_mediumScale*z2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Charge'] = {
     'OS' : {'args': [chargeOS],        'kwargs': {'mcscalefactor': chargeScaleFactor, 'directory': 'OS'}},
     'SS' : {'args': [chargeSS],        'kwargs': {'mcscalefactor': chargeScaleFactor, 'directory': 'SS'}},
 }
 
-channels = ['ee','mm']
+channelMap = {
+    'ee': ['ee'],
+    'mm': ['mm'],
+    'tt': ['mt','tm'],
+}
 
 for sel in ['OS','SS']:
-    for chan in channels:
+    for chan in channelMap:
         directory = '{0}/{1}'.format(sel,chan)
         name = '{0}_{1}'.format(sel,chan)
         selectionParams['Charge'][name] = deepcopy(selectionParams['Charge'][sel])
         args = selectionParams['Charge'][name]['args']
-        selectionParams['Charge'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
+        selectionParams['Charge'][name]['args'][0] = args[0] + '&& {0} && ({1})'.format(tZMassCut if chan=='tt' else emZMassCut,' || '.join('channel=="{0}"'.format(c) for c in channelMap[chan]))
         selectionParams['Charge'][name]['kwargs']['directory'] = directory
 
 #########################
@@ -496,8 +506,8 @@ for sel in sels:
 #############
 ### hpp4l ###
 #############
-hpp4lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hmm1_passMedium==1 && hmm2_passMedium==1'
-hpp4lLowMassControl = '{0} && hpp_mass<170 && hmm_mass<170'.format(hpp4lBaseCut)
+hpp4lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hmm1_passMedium==1 && hmm2_passMedium==1 && hpp_deltaR>0.02 && hmm_deltaR>0.02'
+hpp4lLowMassControl = '{0} && (hpp_mass<100 || hmm_mass<100)'.format(hpp4lBaseCut)
 hpp4lMatchSign = 'hpp1_genCharge==hpp1_charge && hpp2_genCharge==hpp2_charge && hmm1_genCharge==hmm1_charge && hmm2_genCharge==hmm2_charge'
 hpp4lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hmm1_mediumScale*hmm2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Hpp4l'] = {
@@ -515,7 +525,7 @@ for mass in masses:
     selectionParams['Hpp4l']['old_{0}'.format(mass)] = {'args': [hpp4lOldSelections[mass]], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'old/{0}'.format(mass), 'countOnly': True}}
 
 # setup reco channel selections
-channels = getChannels('Hpp4')
+channels = getChannels('Hpp4l')
 
 sels = selectionParams['Hpp4l'].keys()
 for sel in sels:
@@ -560,8 +570,8 @@ for mass in masses:
 #############
 ### hpp3l ###
 #############
-hpp3lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hm1_passMedium==1'
-hpp3lLowMassControl = '{0} && hpp_mass<170 && hm_mass<170'.format(hpp3lBaseCut)
+hpp3lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hm1_passMedium==1 && hpp_deltaR>0.02'
+hpp3lLowMassControl = '{0} && hpp_mass<100'.format(hpp3lBaseCut)
 hpp3lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hm1_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Hpp3l'] = {
     'default' : {'args': [hpp3lBaseCut],        'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'directory': 'default'}},

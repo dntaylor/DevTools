@@ -478,6 +478,7 @@ class AnalysisBase(object):
 
     def genDeltaR(self,rtrow,cand):
         '''Get the gen level deltaR'''
+        if self.getObjectVariable(rtrow,cand,'genMatch')==0: return 0.
         eta = self.getObjectVariable(rtrow,cand,'eta')
         genEta = self.getObjectVariable(rtrow,cand,'genEta')
         phi = self.getObjectVariable(rtrow,cand,'phi')
@@ -486,6 +487,7 @@ class AnalysisBase(object):
 
     def genJetDeltaR(self,rtrow,cand):
         '''Get the gen level deltaR'''
+        if self.getObjectVariable(rtrow,cand,'genJetMatch')==0: return 0.
         eta = self.getObjectVariable(rtrow,cand,'eta')
         genEta = self.getObjectVariable(rtrow,cand,'genJetEta')
         phi = self.getObjectVariable(rtrow,cand,'phi')

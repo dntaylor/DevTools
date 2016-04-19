@@ -3,7 +3,7 @@
 
 from AnalysisBase import AnalysisBase
 from utilities import ZMASS, deltaPhi, deltaR
-from leptonId import passWZLoose, passWZMedium, passWZTight
+from leptonId import passWZLoose, passWZMedium, passWZTight, passHppLoose, passHppMedium, passHppTight
 
 import itertools
 import operator
@@ -39,6 +39,9 @@ class ChargeAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passLoose)), 'numLooseMuons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passMedium)), 'numMediumMuons', 'I')
         self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passTight)), 'numTightMuons', 'I')
+        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'taus',self.passLoose)), 'numLooseTaus', 'I')
+        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'taus',self.passMedium)), 'numMediumTaus', 'I')
+        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'taus',self.passTight)), 'numTightTaus', 'I')
 
         # trigger
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ', 'I')
@@ -78,7 +81,7 @@ class ChargeAnalysis(AnalysisBase):
         }
 
         # get leptons
-        colls = ['electrons','muons']
+        colls = ['electrons','muons','taus']
         pts = {}
         p4s = {}
         charges = {}
@@ -93,17 +96,26 @@ class ChargeAnalysis(AnalysisBase):
 
         # get invariant masses
         massDiffs = {}
+        sts = {}
         for zpair in itertools.combinations(pts.keys(),2):
+            # require ee, mm, or mt
+            candFlavors = [zpair[0][0],zpair[1][0]]
+            skip = True
+            if candFlavors.count('electrons')==2: skip = False
+            if candFlavors.count('muons')==2: skip = False
+            if candFlavors.count('muons')==1 and candFlavors.count('taus')==1: skip = False
+            if skip: continue
             #if zpair[0][0]!=zpair[1][0]: continue # SF
             #if charges[zpair[0]]==charges[zpair[1]]: continue # OS
             zp4 = p4s[zpair[0]] + p4s[zpair[1]]
             zmass = zp4.M()
             massDiffs[zpair] = abs(zmass-ZMASS)
+            sts[zpair] = pts[zpair[0]] + pts[zpair[1]]
 
-        if not massDiffs: return candidate # need a z candidate
+        if not sts: return candidate # need a z candidate
 
-        # sort by closest z
-        bestZ = sorted(massDiffs.items(), key=operator.itemgetter(1))[0][0]
+        # sort by highest pt pair
+        bestZ = sorted(sts.items(), key=operator.itemgetter(1))[-1][0]
 
         # now get the highest pt w
         zpts = {}
@@ -125,13 +137,13 @@ class ChargeAnalysis(AnalysisBase):
     ### lepton id ###
     #################
     def passLoose(self,rtrow,cand):
-        return passWZLoose(self,rtrow,cand)
+        return passHppLoose(self,rtrow,cand)
 
     def passMedium(self,rtrow,cand):
-        return passWZMedium(self,rtrow,cand)
+        return passHppMedium(self,rtrow,cand)
 
     def passTight(self,rtrow,cand):
-        return passWZTight(self,rtrow,cand)
+        return passHppTight(self,rtrow,cand)
 
     def looseScale(self,rtrow,cand):
         if cand[0]=='muons':
@@ -167,7 +179,7 @@ class ChargeAnalysis(AnalysisBase):
         else:
             return []
         cands = []
-        for coll in ['electrons','muons']:
+        for coll in ['electrons','muons','taus']:
             cands += self.getCands(rtrow,coll,passMode)
         return cands
 
