@@ -5,6 +5,7 @@ from AnalysisBase import AnalysisBase
 from utilities import ZMASS, deltaPhi, deltaR
 from leptonId import passWZLoose, passWZMedium, passWZTight, passHppLoose, passHppMedium, passHppTight
 
+import sys
 import itertools
 import operator
 
@@ -158,6 +159,8 @@ class Hpp4lAnalysis(AnalysisBase):
         # get leptons
         colls = ['electrons','muons','taus']
         pts = {}
+        etas = {}
+        phis = {}
         p4s = {}
         charges = {}
         leps = []
@@ -168,14 +171,20 @@ class Hpp4lAnalysis(AnalysisBase):
 
         for cand in leps:
             pts[cand] = self.getObjectVariable(rtrow,cand,'pt')
+            etas[cand] = self.getObjectVariable(rtrow,cand,'eta')
+            phis[cand] = self.getObjectVariable(rtrow,cand,'phi')
             p4s[cand] = self.getObjectVariable(rtrow,cand,'p4')
             charges[cand] = self.getObjectVariable(rtrow,cand,'charge')
 
         # get the candidates
         hppCands = []
         for quad in itertools.permutations(leps,4):
+            # require ++--
             if charges[quad[0]]+charges[quad[1]]!=2: continue
             if charges[quad[2]]+charges[quad[3]]!=-2: continue
+            # require deltaR seperation of 0.02
+            for i,j in itertools.combinations(range(4),2):
+                if deltaR(etas[quad[i]],phis[quad[i]],etas[quad[j]],phis[quad[j]])<0.02: continue
             hppCands += [quad]
         if not hppCands: return candidate
 
