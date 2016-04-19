@@ -4,6 +4,7 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "CommonTools/Utils/interface/StringObjectFunction.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
