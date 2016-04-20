@@ -5,5 +5,5 @@ if [ "$1" == "" ]; then
 else
     NAME="$1"
 fi
-submit_job.py crabSubmit --sampleList DevTools/TagAndProbe/data/datasetList_MC.txt "$DATE"_"$NAME" DevTools/TagAndProbe/test/electronTagAndProbeTree_cfg.py isMC=1
-submit_job.py crabSubmit --sampleList DevTools/TagAndProbe/data/datasetList_Data_Electron.txt --applyLumiMask "$DATE"_"$NAME" DevTools/TagAndProbe/test/electronTagAndProbeTree_cfg.py isMC=0
+submit_job.py crabSubmit --sampleList $CMSSW_BASE/src/DevTools/TagAndProbe/data/datasetList_TagAndProbe_MC.txt --filesPerJob 30 "$DATE"_"$NAME" DevTools/TagAndProbe/test/electronTagAndProbeTree_cfg.py isMC=1
+submit_job.py crabSubmit --sampleList $CMSSW_BASE/src/DevTools/TagAndProbe/data/datasetList_TagAndProbe_Data_Electron.txt --lumisPerJob 200 --applyLumiMask "$DATE"_"$NAME" DevTools/TagAndProbe/test/electronTagAndProbeTree_cfg.py isMC=0
