@@ -35,7 +35,7 @@ from PhysicsTools.TagAndProbe.treeMakerOptions_cfi import *
 
 if (varOptions.isMC):
     options['INPUT_FILE_NAME']     = '/store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/06532BBC-05C8-E511-A60A-F46D043B3CE5.root'
-    options['OUTPUT_FILE_NAME']    = "TnPTree_mc.root"
+    options['OUTPUT_FILE_NAME']    = "TnPTree_mc_muon.root"
     options['TnPPATHS']            = cms.vstring("HLT_Ele23_WPLoose_Gsf_v*")
     options['TnPHLTTagFilters']    = cms.vstring("hltEle23WPLooseGsfTrackIsoFilter")
     options['TnPHLTProbeFilters']  = cms.vstring()
@@ -44,7 +44,7 @@ if (varOptions.isMC):
     options['EVENTSToPROCESS']     = cms.untracked.VEventRange()
 else:
     options['INPUT_FILE_NAME']     = "/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/FC4F7BEE-FCA6-E511-A99F-0CC47A4D7686.root"
-    options['OUTPUT_FILE_NAME']    = "TnPTree_data.root"
+    options['OUTPUT_FILE_NAME']    = "TnPTree_data_muon.root"
     options['TnPPATHS']            = ["HLT_Ele23_WPLoose_Gsf_v*",]
     options['TnPHLTTagFilters']    = ["hltEle23WPLooseGsfTrackIsoFilter"]
     options['TnPHLTProbeFilters']  = cms.vstring()
@@ -55,6 +55,16 @@ else:
 ###################################################################
 
 setModules(process, options)
+
+# manually fix pileup
+from SimGeneral.MixingModule.mix_2015_25ns_FallMC_matchData_PoissonOOTPU_cfi import mix
+pu_distribs = { "mc" : mix.input.nbPileupEvents.probValue }
+
+data_pu_distribs = { "Jamboree_golden_JSON" : [5.12e+04,3.66e+05,5.04e+05,4.99e+05,7.5e+05,1.1e+06,2.53e+06,9.84e+06,4.4e+07,1.14e+08,1.94e+08,2.63e+08,2.96e+08,2.74e+08,2.06e+08,1.26e+08,6.38e+07,2.73e+07,1.1e+07,5.2e+06,3.12e+06,1.87e+06,9.35e+05,3.64e+05,1.1e+05,2.64e+04,5.76e+03,1.53e+03,594,278,131,59.8,26,10.8,4.29,1.62,0.587,0.203,0.0669,0.0211,0.00633,0.00182,0.000498,0.00013,3.26e-05,7.77e-06,1.77e-06,3.85e-07,7.99e-08,1.58e-08,3e-09,5.43e-10] }
+
+process.pileupReweightingProducer.pileupMC = cms.vdouble(pu_distribs['mc'])
+process.pileupReweightingProducer.PileupData = cms.vdouble(data_pu_distribs["Jamboree_golden_JSON"])
+
 from PhysicsTools.TagAndProbe.treeContent_cfi import *
 
 process.load("Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff")
