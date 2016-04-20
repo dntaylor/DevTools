@@ -240,6 +240,11 @@ mcTruthCommonStuff = cms.PSet(
         ),
     )
 
+if (not varOptions.isMC):
+    mcTruthCommonStuff = cms.PSet(
+        isMC = cms.bool(False)
+        )
+
 
 process.muonEffs = cms.EDAnalyzer("TagProbeFitTreeProducer",
     CommonStuffForMuonProbe, mcTruthCommonStuff,
