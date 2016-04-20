@@ -245,7 +245,7 @@ class Plotter(PlotterBase):
         #ratiostaterr.Sumw2()
         ratiostaterr.SetStats(0)
         ratiostaterr.SetTitle("")
-        ratiostaterr.GetYaxis().SetTitle("Data/MC")
+        ratiostaterr.GetYaxis().SetTitle("Data / MC")
         ratiostaterr.SetMaximum(ratiomax)
         ratiostaterr.SetMinimum(ratiomin)
         ratiostaterr.SetMarkerSize(0)
@@ -738,7 +738,7 @@ class Plotter(PlotterBase):
                 for subName in subtractMap[histName]:
                     histsub = self._getHistogram(subName,variable,nofill=True,**kwargs)
                     hist.Add(histsub,-1)
-            hist.Scale(1./hist.Integral())
+            if hist.Integral(): hist.Scale(1./hist.Integral())
             hist.SetLineWidth(3)
             highestMax = max(highestMax,hist.GetMaximum())
             if ymax==None: hist.SetMaximum(1.2*highestMax)

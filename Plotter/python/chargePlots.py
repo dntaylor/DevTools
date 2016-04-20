@@ -11,8 +11,8 @@ logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%
 
 chargePlotter = Plotter('Charge')
 
-#chans = ['ee','mm','tt']
-chans = ['ee','mm']
+chans = ['ee','mm','tt']
+#chans = ['ee','mm']
 
 labelMap = {
     'e': 'e',
@@ -93,9 +93,6 @@ plots = {
 # signal region
 for plot in plots:
     for sign in ['SS','OS']:
-        plotname = '{0}/{1}'.format(sign,plot)
-        savename = '{0}/{1}'.format(sign,plot)
-        chargePlotter.plot(plotname,savename,**plots[plot])
         for chan in chans:
             plotname = '{0}/{1}/{2}'.format(sign,chan,plot)
             savename = '{0}/{1}/{2}'.format(sign,chan,plot)
@@ -126,10 +123,6 @@ for plot in ['Pt','Eta']:
     for lepton in ['zLeadingLepton','zSubLeadingLepton']:
         kwargs = deepcopy(plots[lepton+plot])
         if lepton+plot in ratio_cust: kwargs.update(ratio_cust[lepton+plot])
-        numname = 'SS/{0}{1}'.format(lepton,plot)
-        denomname = 'OS/{0}{1}'.format(lepton,plot)
-        savename = 'ratio/{0}{1}'.format(lepton,plot)
-        chargePlotter.plotRatio(numname,denomname,savename,ymax=0.07,**kwargs)
         for chan in chans:
             numname = 'SS/{0}/{1}{2}'.format(chan,lepton,plot)
             denomname = 'OS/{0}/{1}{2}'.format(chan,lepton,plot)
