@@ -201,8 +201,6 @@ class AnalysisBase(object):
 
     def perRowAction(self,rtrow):
         '''Per row action, can be overridden'''
-        self.cache = {} # cache variables so you dont read from tree as much
-
         # select candidates
         cands = self.selectCandidates(rtrow)
 
@@ -255,7 +253,6 @@ class AnalysisBase(object):
             return 0
         coll, pos = cand
         key = '{0}_{1}_{2}'.format(coll,var,pos)
-        if key in self.cache: return self.cache[key]
 
         # get a TLorentzVector
         if var=='p4':
@@ -265,6 +262,7 @@ class AnalysisBase(object):
             energy = self.getObjectVariable(rtrow,cand,'energy')
             val = ROOT.TLorentzVector()
             val.SetPtEtaPhiE(pt,eta,phi,energy)
+            return val
         elif var=='p4_uncorrected':
             pt     = self.getObjectVariable(rtrow,cand,'pt_uncorrected')
             eta    = self.getObjectVariable(rtrow,cand,'eta_uncorrected')
@@ -272,53 +270,64 @@ class AnalysisBase(object):
             energy = self.getObjectVariable(rtrow,cand,'energy_uncorrected')
             val = ROOT.TLorentzVector()
             val.SetPtEtaPhiE(pt,eta,phi,energy)
+            return val
 
         # if invalid, return 0
         elif pos<0:
             val = 0
+            return val
 
         # override muon pt/eta/phi/energy for rochester correction
         elif coll=='muons' and var in ['pt','eta','phi','energy']:
             val = getattr(rtrow,'{0}_rochester{1}'.format(coll,var.capitalize()))[pos]
+            return val
         elif coll=='muons' and var in ['pt_uncorrected','eta_uncorrected','phi_uncorrected','energy_uncorrected']:
             val = getattr(rtrow,'{0}_{1}'.format(coll,var.split('_')[0]))[pos]
+            return val
 
         # the variable is in the input tree
         elif hasattr(rtrow,'{0}_{1}'.format(coll,var)):
             val = getattr(rtrow,'{0}_{1}'.format(coll,var))[pos]
+            return val
 
 
         # didnt catch it
         else:
             val = 0
+            return val
 
-        self.cache[key] = val
         return val
 
     def getCompositeVariable(self,rtrow,var,*cands,**kwargs):
         '''Create a composite candidate'''
         uncorrected = kwargs.pop('uncorrected',False)
 
-        key = '_'.join(['{0}_{1}'.format(*cand) for cand in cands] + [var])
-        if key in self.cache: return self.cache[key]
-
         vec = ROOT.TLorentzVector()
+        components = []
         p4Name = 'p4_uncorrected' if uncorrected else 'p4'
         for cand in cands:
-            vec += self.getObjectVariable(rtrow,cand,p4Name)
+            candp4 = self.getObjectVariable(rtrow,cand,p4Name)
+            components += [candp4]
+            vec += candp4
 
         if var=='p4':
             val = vec
+            return val
         elif var in ['mass','Mass','m','M']:
             val = vec.M()
+            return val
         elif var in ['pt','Pt']:
             val = vec.Pt()
+            return val
         elif var in ['eta','Eta']:
             val = vec.Eta()
+            return val
         elif var in ['phi','Phi']:
             val = vec.Phi()
+            return val
         elif var in ['energy','Energy']:
             val = vec.Energy()
+            return val
         elif len(cands)==2:
             if var in ['deltaR','dR','dr','DR']:
                 eta1 = self.getObjectVariable(rtrow,cands[0],'eta')
@@ -326,27 +335,28 @@ class AnalysisBase(object):
                 eta2 = self.getObjectVariable(rtrow,cands[1],'eta')
                 phi2 = self.getObjectVariable(rtrow,cands[1],'phi')
                 val = deltaR(eta1,phi1,eta2,phi2)
+                return val
             elif var in ['deltaPhi','dPhi','dphi','DPhi']:
                 phi1 = self.getObjectVariable(rtrow,cands[0],'phi')
                 phi2 = self.getObjectVariable(rtrow,cands[1],'phi')
                 val = deltaPhi(phi1,phi2)
+                return val
             elif var in ['deltaEta','dEta','deta','DEta']:
                 eta1 = self.getObjectVariable(rtrow,cands[0],'eta')
                 eta2 = self.getObjectVariable(rtrow,cands[1],'eta')
                 val = abs(eta1-eta2)
+                return val
             else:
                 val = 0
+                return val
         else:
             val = 0
+            return val
 
-        self.cache[key] = val
         return val
 
     def getCompositeMetVariable(self,rtrow,var,met,*cands,**kwargs):
         '''Get composite met variables'''
-
-        key = '_'.join(['{0}_{1}'.format(*cand) for cand in cands] + ['{0}_{1}'.format(*met)] + [var])
-        if key in self.cache: return self.cache[key]
 
         candVec = self.getCompositeVariable(rtrow,'p4',*cands)
 
@@ -359,46 +369,51 @@ class AnalysisBase(object):
 
         if var=='p4':
             val = vec
+            return val
         elif var in ['mt','Mt','mT','MT']:
             #val = math.sqrt(2*candVec.Pt()*metPt*(1-math.cos(deltaPhi(candVec.Phi(),metPhi))))
             val = math.sqrt(abs((candVec.Et()+metVec.Et())**2 - (vec.Pt())**2))
+            return val
         elif var in ['mass','Mass','m','M']:
             val = vec.M()
+            return val
         elif var in ['pt','Pt']:
             val = vec.Pt()
+            return val
         elif var in ['eta','Eta']:
             val = vec.Eta()
+            return val
         elif var in ['phi','Phi']:
             val = vec.Phi()
+            return val
         elif var in ['energy','Energy']:
             val = vec.Energy()
+            return val
         elif len(cands)==1:
             if var in ['deltaPhi','dPhi','dphi','DPhi']:
                 phi1 = self.getObjectVariable(rtrow,cands[0],'phi')
                 phi2 = metPhi
                 val = deltaPhi(phi1,phi2)
+                return val
             else:
                 val = 0
+                return val
         else:
             val = 0
+            return val
 
-        self.cache[key] = val
         return val
 
     def getTreeVectorVariable(self, rtrow, var, pos):
         '''
         Get event wide variables
         '''
-        key = '{0}_{1}'.format(var,pos)
-        if key in self.cache: return self.cache[key]
-
         if hasattr(rtrow,var):
             val = getattr(rtrow,var)[pos] if len(getattr(rtrow,var))>pos else 0
         else:
             val = 0
             logging.info("{0} not found.".format(var))
 
-        self.cache[key] = val
         return val
 
 
@@ -406,16 +421,12 @@ class AnalysisBase(object):
         '''
         Get event wide variables
         '''
-        key = var
-        if key in self.cache: return self.cache[key]
-
         if hasattr(rtrow,var):
             val = getattr(rtrow,var)
         else:
             val = 0
             logging.info("{0} not found.".format(var))
 
-        self.cache[key] = val
         return val
 
     def getCands(self,rtrow,coll,func):

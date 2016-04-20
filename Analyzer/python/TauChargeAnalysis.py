@@ -1,4 +1,4 @@
-# ChargeAnalysis.py
+# TauChargeAnalysis.py
 # for DY analysis
 
 from AnalysisBase import AnalysisBase
@@ -10,15 +10,15 @@ import operator
 
 import ROOT
 
-class ChargeAnalysis(AnalysisBase):
+class TauChargeAnalysis(AnalysisBase):
     '''
-    Charge analysis
+    TauCharge analysis
     '''
 
     def __init__(self,**kwargs):
-        outputFileName = kwargs.pop('outputFileName','chargeTree.root')
-        outputTreeName = kwargs.pop('outputTreeName','ChargeTree')
-        super(ChargeAnalysis, self).__init__(outputFileName=outputFileName,outputTreeName=outputTreeName,**kwargs)
+        outputFileName = kwargs.pop('outputFileName','tauChargeTree.root')
+        outputTreeName = kwargs.pop('outputTreeName','TauChargeTree')
+        super(TauChargeAnalysis, self).__init__(outputFileName=outputFileName,outputTreeName=outputTreeName,**kwargs)
 
         # setup cut tree
         self.cutTree.add(self.twoLoose,'twoLooseLeptons')
@@ -33,28 +33,28 @@ class ChargeAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isLoose',30), 'numJetsLoose30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'isTight',30), 'numJetsTight30', 'I')
         self.tree.add(lambda rtrow,cands: self.numJets(rtrow,'passCSVv2T',30), 'numBjetsTight30', 'I')
-        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passLoose)), 'numLooseElectrons', 'I')
-        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passMedium)), 'numMediumElectrons', 'I')
-        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passTight)), 'numTightElectrons', 'I')
-        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passLoose)), 'numLooseMuons', 'I')
-        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passMedium)), 'numMediumMuons', 'I')
-        self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passTight)), 'numTightMuons', 'I')
+        #self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passLoose)), 'numLooseElectrons', 'I')
+        #self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passMedium)), 'numMediumElectrons', 'I')
+        #self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'electrons',self.passTight)), 'numTightElectrons', 'I')
+        #self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passLoose)), 'numLooseMuons', 'I')
+        #self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passMedium)), 'numMediumMuons', 'I')
+        #self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'muons',self.passTight)), 'numTightMuons', 'I')
         #self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'taus',self.passLoose)), 'numLooseTaus', 'I')
         #self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'taus',self.passMedium)), 'numMediumTaus', 'I')
         #self.tree.add(lambda rtrow,cands: len(self.getCands(rtrow,'taus',self.passTight)), 'numTightTaus', 'I')
 
         # trigger
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZPass'), 'pass_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ', 'I')
+        #self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ', 'I')
+        #self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZPass'), 'pass_Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ', 'I')
+        #self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZPass'), 'pass_Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoMu20Pass'), 'pass_IsoMu20', 'I')
         self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'IsoTkMu20Pass'), 'pass_IsoTkMu20', 'I')
-        self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
+        #self.tree.add(lambda rtrow,cands: self.getTreeVariable(rtrow,'Ele23_WPLoose_GsfPass'), 'pass_Ele23_WPLoose_Gsf', 'I')
         self.tree.add(self.triggerEfficiency, 'triggerEfficiency', 'F')
 
         # z leptons
         self.addDiLepton('z','z1','z2')
-        self.addDiCandVar('z','z1','z2','mass_uncorrected','mass','F',uncorrected=True)
+        #self.addDiCandVar('z','z1','z2','mass_uncorrected','mass','F',uncorrected=True)
         self.addLepton('z1')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z1']), 'z1_passMedium', 'I')
         self.tree.add(lambda rtrow,cands: self.passTight(rtrow,cands['z1']), 'z1_passTight', 'I')
@@ -81,16 +81,20 @@ class ChargeAnalysis(AnalysisBase):
         }
 
         # get leptons
-        colls = ['electrons','muons']
+        colls = ['muons','taus']
         pts = {}
         p4s = {}
         charges = {}
+        etas = {}
+        phis = {}
         leps = []
         leps = self.getPassingCands(rtrow,'Loose')
         if len(leps)<2: return candidate # need at least 2 leptons
 
         for cand in leps:
             pts[cand] = self.getObjectVariable(rtrow,cand,'pt')
+            etas[cand] = self.getObjectVariable(rtrow,cand,'eta')
+            phis[cand] = self.getObjectVariable(rtrow,cand,'phi')
             p4s[cand] = self.getObjectVariable(rtrow,cand,'p4')
             charges[cand] = self.getObjectVariable(rtrow,cand,'charge')
 
@@ -98,17 +102,25 @@ class ChargeAnalysis(AnalysisBase):
         massDiffs = {}
         sts = {}
         for zpair in itertools.combinations(pts.keys(),2):
-            # require ee, mm
+            # require mt
             candFlavors = [zpair[0][0],zpair[1][0]]
             skip = True
-            if candFlavors.count('electrons')==2: skip = False
-            if candFlavors.count('muons')==2: skip = False
-            #if candFlavors.count('muons')==1 and candFlavors.count('taus')==1: skip = False
+            if candFlavors.count('muons')==1 and candFlavors.count('taus')==1: skip = False
             if skip: continue
+            pt0 = pts[zpair[0]]
+            pt1 = pts[zpair[1]]
+            # require pt 20 for muon as well as tau
+            if pt0<20 or pt1<20: continue
+            # require deltaR 0.02
+            eta0 = etas[zpair[0]]
+            eta1 = etas[zpair[1]]
+            phi0 = phis[zpair[0]]
+            phi1 = phis[zpair[1]]
+            if deltaR(eta0,phi0,eta1,phi1)<0.02: continue
             zp4 = p4s[zpair[0]] + p4s[zpair[1]]
             zmass = zp4.M()
             massDiffs[zpair] = abs(zmass-ZMASS)
-            sts[zpair] = pts[zpair[0]] + pts[zpair[1]]
+            sts[zpair] = pt0 + pt1
 
         if not sts: return candidate # need a z candidate
 
@@ -176,7 +188,7 @@ class ChargeAnalysis(AnalysisBase):
         else:
             return []
         cands = []
-        for coll in ['electrons','muons']:
+        for coll in ['muons','taus']:
             cands += self.getCands(rtrow,coll,passMode)
         return cands
 
@@ -210,35 +222,35 @@ class ChargeAnalysis(AnalysisBase):
         # accept MC, check trigger for data
         if rtrow.isData<0.5: return True
         triggerNames = {
-            'DoubleMuon'     : [
-                'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ',
-                'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ',
-            ],
-            'DoubleEG'       : [
-                'Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ',
-            ],
-            'MuonEG'         : [
-                'Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL',
-                'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL',
-            ],
+            #'DoubleMuon'     : [
+            #    'Mu17_TrkIsoVVL_Mu8_TrkIsoVVL_DZ',
+            #    'Mu17_TrkIsoVVL_TkMu8_TrkIsoVVL_DZ',
+            #],
+            #'DoubleEG'       : [
+            #    'Ele17_Ele12_CaloIdL_TrackIdL_IsoVL_DZ',
+            #],
+            #'MuonEG'         : [
+            #    'Mu8_TrkIsoVVL_Ele17_CaloIdL_TrackIdL_IsoVL',
+            #    'Mu17_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL',
+            #],
             'SingleMuon'     : [
                 'IsoMu20',
                 'IsoTkMu20',
             ],
-            'SingleElectron' : [
-                'Ele23_WPLoose_Gsf',
-            ],
+            #'SingleElectron' : [
+            #    'Ele23_WPLoose_Gsf',
+            #],
         }
         # the order here defines the heirarchy
         # first dataset, any trigger passes
         # second dataset, if a trigger in the first dataset is found, reject event
         # so forth
         datasets = [
-            'DoubleMuon', 
-            'DoubleEG', 
-            'MuonEG',
+            #'DoubleMuon', 
+            #'DoubleEG', 
+            #'MuonEG',
             'SingleMuon',
-            'SingleElectron',
+            #'SingleElectron',
         ]
         # reject triggers if they are in another dataset
         # looks for the dataset name in the filename
@@ -259,8 +271,8 @@ class ChargeAnalysis(AnalysisBase):
         return False
 
     def triggerEfficiency(self,rtrow,cands):
-        candList = [cands[c] for c in ['z1','z2']]
-        triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','Mu17_Mu8','Ele17_Ele12']
+        candList = [cands[c] for c in ['z1','z2'] if c[0]=='muons']
+        triggerList = ['IsoMu20_OR_IsoTkMu20']
         return self.triggerScales.getDataEfficiency(rtrow,triggerList,candList)
 
 

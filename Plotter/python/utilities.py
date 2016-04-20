@@ -52,6 +52,8 @@ latestNtuples = {
     'Electron'       : '2016-04-14_ElectronAnalysis_v1-merge',
     'Muon'           : '2016-04-14_MuonAnalysis_v1-merge',
     'Tau'            : '2016-04-14_TauAnalysis_v1-merge',
+    'Charge'         : '',
+    'TauCharge'      : '',
     'SingleElectron' : '',
     'SingleMuon'     : '',
     'DijetFakeRate'  : '',
@@ -79,6 +81,7 @@ treeMap = {
     'Hpp4l'          : 'Hpp4lTree',
     'DY'             : 'DYTree',
     'Charge'         : 'ChargeTree',
+    'TauCharge'      : 'TauChargeTree',
     'DijetFakeRate'  : 'DijetFakeRateTree',
 }
 
