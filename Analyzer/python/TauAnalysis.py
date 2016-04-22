@@ -38,6 +38,8 @@ class TauAnalysis(AnalysisBase):
         taus = self.getCands(rtrow,'taus',lambda rtrow,cands: True)
         for tau in taus:
             cands = {'t':tau}
+            pt = self.getObjectVariable(rtrow,cands['t'],'pt')
+            if pt<20: continue
             self.tree.fill(rtrow,cands,allowDuplicates=True)
 
         self.eventsStored += 1

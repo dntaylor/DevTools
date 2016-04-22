@@ -75,6 +75,7 @@ commonJetCandidates = commonPatCandidates.clone(
 #)
 
 commonGenJetCandidates = commonCandidates.clone(
+    status           = cms.vstring('status()','I'),
     emEnergy         = cms.vstring('emEnergy()','F'),
     hadEnergy        = cms.vstring('hadEnergy()','F'),
     invisibileEnergy = cms.vstring('invisibleEnergy()','F'),
@@ -235,6 +236,7 @@ vertexBranches = commonVertex.clone()
 
 # genParticles
 genParticleBranches = commonGenCandidates.clone()
+genJetBranches = commonGenJetCandidates.clone()
 
 # electrons
 electronBranches = commonPatCandidates.clone(

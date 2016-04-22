@@ -2,11 +2,7 @@ from DevTools.Plotter.Plotter import Plotter
 
 blind = True
 
-mPlotter = Plotter(
-    inputDirectory  = 'flat/SingleMuon',
-    outputDirectory = 'plots/SingleMuon',
-    saveFileName    = 'plots.root',
-)
+mPlotter = Plotter('SingleMuon')
 
 sigMap = {
     'WZ'  : ['WZTo3LNu_TuneCUETP8M1_13TeV-powheg-pythia8'],

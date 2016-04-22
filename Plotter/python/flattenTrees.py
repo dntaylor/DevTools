@@ -35,18 +35,19 @@ def flatten(directory,**kwargs):
     else:
         pbar = None
 
-    flattener = FlattenTree(
-        ntupleDirectory=getNtupleDirectory(analysis),
-        treeName=getTreeName(analysis),
-    )
+    #flattener = FlattenTree(
+    #    ntupleDirectory=getNtupleDirectory(analysis),
+    #    treeName=getTreeName(analysis),
+    #)
+    flattener = FlattenTree(analysis,sample)
 
-    flattener.initializeSample(sample,'flat/{0}/{1}.root'.format(analysis,sample))
+    #flattener.initializeSample(sample,'flat/{0}/{1}.root'.format(analysis,sample))
 
     for histName, params in histParams.iteritems():
         flattener.addHistogram(histName,**params)
 
     for selName, sel in histSelections.iteritems():
-        flattener.addSelection(*sel['args'],**sel['kwargs'])
+        flattener.addSelection(selName,**sel['kwargs'])
 
     flattener.flattenAll(progressbar=pbar)
 
@@ -77,7 +78,7 @@ def getSelectedHistSelections(analysis,sels,sample):
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Flatten Tree')
 
-    parser.add_argument('analysis', type=str, choices=['WZ','DY','Charge','Hpp3l','Hpp4l','SingleElectron','SingleMuon','Electron','Muon', 'DijetFakeRate'], help='Analysis to process')
+    parser.add_argument('analysis', type=str, choices=['WZ','DY','Charge','Hpp3l','Hpp4l','SingleElectron','SingleMuon','Electron','Muon','Tau','DijetFakeRate'], help='Analysis to process')
     parser.add_argument('--samples', nargs='+', type=str, default=['*'], help='Samples to flatten. Supports unix style wildcards.')
     parser.add_argument('--hists', nargs='+', type=str, default=['all'], help='Histograms to flatten.')
     parser.add_argument('--selections', nargs='+', type=str, default=['all'], help='Selections to flatten.')

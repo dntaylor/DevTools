@@ -1,0 +1,71 @@
+# Gaussian smearing of MC template
+sigSmearingMean[0.2, -1, 2]
+# Minimum sigma in principle should be 1/sqrt(12)
+sigSmearingDev[0.5,0.28,3.0]
+Gaussian::signalRes(mass,sigSmearingMean,sigSmearingDev)
+
+# Bernstein polynomial background 
+# Passing
+a0[1]
+a1[1,0,50]
+a2[1,0,50]
+a3[1,0,50]
+RooBernstein::backgroundPass(mass, {a0,a1,a2,a3})
+
+# Failing
+b0[1]
+b1[1,0,50]
+b2[1,0,50]
+b3[1,0,50]
+RooBernstein::backgroundFail(mass, {b0,b1,b2,b3})
+
+# RooCMSShape background parameters
+# Passing
+cmsShapePassAlpha[70]
+cmsShapePassBeta[0.02, 0., 0.1]
+cmsShapePassGamma[0.1, 0., 1.]
+cmsShapePassPeak[90.]
+RooCMSShape::backgroundPassCMS(mass, cmsShapePassAlpha, cmsShapePassBeta, cmsShapePassGamma, cmsShapePassPeak)
+
+# Failing
+cmsShapeFailAlpha[70]
+cmsShapeFailBeta[0.02, 0., 0.1]
+cmsShapeFailGamma[0.1, 0., 1.]
+cmsShapeFailPeak[90.]
+RooCMSShape::backgroundFailCMS(mass, cmsShapeFailAlpha, cmsShapeFailBeta, cmsShapeFailGamma, cmsShapeFailPeak)
+
+# Main fit parameters
+# Initial efficiency value can have some effect on convergence
+efficiency[0.9,0,1]
+# Fitter will adjust upper bounds appropriately for numSignalAll, numBackgroundPass, numBackgroundFail
+numSignalAll[1., 100000.]
+numBackgroundPass[0., 100000.]
+numBackgroundFail[0., 100000.]
+
+expr::numSignalPass('efficiency*numSignalAll', efficiency, numSignalAll)
+expr::numSignalFail('(1-efficiency)*numSignalAll', efficiency, numSignalAll)
+
+# MC Templates (note: datasets must be preloaded!)
+RooHistPdf::mcTemplatePass(mass,mcDataPass)
+RooHistPdf::mcTemplateFail(mass,mcDataFail)
+FCONV::signalPass(mass, mcTemplatePass, signalRes)
+FCONV::signalFail(mass, mcTemplateFail, signalRes)
+
+RooHistPdf::mcAltTemplatePass(mass,mcAltDataPass)
+RooHistPdf::mcAltTemplateFail(mass,mcAltDataFail)
+FCONV::signalAltPass(mass, mcAltTemplatePass, signalRes)
+FCONV::signalAltFail(mass, mcAltTemplateFail, signalRes)
+
+
+SUM::pdfPass(numSignalPass*signalPass, numBackgroundPass*backgroundPass)
+SUM::pdfFail(numSignalFail*signalFail, numBackgroundFail*backgroundFail)
+SIMUL::simPdf(decision, Passed=pdfPass, Failed=pdfFail)
+
+SUM::pdfAltPass(numSignalPass*signalAltPass, numBackgroundPass*backgroundPass)
+SUM::pdfAltFail(numSignalFail*signalAltFail, numBackgroundFail*backgroundFail)
+SIMUL::simAltPdf(decision, Passed=pdfAltPass, Failed=pdfAltFail)
+
+SUM::pdfCMSBkgPass(numSignalPass*signalAltPass, numBackgroundPass*backgroundPassCMS)
+SUM::pdfCMSBkgFail(numSignalFail*signalAltFail, numBackgroundFail*backgroundFailCMS)
+SIMUL::simCMSBkgPdf(decision, Passed=pdfCMSBkgPass, Failed=pdfCMSBkgFail)
+

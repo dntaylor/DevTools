@@ -39,6 +39,7 @@ class FakeRates(object):
         return hist.GetBinContent(hist.FindBin(pt,abs(eta)))
 
     def getFakeRate(self,rtrow,cand,num,denom):
+        if cand[1]<0: return 0 # not defined
         pt  = getattr(rtrow,'{0}_rochesterPt'.format(cand[0]))[cand[1]] if cand[0]=='muons' else getattr(rtrow,'{0}_pt'.format(cand[0]))[cand[1]]
         eta = getattr(rtrow,'{0}_rochesterEta'.format(cand[0]))[cand[1]] if cand[0]=='muons' else getattr(rtrow,'{0}_eta'.format(cand[0]))[cand[1]]
         return self.__get_fakerate(cand,pt,eta,num,denom)

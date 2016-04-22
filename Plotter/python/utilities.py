@@ -46,14 +46,17 @@ def getLumi():
 
 
 latestNtuples = {
-    'Hpp3l'          : '2016-03-21_Hpp3lAnalysis_v1',
-    'Hpp4l'          : '2016-03-21_Hpp4lAnalysis_v1',
-    'WZ'             : '2016-03-20_WZAnalysis_v1',
-    'Electron'       : '2016-03-20_ElectronAnalysis_v2',
-    'Muon'           : '2016-03-20_MuonAnalysis_v2',
+    'Hpp3l'          : '',
+    'Hpp4l'          : '',
+    'WZ'             : '',
+    'Electron'       : '2016-04-14_ElectronAnalysis_v1-merge',
+    'Muon'           : '2016-04-14_MuonAnalysis_v1-merge',
+    'Tau'            : '2016-04-14_TauAnalysis_v1-merge',
+    'Charge'         : '',
+    'TauCharge'      : '',
     'SingleElectron' : '',
     'SingleMuon'     : '',
-    'DijetFakeRate'  : '2016-03-20_DijetFakeRateAnalysis_v1',
+    'DijetFakeRate'  : '',
 }
 
 def getNtupleDirectory(analysis):
@@ -67,8 +70,10 @@ def getNtupleDirectory(analysis):
         return os.path.join(baseDir,latestNtuples[analysis])
 
 treeMap = {
+    ''               : 'Tree',
     'Electron'       : 'ETree',
     'Muon'           : 'MTree',
+    'Tau'            : 'TTree',
     'SingleElectron' : 'ETree',
     'SingleMuon'     : 'MTree',
     'WZ'             : 'WZTree',
@@ -76,6 +81,7 @@ treeMap = {
     'Hpp4l'          : 'Hpp4lTree',
     'DY'             : 'DYTree',
     'Charge'         : 'ChargeTree',
+    'TauCharge'      : 'TauChargeTree',
     'DijetFakeRate'  : 'DijetFakeRateTree',
 }
 

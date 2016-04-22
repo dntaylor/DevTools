@@ -38,6 +38,8 @@ class MuonAnalysis(AnalysisBase):
         muons = self.getCands(rtrow,'muons',lambda rtrow,cands: True)
         for muon in muons:
             cands = {'m':muon}
+            pt = self.getObjectVariable(rtrow,cands['m'],'pt')
+            if pt<10: continue
             self.tree.fill(rtrow,cands,allowDuplicates=True)
 
         self.eventsStored += 1

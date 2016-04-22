@@ -5,6 +5,7 @@
 # electron smear corrections not yet availabel in 80X
 #pushd $CMSSW_BASE/src
 #git cms-merge-topic -u matteosan1:smearer_76X
+git cms-merge-topic -u matteosan1:egm_tnp_80X
 #popd
 
 # python utilities

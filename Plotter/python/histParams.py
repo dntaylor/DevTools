@@ -22,18 +22,25 @@ params = {
     },
     # overrides for Electron
     'Electron': {
-        'pt'               : {'variable': 'e_pt',            'binning': [200,0,1000]},
+        'pt'               : {'variable': 'e_pt',            'binning': [1000,0,1000]},
         'eta'              : {'variable': 'e_eta',           'binning': [60,-3.,3.]},
-        'dz'               : {'variable': 'e_dz',            'binning': [50,0,0.5]},
-        'dxy'              : {'variable': 'e_dxy',           'binning': [50,0,0.3]},
+        #'dz'               : {'variable': 'e_dz',            'binning': [50,0,0.5]},
+        #'dxy'              : {'variable': 'e_dxy',           'binning': [50,0,0.3]},
         'mvaTrig'          : {'variable': 'e_mvaTrigValues', 'binning': [100,-1.,1.]},
     },
     # overrides for Muon
     'Muon': {
-        'pt'               : {'variable': 'm_pt',            'binning': [200,0,1000]},
+        'pt'               : {'variable': 'm_pt',            'binning': [1000,0,1000]},
         'eta'              : {'variable': 'm_eta',           'binning': [60,-3.,3.]},
-        'dz'               : {'variable': 'm_dz',            'binning': [50,0,0.5]},
-        'dxy'              : {'variable': 'm_dxy',           'binning': [50,0,0.3]},
+        #'dz'               : {'variable': 'm_dz',            'binning': [50,0,0.5]},
+        #'dxy'              : {'variable': 'm_dxy',           'binning': [50,0,0.3]},
+    },
+    # overrides for Tau
+    'Tau': {
+        'pt'               : {'variable': 't_pt',            'binning': [1000,0,1000]},
+        'eta'              : {'variable': 't_eta',           'binning': [60,-3.,3.]},
+        #'dz'               : {'variable': 't_dz',            'binning': [50,0,0.5]},
+        #'dxy'              : {'variable': 't_dxy',           'binning': [50,0,0.3]},
     },
     # overrides for DijetFakeRate
     'DijetFakeRate': {
@@ -166,8 +173,8 @@ params2D = {
     },
     # overrides for Electron
     'Electron' : {
-        'pt_v_dz' : {'xVariable': 'e_pt', 'yVariable': 'fabs(e_dz)',  'xBinning': [50,0,500], 'yBinning': [50,0,0.5]},
-        'pt_v_dxy': {'xVariable': 'e_pt', 'yVariable': 'fabs(e_dxy)', 'xBinning': [50,0,500], 'yBinning': [50,0,0.3]},
+        #'pt_v_dz' : {'xVariable': 'e_pt', 'yVariable': 'fabs(e_dz)',  'xBinning': [50,0,500], 'yBinning': [50,0,0.5]},
+        #'pt_v_dxy': {'xVariable': 'e_pt', 'yVariable': 'fabs(e_dxy)', 'xBinning': [50,0,500], 'yBinning': [50,0,0.3]},
     },
 }
 
@@ -183,20 +190,119 @@ sampleSelectionParams = {}
 eBarrelCut = 'fabs({0}_eta)<1.479'
 eEndcapCut = 'fabs({0}_eta)>1.479'
 promptCut = '{0}_genMatch==1 && {0}_genIsPrompt==1 && {0}_genDeltaR<0.1'
+promptTauCut = '{0}_genMatch==1 && {0}_genDeltaR<0.1'
 genStatusOneCut = '{0}_genMatch==1 && {0}_genStatus==1 && {0}_genDeltaR<0.1'
 fakeCut = '({0}_genMatch==0 || ({0}_genMatch==1 && {0}_genIsFromHadron && {0}_genDeltaR<0.1))'
+fakeTauCut = '{0}_genMatch==0'
 
 #########################
 ### electron specific ###
 #########################
 selectionParams['Electron'] = {
-    'default'      : {'args': [promptCut.format('e')],                                       'kwargs': {'directory': 'default/prompt'}},
-    'fake'         : {'args': [fakeCut.format('e')],                                         'kwargs': {'directory': 'default/fake'}},
-    'barrel'       : {'args': [' && '.join([promptCut.format('e'),eBarrelCut.format('e')])], 'kwargs': {'directory': 'barrel/prompt'}},
-    'barrel_fake'  : {'args': [' && '.join([fakeCut.format('e'),eBarrelCut.format('e')])],   'kwargs': {'directory': 'barrel/fake'}},
-    'endcap'       : {'args': [' && '.join([promptCut.format('e'),eEndcapCut.format('e')])], 'kwargs': {'directory': 'endcap/prompt'}},
-    'edncap_fake'  : {'args': [' && '.join([fakeCut.format('e'),eEndcapCut.format('e')])],   'kwargs': {'directory': 'endcap/fake'}},
+    'default_prompt' : {'args': [promptCut.format('e')],                                       'kwargs': {'directory': 'default/prompt'}},
+    'default_fake'   : {'args': [fakeCut.format('e')],                                         'kwargs': {'directory': 'default/fake'}},
+    'barrel_prompt'  : {'args': [' && '.join([promptCut.format('e'),eBarrelCut.format('e')])], 'kwargs': {'directory': 'barrel/prompt'}},
+    'barrel_fake'    : {'args': [' && '.join([fakeCut.format('e'),eBarrelCut.format('e')])],   'kwargs': {'directory': 'barrel/fake'}},
+    'endcap_prompt'  : {'args': [' && '.join([promptCut.format('e'),eEndcapCut.format('e')])], 'kwargs': {'directory': 'endcap/prompt'}},
+    'edncap_fake'    : {'args': [' && '.join([fakeCut.format('e'),eEndcapCut.format('e')])],   'kwargs': {'directory': 'endcap/fake'}},
 }
+
+sels = selectionParams['Electron'].keys()
+idCuts = {
+    'cutBasedVeto'   : 'e_cutBasedVeto==1',
+    'cutBasedLoose'  : 'e_cutBasedLoose==1',
+    'cutBasedMedium' : 'e_cutBasedMedium==1',
+    'cutBasedTight'  : 'e_cutBasedTight==1',
+    'wwLoose'        : 'e_wwLoose==1',
+    'heepV60'        : 'e_heepV60==1',
+    'NonTrigWP80'    : 'e_mvaNonTrigWP80==1',
+    'NonTrigWP90'    : 'e_mvaNonTrigWP90==1',
+    'TrigPre'        : 'e_mvaTrigPre==1',
+    'TrigWP80'       : 'e_mvaTrigPre==1 && e_mvaTrigWP80==1',
+    'TrigWP90'       : 'e_mvaTrigPre==1 && e_mvaTrigWP90==1',
+}
+for sel in sels:
+    for idName in idCuts:
+        directory = '{0}/{1}'.format('/'.join(sel.split('_')),idName)
+        name = '{0}_{1}'.format(sel,idName)
+        selectionParams['Electron'][name] = deepcopy(selectionParams['Electron'][sel])
+        args = selectionParams['Electron'][name]['args']
+        selectionParams['Electron'][name]['args'][0] = args[0] + ' && ' + idCuts[idName]
+        selectionParams['Electron'][name]['kwargs']['directory'] = directory
+
+#####################
+### muon specific ###
+#####################
+selectionParams['Muon'] = {
+    'default_prompt' : {'args': [promptCut.format('m')],                                       'kwargs': {'directory': 'default/prompt'}},
+    'default_fake'   : {'args': [fakeCut.format('m')],                                         'kwargs': {'directory': 'default/fake'}},
+}
+
+sels = selectionParams['Muon'].keys()
+idCuts = {
+    'isLooseMuon_looseIso'  : 'm_isLooseMuon==1 && m_isolation<0.4',
+    'isMediumMuon_tightIso' : 'm_isMediumMuon==1 && m_isolation<0.15',
+    'isTightMuon_tightIso'  : 'm_isTightMuon==1 && m_isolation<0.15',
+    'isHighPtMuon_tightIso' : 'm_isHighPtMuon==1 && m_isolation<0.15',
+    'wzLooseMuon'           : 'm_isMediumMuon==1 && m_trackRelIso<0.4 && m_isolation<0.4',
+    'wzMediumMuon'          : 'm_isMediumMuon==1 && m_trackRelIso<0.4 && m_isolation<0.15 && m_dz<0.1 && (m_pt<20 ? m_dxy<0.01 : m_dxy<0.02)',
+}
+for sel in sels:
+    for idName in idCuts:
+        directory = '{0}/{1}'.format('/'.join(sel.split('_')),idName)
+        name = '{0}_{1}'.format(sel,idName)
+        selectionParams['Muon'][name] = deepcopy(selectionParams['Muon'][sel])
+        args = selectionParams['Muon'][name]['args']
+        selectionParams['Muon'][name]['args'][0] = args[0] + ' && ' + idCuts[idName]
+        selectionParams['Muon'][name]['kwargs']['directory'] = directory
+
+####################
+### tau specific ###
+####################
+selectionParams['Tau'] = {
+    'default_prompt' : {'args': [promptTauCut.format('t')],                                       'kwargs': {'directory': 'default/prompt'}},
+    'default_fake'   : {'args': [fakeTauCut.format('t')],                                         'kwargs': {'directory': 'default/fake'}},
+}
+
+sels = selectionParams['Tau'].keys()
+againstElectron = {
+    'vloose': 't_againstElectronVLooseMVA6==1',
+    'loose' : 't_againstElectronLooseMVA6==1',
+    'medium': 't_againstElectronMediumMVA6==1',
+    'tight' : 't_againstElectronTightMVA6==1',
+    'vtight': 't_againstElectronVTightMVA6==1',
+}
+againstMuon = {
+    'loose' : 't_againstMuonLoose3==1',
+    'tight' : 't_againstMuonTight3==1',
+}
+oldId = 't_decayModeFinding==1'
+oldIsolation = {
+    'loose' : 't_byLooseIsolationMVArun2v1DBoldDMwLT==1',
+    'medium': 't_byMediumIsolationMVArun2v1DBoldDMwLT==1',
+    'tight' : 't_byTightIsolationMVArun2v1DBoldDMwLT==1',
+    'vtight': 't_byVTightIsolationMVArun2v1DBoldDMwLT==1',
+}
+idCuts = {}
+cutLists = [
+    ('vloose','loose','loose'),
+    ('vloose','loose','tight'),
+    ('vloose','loose','vtight'),
+    ('tight','tight','loose'),
+    ('tight','tight','tight'),
+    ('tight','tight','vtight'),
+]
+for cl in cutLists:
+    idCuts['old_{0}Electron_{1}Muon_{2}Isolation'.format(*cl)] = ' && '.join([oldId, againstElectron[cl[0]], againstMuon[cl[1]], oldIsolation[cl[2]]])
+
+for sel in sels:
+    for idName in idCuts:
+        directory = '{0}/{1}'.format('/'.join(sel.split('_')),idName)
+        name = '{0}_{1}'.format(sel,idName)
+        selectionParams['Tau'][name] = deepcopy(selectionParams['Tau'][sel])
+        args = selectionParams['Tau'][name]['args']
+        selectionParams['Tau'][name]['args'][0] = args[0] + ' && ' + idCuts[idName]
+        selectionParams['Tau'][name]['kwargs']['directory'] = directory
 
 ##############################
 ### DijetFakeRate specific ###
@@ -213,6 +319,9 @@ selectionParams['DijetFakeRate'] = {
     'loose' : {'args': [frBaseCutLoose],        'kwargs': {'mcscalefactor': frScaleFactorLoose,  'datascalefactor': dataScaleFactor, 'directory': 'loose'}},
     'medium': {'args': [frBaseCutMedium],       'kwargs': {'mcscalefactor': frScaleFactorMedium, 'datascalefactor': dataScaleFactor, 'directory': 'medium'}},
     'tight' : {'args': [frBaseCutTight],        'kwargs': {'mcscalefactor': frScaleFactorTight,  'datascalefactor': dataScaleFactor, 'directory': 'tight'}},
+    'loose_pt20' : {'args': [frBaseCutLoose + ' && l1_pt>20'],        'kwargs': {'mcscalefactor': frScaleFactorLoose,  'datascalefactor': dataScaleFactor, 'directory': 'loose/pt20'}},
+    'medium_pt20': {'args': [frBaseCutMedium + ' && l1_pt>20'],       'kwargs': {'mcscalefactor': frScaleFactorMedium, 'datascalefactor': dataScaleFactor, 'directory': 'medium/pt20'}},
+    'tight_pt20' : {'args': [frBaseCutTight + ' && l1_pt>20'],        'kwargs': {'mcscalefactor': frScaleFactorTight,  'datascalefactor': dataScaleFactor, 'directory': 'tight/pt20'}},
 }
 
 channels = ['e','m']
@@ -228,23 +337,24 @@ ptBins = {
 
 jetPtBins = [10,15,20,25,30,35,40,45,50]
 
-for sel in ['loose','medium','tight']:
+for sel in ['loose','medium','tight','loose_pt20','medium_pt20','tight_pt20']:
     for chan in channels:
-        directory = '{0}/{1}'.format(sel,chan)
+        directory = '{0}/{1}'.format('/'.join(sel.split('_')),chan)
         name = '{0}_{1}'.format(sel,chan)
         selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
         args = selectionParams['DijetFakeRate'][name]['args']
         selectionParams['DijetFakeRate'][name]['args'][0] = args[0] + '&& channel=="{0}"'.format(chan)
         selectionParams['DijetFakeRate'][name]['kwargs']['directory'] = directory
         for jetPt in jetPtBins:
-            directory = '{0}/{1}/jetPt{2}'.format(sel,chan,jetPt)
+            directory = '{0}/{1}/jetPt{2}'.format('/'.join(sel.split('_')),chan,jetPt)
             name = '{0}_{1}_jetPt{2}'.format(sel,chan,jetPt)
             selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
             args = selectionParams['DijetFakeRate'][name]['args']
             selectionParams['DijetFakeRate'][name]['args'][0] = args[0] + '&& channel=="{0}" && leadJet_pt>{1}'.format(chan,jetPt)
             selectionParams['DijetFakeRate'][name]['kwargs']['directory'] = directory
+        if 'pt20' in sel: continue
         for eb in range(len(etaBins[chan])-1):
-            directory = '{0}/{1}/etaBin{2}'.format(sel,chan,eb)
+            directory = '{0}/{1}/etaBin{2}'.format('/'.join(sel.split('_')),chan,eb)
             name = '{0}_{1}_etaBin{2}'.format(sel,chan,eb)
             selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
             args = selectionParams['DijetFakeRate'][name]['args']
@@ -275,24 +385,32 @@ for sel in ['default']:
 #######################
 ### Charge specific ###
 #######################
-chargeBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && fabs(z_mass-{0})<10. && z1_pt>20. && z2_pt>10.'.format(ZMASS)
-chargeOS = '{0} && z1_charge!=z2_charge'.format(chargeBaseCut)
-chargeSS = '{0} && z1_charge==z2_charge'.format(chargeBaseCut)
+chargeBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && z1_pt>20. && z2_pt>10.'
+OS = 'z1_charge!=z2_charge'
+SS = 'z1_charge==z2_charge'
+chargeOS = '{0} && {1}'.format(chargeBaseCut,OS)
+chargeSS = '{0} && {1}'.format(chargeBaseCut,SS)
+emZMassCut = 'fabs(z_mass-{1})<10.'.format(chargeBaseCut,ZMASS)
+tZMassCut = 'fabs(z_mass-60)<20.'.format(chargeBaseCut)
 chargeScaleFactor = 'z1_mediumScale*z2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Charge'] = {
     'OS' : {'args': [chargeOS],        'kwargs': {'mcscalefactor': chargeScaleFactor, 'directory': 'OS'}},
     'SS' : {'args': [chargeSS],        'kwargs': {'mcscalefactor': chargeScaleFactor, 'directory': 'SS'}},
 }
 
-channels = ['ee','mm']
+channelMap = {
+    'ee': ['ee'],
+    'mm': ['mm'],
+    'tt': ['mt','tm'],
+}
 
 for sel in ['OS','SS']:
-    for chan in channels:
+    for chan in channelMap:
         directory = '{0}/{1}'.format(sel,chan)
         name = '{0}_{1}'.format(sel,chan)
         selectionParams['Charge'][name] = deepcopy(selectionParams['Charge'][sel])
         args = selectionParams['Charge'][name]['args']
-        selectionParams['Charge'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
+        selectionParams['Charge'][name]['args'][0] = args[0] + '&& {0} && ({1})'.format(tZMassCut if chan=='tt' else emZMassCut,' || '.join('channel=="{0}"'.format(c) for c in channelMap[chan]))
         selectionParams['Charge'][name]['kwargs']['directory'] = directory
 
 #########################
@@ -339,6 +457,14 @@ for region in fakeRegions:
     wzScaleFactorMap[region] = '*'.join([wzScaleMap[region[x]][x] for x in range(3)])
     wzFakeScaleFactorMap[region] = '*'.join(['{0}/(1-{0})'.format(wzFakeRate[f]) for f in range(3) if region[f]=='F'] + ['-1' if region.count('F')%2==0 and region.count('F')>0 else '1'])
     wzCutMap[region] = ' && '.join(['{0}=={1}'.format(wzTightVar[x],1 if region[x]=='P' else 0) for x in range(3)]+[wzBaseCut])
+# dy/tt all loose
+wzScaleFactorMap['loose'] = '*'.join(['{0}_looseScale'.format(x) for x in ['z1','z2','w1']])
+wzScaleFactorMap['medium'] = '*'.join(['{0}_mediumScale'.format(x) for x in ['z1','z2','w1']])
+wzScaleFactorMap['tight'] = '*'.join(['{0}_tightScale'.format(x) for x in ['z1','z2','w1']])
+dySimpleCut = 'z1_pt>20 && z2_pt>10 && w1_pt>10 && fabs(z_mass-{0})<15 && 3l_mass>100 && met_pt<25 && w_mass<25'.format(ZMASS)
+ttSimpleCut = 'z1_pt>20 && z2_pt>10 && w1_pt>10 && fabs(z_mass-{0})>5 && 3l_mass>100'.format(ZMASS)
+wzCutMap['dy'] = dySimpleCut
+wzCutMap['tt'] = ttSimpleCut
 
 selectionParams['WZ'] = {
     'default' : {'args': [wzCutMap['PPP']],       'kwargs': {'mcscalefactor': '*'.join([wzScaleFactorMap['PPP'],wzBaseScaleFactor]), 'directory': 'default'}},
@@ -355,17 +481,39 @@ for region in fakeRegions:
         }
     }
 
+controls = ['dy','tt']
+for control in controls:
+    selectionParams['WZ'][control] = {
+        'args': [wzCutMap[control]],
+        'kwargs': {
+            'mccut': wzMCCut,
+            'mcscalefactor': '*'.join([wzScaleFactorMap['loose'],wzBaseScaleFactor]),
+            'directory': control,
+        }
+    }
+
+channels = ['eee','eem','mme','mmm']
+sels = selectionParams['WZ'].keys()
+for sel in sels:
+    for chan in channels:
+        name = '{0}_{1}'.format(sel,chan)
+        directory = chan if sel=='default' else '{0}/{1}'.format(sel,chan)
+        selectionParams['WZ'][name] = deepcopy(selectionParams['WZ'][sel])
+        args = selectionParams['WZ'][name]['args']
+        selectionParams['WZ'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
+        selectionParams['WZ'][name]['kwargs']['directory'] = directory
+
 #############
 ### hpp4l ###
 #############
-hpp4lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hmm1_passMedium==1 && hmm2_passMedium==1'
-hpp4lLowMassControl = '{0} && hpp_mass<170 && hmm_mass<170'.format(hpp4lBaseCut)
+hpp4lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hmm1_passMedium==1 && hmm2_passMedium==1 && hpp_deltaR>0.02 && hmm_deltaR>0.02'
+hpp4lLowMassControl = '{0} && (hpp_mass<100 || hmm_mass<100)'.format(hpp4lBaseCut)
 hpp4lMatchSign = 'hpp1_genCharge==hpp1_charge && hpp2_genCharge==hpp2_charge && hmm1_genCharge==hmm1_charge && hmm2_genCharge==hmm2_charge'
 hpp4lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hmm1_mediumScale*hmm2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Hpp4l'] = {
     'default'   : {'args': [hpp4lBaseCut],                           'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'default'}},
     'lowmass'   : {'args': [hpp4lLowMassControl],                    'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'lowmass'}},
-    'matchSign' : {'args': [hpp4lBaseCut + ' && ' + hpp4lMatchSign], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'matchSign'}},
+    #'matchSign' : {'args': [hpp4lBaseCut + ' && ' + hpp4lMatchSign], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'matchSign'}},
 }
 
 masses = [200,300,400,500,600,700,800,900,1000]
@@ -377,7 +525,7 @@ for mass in masses:
     selectionParams['Hpp4l']['old_{0}'.format(mass)] = {'args': [hpp4lOldSelections[mass]], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'old/{0}'.format(mass), 'countOnly': True}}
 
 # setup reco channel selections
-channels = getChannels('Hpp4')
+channels = getChannels('Hpp4l')
 
 sels = selectionParams['Hpp4l'].keys()
 for sel in sels:
@@ -422,8 +570,8 @@ for mass in masses:
 #############
 ### hpp3l ###
 #############
-hpp3lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hm1_passMedium==1'
-hpp3lLowMassControl = '{0} && hpp_mass<170 && hm_mass<170'.format(hpp3lBaseCut)
+hpp3lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hm1_passMedium==1 && hpp_deltaR>0.02'
+hpp3lLowMassControl = '{0} && hpp_mass<100'.format(hpp3lBaseCut)
 hpp3lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hm1_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Hpp3l'] = {
     'default' : {'args': [hpp3lBaseCut],        'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'directory': 'default'}},
@@ -482,7 +630,7 @@ def getHistParams(analysis):
 
 def getHistParams2D(analysis):
     histParams = deepcopy(params2D['common'])
-    if analysis in params: histParams.update(params2D[analysis])
+    if analysis in params2D: histParams.update(params2D[analysis])
     return histParams
 
 def getHistSelections(analysis,sample):

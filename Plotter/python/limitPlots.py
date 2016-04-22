@@ -11,9 +11,7 @@ logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%
 
 blind = True
 
-limitPlotter = LimitPlotter(
-    outputDirectory = 'plots/Limits',
-)
+limitPlotter = LimitPlotter('Limits')
 
 masses = [200,300,400,500,600,700,800,900,1000]
 modes = ['ee100','em100','et100','mm100','mt100','tt100','BP1','BP2','BP3','BP4']

@@ -9,10 +9,7 @@ import ROOT
 
 logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
-dijetFakeRatePlotter = Plotter(
-    inputDirectory  = 'flat/DijetFakeRate',
-    outputDirectory = 'plots/DijetFakeRate',
-)
+dijetFakeRatePlotter = Plotter('DijetFakeRate')
 
 chans = ['e','m']
 
@@ -107,7 +104,8 @@ for plot in plots:
 
 # plots of multiple ptcuts on same plot
 dijetFakeRatePlotter.clearHistograms()
-jetPts = [10,15,20,25,30,35,40,45,45,50]
+jetPts = [10,15,20,25,30,35,40,45,50]
+jetPts = [10,20,30,40,50]
 jetPtColors = {
     10 : ROOT.TColor.GetColor('#000000'),
     15 : ROOT.TColor.GetColor('#330000'),
@@ -122,21 +120,61 @@ jetPtColors = {
 for jetPt in jetPts:
     name = 'jetPt{0}'.format(jetPt)
     dijetFakeRatePlotter.addHistogram(name,sigMap['data'],style={'linecolor':jetPtColors[jetPt],'linestyle':3,'name':'Jet p_{{T}} > {0} GeV'.format(jetPt)})
+# add the z + tt samples from WZ
+dijetFakeRatePlotter.addHistogram('dataDY',sigMap['data'],style={'linecolor':ROOT.kBlue,'linestyle':1,'name':'Data (DY)'},analysis='WZ')
+#dijetFakeRatePlotter.addHistogram('dataTT',sigMap['data'],style={'linecolor':ROOT.kGreen,'linestyle':1,'name':'Data (TT)'},analysis='WZ')
 
+
+ptbins = [0,20,25,30,40,60]
 jet_cust = {
-    'pt'      : {'yaxis': 'Events/0.1 GeV', 'rebin': 1, 'rangex': [0,100]},
+    'pt'      : {'yaxis': 'Unit Normalized', 'rebin': 5, 'rangex': [0,60], 'logy': 0},
+}
+
+ptVarMap = {
+    0 : 'zLeadingLeptonPt',
+    1 : 'zSubLeadingLeptonPt',
+    2 : 'wLeptonPt',
+}
+
+leptonBin = {
+    'e' : {
+        0 : ['eee','eem'],
+        1 : ['eee','eem'],
+        2 : ['eee','mme'],
+    },
+    'm' : {
+        0 : ['mme','mmm'],
+        1 : ['mme','mmm'],
+        2 : ['eem','mmm'],
+    },
 }
 
 for plot in ['pt']:
     kwargs = deepcopy(plots[plot])
     if plot in jet_cust: kwargs.update(jet_cust[plot])
-    for lepton in ['loose','medium','tight']:
+    for lepton in ['loose']:
         for chan in chans:
             plotname = {}
             for jetPt in jetPts:
+                #plotname['jetPt{0}'.format(jetPt)] = '{0}/pt20/{1}/jetPt{2}/{3}'.format(lepton,chan,jetPt,plot)
                 plotname['jetPt{0}'.format(jetPt)] = '{0}/{1}/jetPt{2}/{3}'.format(lepton,chan,jetPt,plot)
+            dyvars = ['dy/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [(c,i) for i in range(3) for c in leptonBin[chan][i]]]
+            ttvars = ['tt/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [(c,i) for i in range(3) for c in leptonBin[chan][i]]]
+            plotname['dataDY'] = dyvars
+            #plotname['dataTT'] = ttvars
             savename = '{0}/{1}/allJetPts_{2}'.format(lepton,chan,plot)
             dijetFakeRatePlotter.plotNormalized(plotname,savename,legendpos=34,numcol=2,**kwargs)
+            for lepBin in range(3):
+                plotname = {}
+                for jetPt in jetPts:
+                    #plotname['jetPt{0}'.format(jetPt)] = '{0}/pt20/{1}/jetPt{2}/{3}'.format(lepton,chan,jetPt,plot)
+                    plotname['jetPt{0}'.format(jetPt)] = '{0}/{1}/jetPt{2}/{3}'.format(lepton,chan,jetPt,plot)
+                dyvars = ['dy/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [(c,lepBin) for c in leptonBin[chan][lepBin]]]
+                ttvars = ['tt/{1}/{2}'.format(lepton,wzchan,ptVarMap[p]) for wzchan,p in [(c,lepBin) for c in leptonBin[chan][lepBin]]]
+                plotname['dataDY'] = dyvars
+                #plotname['dataTT'] = ttvars
+                savename = '{0}/{1}/allJetPts_{2}_{3}'.format(lepton,chan,plot,lepBin)
+                dijetFakeRatePlotter.plotNormalized(plotname,savename,legendpos=34,numcol=2,**kwargs)
 
 # ratios of tight/loose as func of pt/eta
 dijetFakeRatePlotter.clearHistograms()

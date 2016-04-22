@@ -20,10 +20,11 @@ ROOT.gStyle.SetPalette(1)
 class PlotterBase(object):
     '''Basic plotter utilities'''
 
-    def __init__(self,**kwargs):
+    def __init__(self,analysis,**kwargs):
         '''Initialize the plotter'''
         # plot directory
-        self.outputDirectory = kwargs.pop('outputDirectory','plots/Hpp4l')
+        self.analysis = analysis
+        self.outputDirectory = kwargs.pop('outputDirectory','plots/{0}'.format(self.analysis))
         # initialize stuff
 
     def _getLegend(self,**kwargs):

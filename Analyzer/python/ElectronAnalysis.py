@@ -38,6 +38,8 @@ class ElectronAnalysis(AnalysisBase):
         electrons = self.getCands(rtrow,'electrons',lambda rtrow,cands: True)
         for elec in electrons:
             cands = {'e':elec}
+            pt = self.getObjectVariable(rtrow,cands['e'],'pt')
+            if pt<10: continue
             self.tree.fill(rtrow,cands,allowDuplicates=True)
 
         self.eventsStored += 1

@@ -7,7 +7,7 @@ import ROOT
 logging.basicConfig(level=logging.INFO, stream=sys.stderr, format='%(asctime)s.%(msecs)03d %(levelname)s %(name)s: %(message)s', datefmt='%Y-%m-%d %H:%M:%S')
 
 
-ePlotter = Plotter('Electron')
+tPlotter = Plotter('Tau')
 
 sigMap = {
     'WZ'  : [
@@ -56,6 +56,7 @@ sigMap = {
              'MuonEG',
              'SingleMuon',
              'SingleElectron',
+             'DoubleTau',
             ],
     'HppHmm200GeV' : ['HPlusPlusHMinusMinusHTo4L_M-200_13TeV-pythia8'],
     'HppHmm300GeV' : ['HPlusPlusHMinusMinusHTo4L_M-300_13TeV-pythia8'],
@@ -90,53 +91,22 @@ sigcolors = [
     ROOT.TColor.GetColor('#FFCCCC'),
 ]
 
-#ePlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'])
-ePlotter.addHistogram('HppHmm500GeVBarrel',sigMap['HppHmm500GeV'],style={'name':'#Phi^{++}#Phi^{--} (Barrel)','linecolor':sigcolors[3],'fillcolor':sigcolors[3]})
-ePlotter.addHistogram('HppHmm500GeVEndcap',sigMap['HppHmm500GeV'],style={'name':'#Phi^{++}#Phi^{--} (Endcap)','linecolor':sigcolors[6],'fillcolor':sigcolors[6]})
 
-#
-#ePlotter.addHistogram('HppHmm200GeV', sigMap['HppHmm200GeV'],style={'name':'#Phi^{++}#Phi^{--} (200 GeV)', 'linecolor':sigcolors[0], 'fillcolor':sigcolors[0]})
-#ePlotter.addHistogram('HppHmm300GeV', sigMap['HppHmm300GeV'],style={'name':'#Phi^{++}#Phi^{--} (300 GeV)', 'linecolor':sigcolors[1], 'fillcolor':sigcolors[1]})
-#ePlotter.addHistogram('HppHmm400GeV', sigMap['HppHmm400GeV'],style={'name':'#Phi^{++}#Phi^{--} (400 GeV)', 'linecolor':sigcolors[2], 'fillcolor':sigcolors[2]})
-#ePlotter.addHistogram('HppHmm500GeV', sigMap['HppHmm500GeV'],style={'name':'#Phi^{++}#Phi^{--} (500 GeV)', 'linecolor':sigcolors[3], 'fillcolor':sigcolors[3]})
-#ePlotter.addHistogram('HppHmm600GeV', sigMap['HppHmm600GeV'],style={'name':'#Phi^{++}#Phi^{--} (600 GeV)', 'linecolor':sigcolors[4], 'fillcolor':sigcolors[4]})
-#ePlotter.addHistogram('HppHmm700GeV', sigMap['HppHmm700GeV'],style={'name':'#Phi^{++}#Phi^{--} (700 GeV)', 'linecolor':sigcolors[5], 'fillcolor':sigcolors[5]})
-#ePlotter.addHistogram('HppHmm800GeV', sigMap['HppHmm800GeV'],style={'name':'#Phi^{++}#Phi^{--} (800 GeV)', 'linecolor':sigcolors[6], 'fillcolor':sigcolors[6]})
-#ePlotter.addHistogram('HppHmm900GeV', sigMap['HppHmm900GeV'],style={'name':'#Phi^{++}#Phi^{--} (900 GeV)', 'linecolor':sigcolors[7], 'fillcolor':sigcolors[7]})
-#ePlotter.addHistogram('HppHmm1.0TeV', sigMap['HppHmm1.0TeV'],style={'name':'#Phi^{++}#Phi^{--} (1 TeV)',   'linecolor':sigcolors[8], 'fillcolor':sigcolors[8]})
-
-rocplots = {
-    'dxy'     : {'legendpos':34,'numcol':3,'invert':True},
-    'dz'      : {'legendpos':34,'numcol':3,'invert':True},
-    'mvaTrig' : {'legendpos':34,'numcol':3,'invert':False},
-}
-
-#for plot,kwargs in rocplots.iteritems():
-#    sig = {'HppHmm500GeVBarrel':'{0}_barrel'.format(plot), 'HppHmm500GeVEndcap':'{0}_endcap'.format(plot)}
-#    bg = {'HppHmm500GeVBarrel':'{0}_barrel_fake'.format(plot), 'HppHmm500GeVEndcap':'{0}_endcap_fake'.format(plot)}
-#    ePlotter.plotROC(sig, bg, 'roc_{0}'.format(plot), **kwargs)
-
-ePlotter.clearHistograms()
-
-ePlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'],style={'name': '#Phi^{++}#Phi^{--} (prompt)'})
-ePlotter.addHistogram('TT',sigMap['TT'],style={'name':'t#bar{t} (fake)'})
+tPlotter.addHistogram('HppHmm500GeV',sigMap['HppHmm500GeV'],style={'name': '#Phi^{++}#Phi^{--} (match tau gen jet)'})
+tPlotter.addHistogram('TT',sigMap['TT'],style={'name':'t#bar{t} (fake)'})
 
 idNames = [
-    'cutBasedVeto',
-    'cutBasedLoose',
-    'cutBasedMedium',
-    'cutBasedTight',
-    'wwLoose',
-    'heepV60',
-    'NonTrigWP80',
-    'NonTrigWP90',
-    'TrigPre',
-    'TrigWP80',
-    'TrigWP90',
+    'old_vlooseElectron_looseMuon_looseIsolation',
+    'old_vlooseElectron_looseMuon_tightIsolation',
+    'old_vlooseElectron_looseMuon_vtightIsolation',
+    'old_tightElectron_tightMuon_looseIsolation',
+    'old_tightElectron_tightMuon_tightIsolation',
+    'old_tightElectron_tightMuon_vtightIsolation',
 ]
 
+binning = [0,20,40,60,80,100,120,140,160,180,200,220,240,260,280,300,350,400,450,500,550,600,650,700,800,900,1000]
 for idName in idNames:
     num = {'HppHmm500GeV': 'default/prompt/{0}/pt'.format(idName), 'TT': 'default/fake/{0}/pt'.format(idName)}
     denom = {'HppHmm500GeV': 'default/prompt/pt', 'TT': 'default/fake/pt'}
     savename = idName
-    ePlotter.plotRatio(num,denom,savename,rebin=10,xaxis='p_{T} (GeV)',numcol=2)
+    tPlotter.plotRatio(num,denom,savename,rebin=binning,xaxis='p_{T} (GeV)',numcol=2,ymax=1.2)

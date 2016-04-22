@@ -25,8 +25,9 @@ try:
     import CRABClient.Commands.submit as crabClientSubmit
     import CRABClient.Commands.status as crabClientStatus
     import CRABClient.Commands.resubmit as crabClientResubmit
+    crabLoaded = True
 except:
-    logging.info('You must source a crab environment to submit to crab.\nsource /cvmfs/cms.cern.ch/crab3/crab.sh')
+    crabLoaded = False
 
 
 
@@ -186,6 +187,9 @@ def submit_untracked_crab(args):
 
 def submit_crab(args):
     '''Create submission script for crab'''
+    if not crabLoaded:
+        logging.error('You must source a crab environment to submit to crab.\nsource /cvmfs/cms.cern.ch/crab3/crab.sh')
+        return
     if args.sampleList or args.samples:
         submit_das_crab(args)
     elif args.inputDirectory:
@@ -196,6 +200,9 @@ def submit_crab(args):
 
 def status_crab(args):
     '''Check jobs'''
+    if not crabLoaded:
+        logging.error('You must source a crab environment to submit to crab.\nsource /cvmfs/cms.cern.ch/crab3/crab.sh')
+        return
     crab_dirs = []
     if args.jobName:
         workArea = get_crab_workArea(args)
@@ -260,6 +267,9 @@ def parse_crab_status(args,statusMap):
 
 def resubmit_crab(args):
     '''Resubmit jobs'''
+    if not crabLoaded:
+        logging.error('You must source a crab environment to submit to crab.\nsource /cvmfs/cms.cern.ch/crab3/crab.sh')
+        return
     crab_dirs = []
     if args.jobName:
         workArea = get_crab_workArea(args)
@@ -335,7 +345,7 @@ def submit_untracked_condor(args):
             for sample in sampleList:
                 # farmout config
                 command = 'farmoutAnalysisJobs --infer-cmssw-path'
-                if args.scriptExe:
+                if hasattr(args,'scriptExe') and args.scriptExe:
                     command += ' --fwklite'
                 # submit dir
                 submitDir = '{0}/{1}'.format(workArea, sample)
@@ -359,7 +369,10 @@ def submit_untracked_condor(args):
                 # output directory
                 outputDir = 'srm://cmssrm2.hep.wisc.edu:8443/srm/v2/server?SFN=/hdfs/store/user/{0}/{1}/{2}'.format(uname,args.jobName,sample)
                 command += ' --output-dir={0}'.format(outputDir)
-                command += ' {0} {1} {2}'.format(args.jobName, args.cfg, ' '.join(args.cmsRunArgs))
+                if hasattr(args,'cfg'):
+                    command += ' {0} {1} {2}'.format(args.jobName, args.cfg, ' '.join(args.cmsRunArgs))
+                else: # its a merge
+                    command += ' --merge {0}'.format(args.jobName)
                 if args.dryrun:
                     logging.info(command)
                 else:
@@ -372,6 +385,7 @@ def submit_condor(args):
         submit_untracked_condor(args)
     else:
         log.warning('Unrecognized submit configuration.')
+
 
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Submit jobs to grid')
@@ -462,7 +476,7 @@ def parse_command_line(argv):
         help='Text file list of DAS samples to submit, one per line'
     )
     parser_condorSubmit_inputs.add_argument('--inputDirectory', type=str, nargs='*',
-        help='Top level directory to submit (unix wildcards allowed). Each subdirectory will create one crab job.'
+        help='Top level directory to submit (unix wildcards allowed). Each subdirectory will create one condor job.'
     )
 
     parser_condorSubmit.add_argument('--applyLumiMask',action='store_true',
@@ -474,11 +488,12 @@ def parse_command_line(argv):
         help='DAS instance to search for input files'
     )
 
-    parser_condorSubmit.add_argument('--filesPerJob', type=int, default=1,
+    parser_condorSubmit_jobs = parser_condorSubmit.add_mutually_exclusive_group(required=True)
+    parser_condorSubmit_jobs.add_argument('--filesPerJob', type=int, default=1,
         help='Number of files per job'
     )
 
-    parser_condorSubmit.add_argument('--gigabytesPerJob', type=float, default=0,
+    parser_condorSubmit_jobs.add_argument('--gigabytesPerJob', type=float, default=0,
         help='Average jobs to process a given number of gigabytes'
     )
 
@@ -487,6 +502,29 @@ def parse_command_line(argv):
     parser_condorSubmit.add_argument('--scriptExe', action='store_true', help='This is a script, not a cmsRun config')
 
     parser_condorSubmit.set_defaults(submit=submit_condor)
+
+    # condorMerge
+    parser_condorMerge = subparsers.add_parser('condorMerge', help='Submit merge job via condor')
+    parser_condorMerge.add_argument('jobName', type=str, help='Job Name for submission')
+
+    parser_condorMerge_inputs = parser_condorMerge.add_mutually_exclusive_group(required=True)
+
+    parser_condorMerge_inputs.add_argument('--inputDirectory', type=str, nargs='*',
+        help='Top level directory to submit (unix wildcards allowed). Each subdirectory will create one condor job.'
+    )
+
+    parser_condorMerge_jobs = parser_condorMerge.add_mutually_exclusive_group(required=True)
+    parser_condorMerge_jobs.add_argument('--filesPerJob', type=int, default=1,
+        help='Number of files per job'
+    )
+
+    parser_condorMerge_jobs.add_argument('--gigabytesPerJob', type=float, default=0,
+        help='Average jobs to process a given number of gigabytes'
+    )
+
+    parser_condorMerge.add_argument('--dryrun', action='store_true', help='Do not submit jobs')
+
+    parser_condorMerge.set_defaults(submit=submit_condor)
 
     return parser.parse_args(argv)
 

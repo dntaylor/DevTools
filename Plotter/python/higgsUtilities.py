@@ -208,7 +208,7 @@ def getChannels(analysis):
                 chans[chanString] += [hpp+hmm]
     elif analysis=='Hpp3l':
         for hpp in hppChannels:
-            for hm in hpmChannels:
+            for hm in hmChannels:
                 chanString = ''.join(sorted(hpp))+''.join(sorted(hm))
                 if chanString not in chans:
                     chans[chanString] = []

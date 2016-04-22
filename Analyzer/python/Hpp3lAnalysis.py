@@ -3,15 +3,13 @@
 
 from AnalysisBase import AnalysisBase
 from utilities import ZMASS, deltaPhi, deltaR
-from leptonId import passWZLoose, passWZMedium, passWZTight
+from leptonId import passWZLoose, passWZMedium, passWZTight, passHppLoose, passHppMedium, passHppTight
 
 import sys
 import itertools
 import operator
 
-sys.argv.append('-b')
 import ROOT
-sys.argv.pop()
 
 class Hpp3lAnalysis(AnalysisBase):
     '''
@@ -75,6 +73,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hpp1']), 'hpp1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hpp1']), 'hpp1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hpp1']), 'hpp1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['hpp1']), 'hpp1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['hpp1']), 'hpp1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp1']), 'hpp1_zeppenfeld','F')
         self.addLepton('hpp2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['hpp2']), 'hpp2_passMedium', 'I')
@@ -82,6 +82,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hpp2']), 'hpp2_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hpp2']), 'hpp2_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hpp2']), 'hpp2_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['hpp2']), 'hpp2_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['hpp2']), 'hpp2_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hpp2']), 'hpp2_zeppenfeld','F')
 
         # hm lepton
@@ -92,6 +94,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['hm1']), 'hm1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['hm1']), 'hm1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['hm1']), 'hm1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['hm1']), 'hm1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['hm1']), 'hm1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['hm1']), 'hm1_zeppenfeld','F')
 
         # wrong combination
@@ -107,6 +111,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z1']), 'z1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z1']), 'z1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z1']), 'z1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['z1']), 'z1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['z1']), 'z1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z1']), 'z1_zeppenfeld','F')
         self.addLepton('z2')
         self.tree.add(lambda rtrow,cands: self.passMedium(rtrow,cands['z2']), 'z2_passMedium', 'I')
@@ -114,6 +120,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['z2']), 'z2_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z2']), 'z2_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z2']), 'z2_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['z2']), 'z2_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['z2']), 'z2_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['z2']), 'z2_zeppenfeld','F')
 
         # w lepton
@@ -124,6 +132,8 @@ class Hpp3lAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.looseScale(rtrow,cands['w1']), 'w1_looseScale', 'F')
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['w1']), 'w1_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['w1']), 'w1_tightScale', 'F')
+        self.tree.add(lambda rtrow,cands: self.mediumFakeRate(rtrow,cands['w1']), 'w1_mediumFakeRate', 'F')
+        self.tree.add(lambda rtrow,cands: self.tightFakeRate(rtrow,cands['w1']), 'w1_tightFakeRate', 'F')
         self.tree.add(lambda rtrow,cands: self.zeppenfeld(rtrow,cands,cands['w1']), 'w1_zeppenfeld','F')
 
         # wrong combination
@@ -149,8 +159,10 @@ class Hpp3lAnalysis(AnalysisBase):
         }
 
         # get leptons
-        colls = ['electrons','muons']
+        colls = ['electrons','muons','taus']
         pts = {}
+        etas = {}
+        phis = {}
         p4s = {}
         charges = {}
         leps = []
@@ -159,25 +171,28 @@ class Hpp3lAnalysis(AnalysisBase):
         if len(leps)<3: return candidate # need at least 3 leptons
         if len(medLeps)>3: return candidate # cant have more than 3 medium leptons
 
-
         for cand in leps:
             pts[cand] = self.getObjectVariable(rtrow,cand,'pt')
+            etas[cand] = self.getObjectVariable(rtrow,cand,'eta')
+            phis[cand] = self.getObjectVariable(rtrow,cand,'phi')
             p4s[cand] = self.getObjectVariable(rtrow,cand,'p4')
             charges[cand] = self.getObjectVariable(rtrow,cand,'charge')
 
         # require ++- or --+
         if abs(sum([charges[c] for c in leps]))!=1: return candidate
 
-
         # get the candidates
-        hppCand = []
-        for pair in itertools.combinations(leps,2):
-            if charges[pair[0]]==charges[pair[1]]: hppCand = pair
-        if not hppCand: return candidate
-        hmCand = []
-        for l in leps:
-            if l not in hppCand: hmCand = l
-        if not hmCand: return candidate
+        hppCands = []
+        for trio in itertools.permutations(leps,3):
+            # require ++-/--+
+            if charges[trio[0]]!=charges[trio[1]]: continue
+            # require deltaR seperation of 0.02
+            for i,j in itertools.combinations(range(3),2):
+                if deltaR(etas[trio[i]],phis[trio[i]],etas[trio[j]],phis[trio[j]])<0.02: continue
+            hppCands += [trio]
+        if not hppCands: return candidate
+        hppCand = hppCands[0][:2]
+        hmCand = hppCands[0][2]
 
         candidate['hpp1'] = hppCand[0] if pts[hppCand[0]]>pts[hppCand[1]] else hppCand[1]
         candidate['hpp2'] = hppCand[1] if pts[hppCand[0]]>pts[hppCand[1]] else hppCand[0]
@@ -234,13 +249,13 @@ class Hpp3lAnalysis(AnalysisBase):
     ### lepton IDs ###
     ##################
     def passLoose(self,rtrow,cand):
-        return passWZLoose(self,rtrow,cand)
+        return passHppLoose(self,rtrow,cand)
 
     def passMedium(self,rtrow,cand):
-        return passWZMedium(self,rtrow,cand)
+        return passHppMedium(self,rtrow,cand)
 
     def passTight(self,rtrow,cand):
-        return passWZTight(self,rtrow,cand)
+        return passHppTight(self,rtrow,cand)
 
     def looseScale(self,rtrow,cand):
         if cand[0]=='muons':
@@ -266,6 +281,12 @@ class Hpp3lAnalysis(AnalysisBase):
         else:
             return 1.
 
+    def mediumFakeRate(self,rtrow,cand):
+        return self.fakeRates.getFakeRate(rtrow,cand,'WZMedium','WZLoose')
+
+    def tightFakeRate(self,rtrow,cand):
+        return self.fakeRates.getFakeRate(rtrow,cand,'WZTight','WZLoose')
+
     def getPassingCands(self,rtrow,mode):
         if mode=='Loose':
             passMode = self.passLoose
@@ -276,7 +297,7 @@ class Hpp3lAnalysis(AnalysisBase):
         else:
             return []
         cands = []
-        for coll in ['electrons','muons']:
+        for coll in ['electrons','muons','taus']:
             cands += self.getCands(rtrow,coll,passMode)
         return cands
 
@@ -391,6 +412,9 @@ class Hpp3lAnalysis(AnalysisBase):
             'SingleElectron' : [
                 'Ele23_WPLoose_Gsf',
             ],
+            'Tau' : [
+                'DoubleMediumIsoPFTau35_Trk1_eta2p1_Reg',
+            ],
         }
         # the order here defines the heirarchy
         # first dataset, any trigger passes
@@ -402,6 +426,7 @@ class Hpp3lAnalysis(AnalysisBase):
             'MuonEG',
             'SingleMuon',
             'SingleElectron',
+            'Tau',
         ]
         # reject triggers if they are in another dataset
         # looks for the dataset name in the filename
@@ -423,10 +448,14 @@ class Hpp3lAnalysis(AnalysisBase):
 
     def triggerEfficiency(self,rtrow,cands):
         candList = [cands[c] for c in ['hpp1','hpp2','hm1']]
-        triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','Mu17_Mu8','Ele17_Ele12']
+        numTaus = [c[0] for c in candList].count('taus')
+        if numTaus<2:
+            triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','Mu17_Mu8','Ele17_Ele12']
+        elif numTaus==2:
+            triggerList = ['IsoMu20_OR_IsoTkMu20','Ele23_WPLoose','DoublePFTau35']
+        else:
+            triggerList = ['DoublePFTau35']
         return self.triggerScales.getDataEfficiency(rtrow,triggerList,candList)
-
-
 
 
 
