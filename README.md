@@ -10,10 +10,10 @@ Installation
 Current CMSSW version ``CMSSW_7_6_3_patch2``.
 
 ```bash
-scram pro -n WorkingArea CMSSW <CMSSW_VERSION>
-cd WorkingArea/src
+cmsrel CMSSW_7_6_3_patch2
+cd CMSSW_7_6_3_patch2/src
 cmsenv
 git cms-init
-git clone git@github.com:dntaylor/DevTools.git
+git clone --recursive git@github.com:dntaylor/DevTools.git -b 76X
 ./DevTools/recipe/recipe.sh
 ``` 
