@@ -1,14 +1,12 @@
 #!/usr/bin/env bash
 
-# CMSSW packages
-pushd $CMSSW_BASE/src
-git cms-merge-topic -u matteosan1:egm_tnp_76X
-popd
-
 # recipes for sub modules
 
 # ntuplizer
 source $CMSSW_BASE/src/DevTools/Ntuplizer/recipe/recipe.sh
+
+# tag and probe
+source $CMSSW_BASE/src/DevTools/TagAndProbe/recipe/recipe.sh
 
 # python utilities
 git clone --branch 15.0.0 https://github.com/pypa/virtualenv.git $CMSSW_BASE/src/DevTools/recipe/virtualenv

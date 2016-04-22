@@ -8,3 +8,7 @@
 [submodule "Plotter"]
 	path = Plotter
 	url = git@github.com:dntaylor/DevTools-Plotting.git
+[submodule "TagAndProbe"]
+	path = TagAndProbe
+	url = git@github.com:dntaylor/DevTools-TagAndProbe.git
+	branch = 76X
