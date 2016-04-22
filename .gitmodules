@@ -12,3 +12,6 @@
 	path = TagAndProbe
 	url = git@github.com:dntaylor/DevTools-TagAndProbe.git
 	branch = 76X
+[submodule "Limits"]
+	path = Limits
+	url = git@github.com:dntaylor/DevTools-Limits.git
