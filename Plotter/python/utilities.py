@@ -1,19 +1,9 @@
 # common utilities for plotting
 import os
 import sys
-import errno
 import hashlib
 
-from DevTools.Analyzer.utilities import ZMASS
-
-def python_mkdir(dir):
-    '''A function to make a unix directory as well as subdirectories'''
-    try:
-        os.makedirs(dir)
-    except OSError as exc:
-        if exc.errno == errno.EEXIST and os.path.isdir(dir):
-            pass
-        else: raise
+from DevTools.Utilities.utilities import python_mkdir, ZMASS
 
 def hashFile(*filenames,**kwargs):
     BUFFSIZE = kwargs.pop('BUFFSIZE',65536)

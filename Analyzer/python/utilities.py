@@ -3,7 +3,7 @@ import os
 import sys
 import ROOT
 
-ZMASS = 91.1876
+from DevTools.Utilities.utilities import ZMASS
 
 def deltaPhi(phi0,phi1):
     result = phi0-phi1
