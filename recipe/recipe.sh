@@ -2,9 +2,13 @@
 
 # CMSSW packages
 pushd $CMSSW_BASE/src
-git cms-merge-topic -u matteosan1:smearer_76X
 git cms-merge-topic -u matteosan1:egm_tnp_76X
 popd
+
+# recipes for sub modules
+
+# ntuplizer
+source $CMSSW_BASE/src/DevTools/Ntuplizer/recipe/recipe.sh
 
 # python utilities
 git clone --branch 15.0.0 https://github.com/pypa/virtualenv.git $CMSSW_BASE/src/DevTools/recipe/virtualenv

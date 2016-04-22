@@ -67,3 +67,6 @@ target/
 # scram things
 *__init__.py
 .*
+
+# venv
+recipe/virtualenv
