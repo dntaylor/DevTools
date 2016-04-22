@@ -6,7 +6,7 @@ import ROOT
 from DevTools.MVATrainer.Trainer import Trainer
 from DevTools.Plotter.xsec import getXsec
 from DevTools.Plotter.utilities import getLumi
-from DevTools.Analyzer.utilities import ZMASS
+from DevTools.Utilties.utilities import ZMASS
 
 class Hpp4lTrainer(Trainer):
     '''Hpp4l MVA Trainer'''

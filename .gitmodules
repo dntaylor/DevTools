@@ -1,0 +1,17 @@
+[submodule "Analyzer"]
+	path = Analyzer
+	url = git@github.com:dntaylor/DevTools-Analysis.git
+[submodule "Ntuplizer"]
+	path = Ntuplizer
+	url = git@github.com:dntaylor/DevTools-Ntuplizer.git
+	branch = 80X
+[submodule "Plotter"]
+	path = Plotter
+	url = git@github.com:dntaylor/DevTools-Plotting.git
+[submodule "TagAndProbe"]
+	path = TagAndProbe
+	url = git@github.com:dntaylor/DevTools-TagAndProbe.git
+	branch = 80X
+[submodule "Limits"]
+	path = Limits
+	url = git@github.com:dntaylor/DevTools-Limits.git
