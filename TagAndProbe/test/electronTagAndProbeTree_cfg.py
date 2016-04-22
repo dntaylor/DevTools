@@ -35,7 +35,7 @@ from PhysicsTools.TagAndProbe.treeMakerOptions_cfi import *
 
 if (varOptions.isMC):
     options['INPUT_FILE_NAME']     = '/store/mc/RunIIFall15MiniAODv2/DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8/MINIAODSIM/PU25nsData2015v1_76X_mcRun2_asymptotic_v12-v1/00000/06532BBC-05C8-E511-A60A-F46D043B3CE5.root'
-    options['OUTPUT_FILE_NAME']    = "TnPTree_mc_muon.root"
+    options['OUTPUT_FILE_NAME']    = "TnPTree_mc_electron.root"
     options['TnPPATHS']            = cms.vstring("HLT_Ele23_WPLoose_Gsf_v*")
     options['TnPHLTTagFilters']    = cms.vstring("hltEle23WPLooseGsfTrackIsoFilter")
     options['TnPHLTProbeFilters']  = cms.vstring()
@@ -44,7 +44,7 @@ if (varOptions.isMC):
     options['EVENTSToPROCESS']     = cms.untracked.VEventRange()
 else:
     options['INPUT_FILE_NAME']     = "/store/data/Run2015D/SingleElectron/MINIAOD/16Dec2015-v1/20000/FC4F7BEE-FCA6-E511-A99F-0CC47A4D7686.root"
-    options['OUTPUT_FILE_NAME']    = "TnPTree_data_muon.root"
+    options['OUTPUT_FILE_NAME']    = "TnPTree_data_electron.root"
     options['TnPPATHS']            = ["HLT_Ele23_WPLoose_Gsf_v*",]
     options['TnPHLTTagFilters']    = ["hltEle23WPLooseGsfTrackIsoFilter"]
     options['TnPHLTProbeFilters']  = cms.vstring()
