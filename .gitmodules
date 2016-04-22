@@ -1,3 +1,7 @@
 [submodule "Analyzer"]
 	path = Analyzer
 	url = git@github.com:dntaylor/DevTools-Analysis.git
+[submodule "Ntuplizer"]
+	path = Ntuplizer
+	url = git@github.com:dntaylor/DevTools-Ntuplizer.git
+	branch = 76X
