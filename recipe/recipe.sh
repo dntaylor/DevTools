@@ -3,10 +3,10 @@
 # CMSSW packages
 
 # electron smear corrections not yet availabel in 80X
-#pushd $CMSSW_BASE/src
+pushd $CMSSW_BASE/src
 #git cms-merge-topic -u matteosan1:smearer_76X
 git cms-merge-topic -u matteosan1:egm_tnp_80X
-#popd
+popd
 
 # python utilities
 git clone --branch 15.0.0 https://github.com/pypa/virtualenv.git $CMSSW_BASE/src/DevTools/recipe/virtualenv
