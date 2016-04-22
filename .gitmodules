@@ -5,3 +5,6 @@
 	path = Ntuplizer
 	url = git@github.com:dntaylor/DevTools-Ntuplizer.git
 	branch = 76X
+[submodule "Plotter"]
+	path = Plotter
+	url = git@github.com:dntaylor/DevTools-Plotting.git
