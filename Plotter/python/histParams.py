@@ -46,7 +46,7 @@ params = {
     'DijetFakeRate': {
         'pt'               : {'variable': 'l1_pt',   'binning': [2000,0,2000]},
         'eta'              : {'variable': 'l1_eta',  'binning': [600,-3.,3.]},
-        'wMass'            : {'variable': 'w_mass',  'binning': [500, 0, 500]},
+        'wMass'            : {'variable': 'w_mt',    'binning': [500, 0, 500]},
     },
     # overrides for DY
     'DY' : {
@@ -72,6 +72,19 @@ params = {
         'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [10000, 0, 1000]},
         'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
     },
+    # overrides for TauCharge
+    'TauCharge' : {
+        'zMass'                 : {'variable': 'z_mass',                         'binning': [5000, 0, 500]},
+        'zPt'                   : {'variable': 'z_pt',                           'binning': [5000, 0, 500]},
+        'zEta'                  : {'variable': 'z_eta',                          'binning': [1000, -5, 5]},
+        'zDeltaR'               : {'variable': 'z_deltaR',                       'binning': [500, 0, 5]},
+        'zTauMuPt'              : {'variable': 'z1_pt',                          'binning': [10000, 0, 1000]},
+        'zTauMuEta'             : {'variable': 'z1_eta',                         'binning': [500, -2.5, 2.5]},
+        'zTauHadPt'             : {'variable': 'z2_pt',                          'binning': [10000, 0, 1000]},
+        'zTauHadEta'            : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
+        'tauMuMt'               : {'variable': 'w1_mt',                          'binning': [5000, 0, 500]},
+        'tauHadMt'              : {'variable': 'w2_mt',                          'binning': [5000, 0, 500]},
+    },
     # overrides for WZ
     'WZ' : {
         # z
@@ -84,7 +97,7 @@ params = {
         'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [500, 0, 500]},
         'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5]},
         # w
-        'wMass'                 : {'variable': 'w_mass',                         'binning': [500, 0, 500]},
+        'wMass'                 : {'variable': 'w_mt',                           'binning': [500, 0, 500]},
         'wPt'                   : {'variable': 'w_pt',                           'binning': [500, 0, 500]},
         'wLeptonPt'             : {'variable': 'w1_pt',                          'binning': [500, 0, 500]},
         'wLeptonEta'            : {'variable': 'w1_eta',                         'binning': [500, -2.5, 2.5]},
@@ -138,7 +151,7 @@ params = {
         'hppSubLeadingLeptonPt' : {'variable': 'hpp2_pt',                        'binning': [1000, 0, 1000]},
         'hppSubLeadingLeptonEta': {'variable': 'hpp2_eta',                       'binning': [500, -2.5, 2.5]},
         # h-/h+
-        'hmMass'                : {'variable': 'hm_mass',                        'binning': [1200, 0, 1200]},
+        'hmMass'                : {'variable': 'hm_mt',                          'binning': [1200, 0, 1200]},
         'hmPt'                  : {'variable': 'hm_pt',                          'binning': [1200, 0, 1200]},
         'hmEta'                 : {'variable': 'hm_eta',                         'binning': [1000, -5, 5]},
         'hmLeptonPt'            : {'variable': 'hm1_pt',                         'binning': [1000, 0, 1000]},
@@ -153,7 +166,7 @@ params = {
         'zSubLeadingLeptonPt'   : {'variable': 'z2_pt',                          'binning': [1000, 0, 1000],  'selection': 'z_mass>0.',},
         'zSubLeadingLeptonEta'  : {'variable': 'z2_eta',                         'binning': [500, -2.5, 2.5], 'selection': 'z_mass>0.',},
         # w
-        'wMass'                 : {'variable': 'w_mass',                         'binning': [500, 0, 500],    'selection': 'z_mass>0.',},
+        'wMass'                 : {'variable': 'w_mt',                           'binning': [500, 0, 500],    'selection': 'z_mass>0.',},
         'wPt'                   : {'variable': 'w_pt',                           'binning': [500, 0, 500],    'selection': 'z_mass>0.',},
         'wEta'                  : {'variable': 'w_eta',                          'binning': [1000, -5, 5],    'selection': 'z_mass>0.',},
         'wLeptonPt'             : {'variable': 'w1_pt',                          'binning': [1000, 0, 1000],  'selection': 'z_mass>0.',},
@@ -199,12 +212,12 @@ fakeTauCut = '{0}_genMatch==0'
 ### electron specific ###
 #########################
 selectionParams['Electron'] = {
-    'default_prompt' : {'args': [promptCut.format('e')],                                       'kwargs': {'directory': 'default/prompt'}},
-    'default_fake'   : {'args': [fakeCut.format('e')],                                         'kwargs': {'directory': 'default/fake'}},
-    'barrel_prompt'  : {'args': [' && '.join([promptCut.format('e'),eBarrelCut.format('e')])], 'kwargs': {'directory': 'barrel/prompt'}},
-    'barrel_fake'    : {'args': [' && '.join([fakeCut.format('e'),eBarrelCut.format('e')])],   'kwargs': {'directory': 'barrel/fake'}},
-    'endcap_prompt'  : {'args': [' && '.join([promptCut.format('e'),eEndcapCut.format('e')])], 'kwargs': {'directory': 'endcap/prompt'}},
-    'edncap_fake'    : {'args': [' && '.join([fakeCut.format('e'),eEndcapCut.format('e')])],   'kwargs': {'directory': 'endcap/fake'}},
+    'default/prompt' : {'args': [promptCut.format('e')],                                       'kwargs': {}},
+    'default/fake'   : {'args': [fakeCut.format('e')],                                         'kwargs': {}},
+    'barrel/prompt'  : {'args': [' && '.join([promptCut.format('e'),eBarrelCut.format('e')])], 'kwargs': {}},
+    'barrel/fake'    : {'args': [' && '.join([fakeCut.format('e'),eBarrelCut.format('e')])],   'kwargs': {}},
+    'endcap/prompt'  : {'args': [' && '.join([promptCut.format('e'),eEndcapCut.format('e')])], 'kwargs': {}},
+    'edncap/fake'    : {'args': [' && '.join([fakeCut.format('e'),eEndcapCut.format('e')])],   'kwargs': {}},
 }
 
 sels = selectionParams['Electron'].keys()
@@ -223,19 +236,17 @@ idCuts = {
 }
 for sel in sels:
     for idName in idCuts:
-        directory = '{0}/{1}'.format('/'.join(sel.split('_')),idName)
-        name = '{0}_{1}'.format(sel,idName)
+        name = '{0}/{1}'.format(sel,idName)
         selectionParams['Electron'][name] = deepcopy(selectionParams['Electron'][sel])
         args = selectionParams['Electron'][name]['args']
         selectionParams['Electron'][name]['args'][0] = args[0] + ' && ' + idCuts[idName]
-        selectionParams['Electron'][name]['kwargs']['directory'] = directory
 
 #####################
 ### muon specific ###
 #####################
 selectionParams['Muon'] = {
-    'default_prompt' : {'args': [promptCut.format('m')],                                       'kwargs': {'directory': 'default/prompt'}},
-    'default_fake'   : {'args': [fakeCut.format('m')],                                         'kwargs': {'directory': 'default/fake'}},
+    'default/prompt' : {'args': [promptCut.format('m')], 'kwargs': {}},
+    'default/fake'   : {'args': [fakeCut.format('m')],   'kwargs': {}},
 }
 
 sels = selectionParams['Muon'].keys()
@@ -249,19 +260,17 @@ idCuts = {
 }
 for sel in sels:
     for idName in idCuts:
-        directory = '{0}/{1}'.format('/'.join(sel.split('_')),idName)
-        name = '{0}_{1}'.format(sel,idName)
+        name = '{0}/{1}'.format(sel,idName)
         selectionParams['Muon'][name] = deepcopy(selectionParams['Muon'][sel])
         args = selectionParams['Muon'][name]['args']
         selectionParams['Muon'][name]['args'][0] = args[0] + ' && ' + idCuts[idName]
-        selectionParams['Muon'][name]['kwargs']['directory'] = directory
 
 ####################
 ### tau specific ###
 ####################
 selectionParams['Tau'] = {
-    'default_prompt' : {'args': [promptTauCut.format('t')],                                       'kwargs': {'directory': 'default/prompt'}},
-    'default_fake'   : {'args': [fakeTauCut.format('t')],                                         'kwargs': {'directory': 'default/fake'}},
+    'default/prompt' : {'args': [promptTauCut.format('t')], 'kwargs': {}},
+    'default/fake'   : {'args': [fakeTauCut.format('t')],   'kwargs': {}},
 }
 
 sels = selectionParams['Tau'].keys()
@@ -297,17 +306,15 @@ for cl in cutLists:
 
 for sel in sels:
     for idName in idCuts:
-        directory = '{0}/{1}'.format('/'.join(sel.split('_')),idName)
-        name = '{0}_{1}'.format(sel,idName)
+        name = '{0}/{1}'.format(sel,idName)
         selectionParams['Tau'][name] = deepcopy(selectionParams['Tau'][sel])
         args = selectionParams['Tau'][name]['args']
         selectionParams['Tau'][name]['args'][0] = args[0] + ' && ' + idCuts[idName]
-        selectionParams['Tau'][name]['kwargs']['directory'] = directory
 
 ##############################
 ### DijetFakeRate specific ###
 ##############################
-frBaseCut = 'w_mass<25 && met_pt<25'
+frBaseCut = 'w_mt<25 && met_pt<25'
 frBaseCutLoose = '{0}'.format(frBaseCut)
 frBaseCutMedium = '{0} && l1_passMedium==1'.format(frBaseCut)
 frBaseCutTight = '{0} && l1_passTight==1'.format(frBaseCut)
@@ -316,12 +323,12 @@ frScaleFactorMedium = 'l1_mediumScale*genWeight*pileupWeight*triggerEfficiency'#
 frScaleFactorTight = 'l1_tightScale*genWeight*pileupWeight*triggerEfficiency'#/triggerPrescale'
 dataScaleFactor = 'triggerPrescale'
 selectionParams['DijetFakeRate'] = {
-    'loose' : {'args': [frBaseCutLoose],        'kwargs': {'mcscalefactor': frScaleFactorLoose,  'datascalefactor': dataScaleFactor, 'directory': 'loose'}},
-    'medium': {'args': [frBaseCutMedium],       'kwargs': {'mcscalefactor': frScaleFactorMedium, 'datascalefactor': dataScaleFactor, 'directory': 'medium'}},
-    'tight' : {'args': [frBaseCutTight],        'kwargs': {'mcscalefactor': frScaleFactorTight,  'datascalefactor': dataScaleFactor, 'directory': 'tight'}},
-    'loose_pt20' : {'args': [frBaseCutLoose + ' && l1_pt>20'],        'kwargs': {'mcscalefactor': frScaleFactorLoose,  'datascalefactor': dataScaleFactor, 'directory': 'loose/pt20'}},
-    'medium_pt20': {'args': [frBaseCutMedium + ' && l1_pt>20'],       'kwargs': {'mcscalefactor': frScaleFactorMedium, 'datascalefactor': dataScaleFactor, 'directory': 'medium/pt20'}},
-    'tight_pt20' : {'args': [frBaseCutTight + ' && l1_pt>20'],        'kwargs': {'mcscalefactor': frScaleFactorTight,  'datascalefactor': dataScaleFactor, 'directory': 'tight/pt20'}},
+    'loose'      : {'args': [frBaseCutLoose],                   'kwargs': {'mcscalefactor': frScaleFactorLoose,  'datascalefactor': dataScaleFactor}},
+    'medium'     : {'args': [frBaseCutMedium],                  'kwargs': {'mcscalefactor': frScaleFactorMedium, 'datascalefactor': dataScaleFactor}},
+    'tight'      : {'args': [frBaseCutTight],                   'kwargs': {'mcscalefactor': frScaleFactorTight,  'datascalefactor': dataScaleFactor}},
+    'loose/pt20' : {'args': [frBaseCutLoose + ' && l1_pt>20'],  'kwargs': {'mcscalefactor': frScaleFactorLoose,  'datascalefactor': dataScaleFactor}},
+    'medium/pt20': {'args': [frBaseCutMedium + ' && l1_pt>20'], 'kwargs': {'mcscalefactor': frScaleFactorMedium, 'datascalefactor': dataScaleFactor}},
+    'tight/pt20' : {'args': [frBaseCutTight + ' && l1_pt>20'],  'kwargs': {'mcscalefactor': frScaleFactorTight,  'datascalefactor': dataScaleFactor}},
 }
 
 channels = ['e','m']
@@ -337,29 +344,24 @@ ptBins = {
 
 jetPtBins = [10,15,20,25,30,35,40,45,50]
 
-for sel in ['loose','medium','tight','loose_pt20','medium_pt20','tight_pt20']:
+for sel in ['loose','medium','tight','loose/pt20','medium/pt20','tight/pt20']:
     for chan in channels:
-        directory = '{0}/{1}'.format('/'.join(sel.split('_')),chan)
-        name = '{0}_{1}'.format(sel,chan)
+        name = '{0}/{1}'.format(sel,chan)
         selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
         args = selectionParams['DijetFakeRate'][name]['args']
         selectionParams['DijetFakeRate'][name]['args'][0] = args[0] + '&& channel=="{0}"'.format(chan)
-        selectionParams['DijetFakeRate'][name]['kwargs']['directory'] = directory
         for jetPt in jetPtBins:
-            directory = '{0}/{1}/jetPt{2}'.format('/'.join(sel.split('_')),chan,jetPt)
-            name = '{0}_{1}_jetPt{2}'.format(sel,chan,jetPt)
+            name = '{0}/{1}/jetPt{2}'.format(sel,chan,jetPt)
             selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
             args = selectionParams['DijetFakeRate'][name]['args']
             selectionParams['DijetFakeRate'][name]['args'][0] = args[0] + '&& channel=="{0}" && leadJet_pt>{1}'.format(chan,jetPt)
-            selectionParams['DijetFakeRate'][name]['kwargs']['directory'] = directory
         if 'pt20' in sel: continue
         for eb in range(len(etaBins[chan])-1):
             directory = '{0}/{1}/etaBin{2}'.format('/'.join(sel.split('_')),chan,eb)
-            name = '{0}_{1}_etaBin{2}'.format(sel,chan,eb)
+            name = '{0}/{1}/etaBin{2}'.format(sel,chan,eb)
             selectionParams['DijetFakeRate'][name] = deepcopy(selectionParams['DijetFakeRate'][sel])
             args = selectionParams['DijetFakeRate'][name]['args']
             selectionParams['DijetFakeRate'][name]['args'][0] = args[0] + '&& channel=="{0}" && fabs(l1_eta)>={1} && fabs(l1_eta)<{2}'.format(chan,etaBins[chan][eb],etaBins[chan][eb+1])
-            selectionParams['DijetFakeRate'][name]['kwargs']['directory'] = directory
 
 
 ###################
@@ -368,19 +370,17 @@ for sel in ['loose','medium','tight','loose_pt20','medium_pt20','tight_pt20']:
 dyBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && z_mass>12. && z1_pt>20. && z2_pt>10. && z_mass>50.'
 dyScaleFactor = 'z1_mediumScale*z2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['DY'] = {
-    'default' : {'args': [dyBaseCut],        'kwargs': {'mcscalefactor': dyScaleFactor, 'directory': 'default'}},
+    'default' : {'args': [dyBaseCut], 'kwargs': {'mcscalefactor': dyScaleFactor}},
 }
 
 channels = ['ee','mm']
 
 for sel in ['default']:
     for chan in channels:
-        directory = '{0}/{1}'.format(sel,chan)
-        name = '{0}_{1}'.format(sel,chan)
+        name = '{0}/{1}'.format(sel,chan)
         selectionParams['DY'][name] = deepcopy(selectionParams['DY'][sel])
         args = selectionParams['DY'][name]['args']
         selectionParams['DY'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
-        selectionParams['DY'][name]['kwargs']['directory'] = directory
 
 #######################
 ### Charge specific ###
@@ -391,27 +391,53 @@ SS = 'z1_charge==z2_charge'
 chargeOS = '{0} && {1}'.format(chargeBaseCut,OS)
 chargeSS = '{0} && {1}'.format(chargeBaseCut,SS)
 emZMassCut = 'fabs(z_mass-{1})<10.'.format(chargeBaseCut,ZMASS)
-tZMassCut = 'fabs(z_mass-60)<20.'.format(chargeBaseCut)
 chargeScaleFactor = 'z1_mediumScale*z2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
-selectionParams['Charge'] = {
-    'OS' : {'args': [chargeOS],        'kwargs': {'mcscalefactor': chargeScaleFactor, 'directory': 'OS'}},
-    'SS' : {'args': [chargeSS],        'kwargs': {'mcscalefactor': chargeScaleFactor, 'directory': 'SS'}},
+selectionParams['Charge'] = {}
+temp = {
+    'OS' : {'args': [chargeOS],        'kwargs': {'mcscalefactor': chargeScaleFactor}},
+    'SS' : {'args': [chargeSS],        'kwargs': {'mcscalefactor': chargeScaleFactor}},
 }
 
 channelMap = {
     'ee': ['ee'],
     'mm': ['mm'],
-    'tt': ['mt','tm'],
 }
 
 for sel in ['OS','SS']:
     for chan in channelMap:
-        directory = '{0}/{1}'.format(sel,chan)
-        name = '{0}_{1}'.format(sel,chan)
-        selectionParams['Charge'][name] = deepcopy(selectionParams['Charge'][sel])
+        name = '{0}/{1}'.format(sel,chan)
+        selectionParams['Charge'][name] = deepcopy(temp[sel])
         args = selectionParams['Charge'][name]['args']
-        selectionParams['Charge'][name]['args'][0] = args[0] + '&& {0} && ({1})'.format(tZMassCut if chan=='tt' else emZMassCut,' || '.join('channel=="{0}"'.format(c) for c in channelMap[chan]))
-        selectionParams['Charge'][name]['kwargs']['directory'] = directory
+        selectionParams['Charge'][name]['args'][0] = args[0] + '&& {0} && ({1})'.format(emZMassCut,' || '.join('channel=="{0}"'.format(c) for c in channelMap[chan]))
+
+##########################
+### TauCharge specific ###
+##########################
+chargeBaseCut = 'z1_passMedium==1 && z2_passMedium==1 && z_deltaR>0.02 && z1_pt>20. && z2_pt>20.'
+OS = 'z1_charge!=z2_charge'
+SS = 'z1_charge==z2_charge'
+chargeOS = '{0} && {1}'.format(chargeBaseCut,OS)
+chargeSS = '{0} && {1}'.format(chargeBaseCut,SS)
+tZMassCut = 'fabs(z_mass-60)<25.'.format(chargeBaseCut)
+chargeScaleFactor = 'z1_mediumScale*z2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
+selectionParams['TauCharge'] = {}
+temp = {
+    'OS'       : {'args': [chargeOS],                   'kwargs': {'mcscalefactor': chargeScaleFactor}},
+    'SS'       : {'args': [chargeSS],                   'kwargs': {'mcscalefactor': chargeScaleFactor}},
+    'OS/mtCut' : {'args': [chargeOS + ' && w1_mt<40.'], 'kwargs': {'mcscalefactor': chargeScaleFactor}},
+    'SS/mtCut' : {'args': [chargeSS + ' && w1_mt<40.'], 'kwargs': {'mcscalefactor': chargeScaleFactor}},
+}
+
+channelMap = {
+    'tt': ['mt','tm'],
+}
+
+for sel in temp:
+    for chan in channelMap:
+        name = '{0}/{1}'.format(sel,chan)
+        selectionParams['TauCharge'][name] = deepcopy(temp[sel])
+        args = selectionParams['TauCharge'][name]['args']
+        selectionParams['TauCharge'][name]['args'][0] = args[0] + '&& {0} && ({1})'.format(tZMassCut,' || '.join('channel=="{0}"'.format(c) for c in channelMap[chan]))
 
 #########################
 ### wz specific stuff ###
@@ -461,13 +487,13 @@ for region in fakeRegions:
 wzScaleFactorMap['loose'] = '*'.join(['{0}_looseScale'.format(x) for x in ['z1','z2','w1']])
 wzScaleFactorMap['medium'] = '*'.join(['{0}_mediumScale'.format(x) for x in ['z1','z2','w1']])
 wzScaleFactorMap['tight'] = '*'.join(['{0}_tightScale'.format(x) for x in ['z1','z2','w1']])
-dySimpleCut = 'z1_pt>20 && z2_pt>10 && w1_pt>10 && fabs(z_mass-{0})<15 && 3l_mass>100 && met_pt<25 && w_mass<25'.format(ZMASS)
+dySimpleCut = 'z1_pt>20 && z2_pt>10 && w1_pt>10 && fabs(z_mass-{0})<15 && 3l_mass>100 && met_pt<25 && w_mt<25'.format(ZMASS)
 ttSimpleCut = 'z1_pt>20 && z2_pt>10 && w1_pt>10 && fabs(z_mass-{0})>5 && 3l_mass>100'.format(ZMASS)
 wzCutMap['dy'] = dySimpleCut
 wzCutMap['tt'] = ttSimpleCut
 
 selectionParams['WZ'] = {
-    'default' : {'args': [wzCutMap['PPP']],       'kwargs': {'mcscalefactor': '*'.join([wzScaleFactorMap['PPP'],wzBaseScaleFactor]), 'directory': 'default'}},
+    'default' : {'args': [wzCutMap['PPP']],       'kwargs': {'mcscalefactor': '*'.join([wzScaleFactorMap['PPP'],wzBaseScaleFactor])}},
 }
 
 for region in fakeRegions:
@@ -477,7 +503,6 @@ for region in fakeRegions:
             'mccut': wzMCCut, 
             'mcscalefactor': '*'.join([wzScaleFactorMap[region],wzFakeScaleFactorMap[region],wzBaseScaleFactor,'1' if region=='PPP' else '-1']),
             'datascalefactor': wzFakeScaleFactorMap[region], 
-            'directory': region,
         }
     }
 
@@ -488,7 +513,6 @@ for control in controls:
         'kwargs': {
             'mccut': wzMCCut,
             'mcscalefactor': '*'.join([wzScaleFactorMap['loose'],wzBaseScaleFactor]),
-            'directory': control,
         }
     }
 
@@ -496,12 +520,10 @@ channels = ['eee','eem','mme','mmm']
 sels = selectionParams['WZ'].keys()
 for sel in sels:
     for chan in channels:
-        name = '{0}_{1}'.format(sel,chan)
-        directory = chan if sel=='default' else '{0}/{1}'.format(sel,chan)
+        name = '{0}/{1}'.format(sel,chan)
         selectionParams['WZ'][name] = deepcopy(selectionParams['WZ'][sel])
         args = selectionParams['WZ'][name]['args']
         selectionParams['WZ'][name]['args'][0] = args[0] + ' && channel=="{0}"'.format(chan)
-        selectionParams['WZ'][name]['kwargs']['directory'] = directory
 
 #############
 ### hpp4l ###
@@ -511,9 +533,9 @@ hpp4lLowMassControl = '{0} && (hpp_mass<100 || hmm_mass<100)'.format(hpp4lBaseCu
 hpp4lMatchSign = 'hpp1_genCharge==hpp1_charge && hpp2_genCharge==hpp2_charge && hmm1_genCharge==hmm1_charge && hmm2_genCharge==hmm2_charge'
 hpp4lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hmm1_mediumScale*hmm2_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Hpp4l'] = {
-    'default'   : {'args': [hpp4lBaseCut],                           'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'default'}},
-    'lowmass'   : {'args': [hpp4lLowMassControl],                    'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'lowmass'}},
-    #'matchSign' : {'args': [hpp4lBaseCut + ' && ' + hpp4lMatchSign], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'matchSign'}},
+    'default'   : {'args': [hpp4lBaseCut],                           'kwargs': {'mcscalefactor': hpp4lScaleFactor}},
+    'lowmass'   : {'args': [hpp4lLowMassControl],                    'kwargs': {'mcscalefactor': hpp4lScaleFactor}},
+    #'matchSign' : {'args': [hpp4lBaseCut + ' && ' + hpp4lMatchSign], 'kwargs': {'mcscalefactor': hpp4lScaleFactor}},
 }
 
 masses = [200,300,400,500,600,700,800,900,1000]
@@ -522,7 +544,7 @@ masses = [200,300,400,500,600,700,800,900,1000]
 hpp4lOldSelections = {}
 for mass in masses:
     hpp4lOldSelections[mass] = '{base} && (hpp1_pt+hpp2_pt+hmm1_pt+hmm2_pt)>0.6*{mass}+130. && hpp_mass>0.9*{mass} && hpp_mass<1.1*{mass} && hmm_mass>0.9*{mass} && hmm_mass<1.1*{mass}'.format(base=hpp4lBaseCut,mass=mass)
-    selectionParams['Hpp4l']['old_{0}'.format(mass)] = {'args': [hpp4lOldSelections[mass]], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'directory': 'old/{0}'.format(mass), 'countOnly': True}}
+    selectionParams['Hpp4l']['old/{0}'.format(mass)] = {'args': [hpp4lOldSelections[mass]], 'kwargs': {'mcscalefactor': hpp4lScaleFactor, 'countOnly': True}}
 
 # setup reco channel selections
 channels = getChannels('Hpp4l')
@@ -530,12 +552,10 @@ channels = getChannels('Hpp4l')
 sels = selectionParams['Hpp4l'].keys()
 for sel in sels:
     for chan in channels:
-        directory = '{0}/{1}'.format('/'.join(sel.split('_')),chan)
-        name = '{0}_{1}'.format(sel,chan)
+        name = '{0}/{1}'.format(sel,chan)
         selectionParams['Hpp4l'][name] = deepcopy(selectionParams['Hpp4l'][sel])
         args = selectionParams['Hpp4l'][name]['args']
         selectionParams['Hpp4l'][name]['args'][0] = args[0] + ' && ' + '(' + ' || '.join(['channel=="{0}"'.format(c) for c in channels[chan]]) + ')'
-        selectionParams['Hpp4l'][name]['kwargs']['directory'] = directory
 
 # setup gen channel selections
 genChans = getGenChannels('Hpp4l')
@@ -547,20 +567,16 @@ hpp4l_ap_selections = {}
 sels = selectionParams['Hpp4l'].keys()
 for sel in sels:
     for chan in genChannelsPP:
-        directory = '{0}/gen_{1}'.format(selectionParams['Hpp4l'][sel]['kwargs']['directory'],chan)
-        name = '{0}_gen_{1}'.format(sel,chan)
+        name = '{0}/gen_{1}'.format(sel,chan)
         hpp4l_pp_selections[name] = deepcopy(selectionParams['Hpp4l'][sel])
         args = hpp4l_pp_selections[name]['args']
         hpp4l_pp_selections[name]['args'][0] = args[0] + ' && ' + 'genChannel=="{0}"'.format(chan)
-        hpp4l_pp_selections[name]['kwargs']['directory'] = directory
         hpp4l_pp_selections[name]['kwargs']['countOnly'] = True
     for chan in genChannelsAP:
-        directory = '{0}/gen_{1}'.format(selectionParams['Hpp4l'][sel]['kwargs']['directory'],chan)
-        name = '{0}_gen_{1}'.format(sel,chan)
+        name = '{0}/gen_{1}'.format(sel,chan)
         hpp4l_ap_selections[name] = deepcopy(selectionParams['Hpp4l'][sel])
         args = hpp4l_ap_selections[name]['args']
         hpp4l_ap_selections[name]['args'][0] = args[0] + ' && ' + 'genChannel=="{0}"'.format(chan)
-        hpp4l_ap_selections[name]['kwargs']['directory'] = directory
         hpp4l_ap_selections[name]['kwargs']['countOnly'] = True
 sampleSelectionParams['Hpp4l'] = {}
 for mass in masses:
@@ -574,8 +590,8 @@ hpp3lBaseCut = 'hpp1_passMedium==1 && hpp2_passMedium==1 && hm1_passMedium==1 &&
 hpp3lLowMassControl = '{0} && hpp_mass<100'.format(hpp3lBaseCut)
 hpp3lScaleFactor = 'hpp1_mediumScale*hpp2_mediumScale*hm1_mediumScale*genWeight*pileupWeight*triggerEfficiency'
 selectionParams['Hpp3l'] = {
-    'default' : {'args': [hpp3lBaseCut],        'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'directory': 'default'}},
-    'lowmass' : {'args': [hpp3lLowMassControl], 'kwargs': {'mcscalefactor': hpp3lScaleFactor, 'directory': 'lowmass'}},
+    'default' : {'args': [hpp3lBaseCut],        'kwargs': {'mcscalefactor': hpp3lScaleFactor}},
+    'lowmass' : {'args': [hpp3lLowMassControl], 'kwargs': {'mcscalefactor': hpp3lScaleFactor}},
 }
 
 # setup reco channel selections
@@ -583,12 +599,10 @@ channels = getChannels('Hpp3l')
 
 for sel in ['default','lowmass']:
     for chan in channels:
-        directory = '{0}/{1}'.format(sel,chan)
-        name = '{0}_{1}'.format(sel,chan)
+        name = '{0}/{1}'.format(sel,chan)
         selectionParams['Hpp3l'][name] = deepcopy(selectionParams['Hpp3l'][sel])
         args = selectionParams['Hpp3l'][name]['args']
         selectionParams['Hpp3l'][name]['args'][0] = args[0] + ' && ' + '(' + ' || '.join(['channel=="{0}"'.format(c) for c in channels[chan]]) + ')'
-        selectionParams['Hpp3l'][name]['kwargs']['directory'] = directory
 
 # setup gen channel selections
 genChans = getGenChannels('Hpp3l')
@@ -600,20 +614,16 @@ hpp3l_ap_selections = {}
 sels = selectionParams['Hpp3l'].keys()
 for sel in sels:
     for chan in genChannelsPP:
-        directory = '{0}/gen_{1}'.format(selectionParams['Hpp3l'][sel]['kwargs']['directory'],chan)
-        name = '{0}_gen_{1}'.format(sel,chan)
+        name = '{0}/gen_{1}'.format(sel,chan)
         hpp3l_pp_selections[name] = deepcopy(selectionParams['Hpp3l'][sel])
         args = hpp3l_pp_selections[name]['args']
         hpp3l_pp_selections[name]['args'][0] = args[0] + ' && ' + 'genChannel=="{0}"'.format(chan)
-        hpp3l_pp_selections[name]['kwargs']['directory'] = directory
         hpp3l_pp_selections[name]['kwargs']['countOnly'] = True
     for chan in genChannelsAP:
-        directory = '{0}/gen_{1}'.format(selectionParams['Hpp3l'][sel]['kwargs']['directory'],chan)
-        name = '{0}_gen_{1}'.format(sel,chan)
+        name = '{0}/gen_{1}'.format(sel,chan)
         hpp3l_ap_selections[name] = deepcopy(selectionParams['Hpp3l'][sel])
         args = hpp3l_ap_selections[name]['args']
         hpp3l_ap_selections[name]['args'][0] = args[0] + ' && ' + 'genChannel=="{0}"'.format(chan)
-        hpp3l_ap_selections[name]['kwargs']['directory'] = directory
         hpp3l_ap_selections[name]['kwargs']['countOnly'] = True
 sampleSelectionParams['Hpp3l'] = {}
 for mass in [200,300,400,500,600,700,800,900,1000]:

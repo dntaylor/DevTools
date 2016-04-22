@@ -137,8 +137,10 @@ class NtupleWrapper(object):
             self.outfile.Close()
             return False
 
-    def __flatten(self,selection,histName,params,**kwargs):
+    def __flatten(self,directory,histName,selection,params,**kwargs):
         '''Produce flat histograms for a given selection.'''
+        ROOT.gDirectory.Delete('h_*')
+        ROOT.gDirectory.Delete(histName)
         mccut = kwargs.pop('mccut','')
         datacut = kwargs.pop('datacut','')
         if datacut and isData(self.sample): selection += ' && {0}'.format(datacut)
@@ -148,8 +150,6 @@ class NtupleWrapper(object):
         datascalefactor = kwargs.pop('datascalefactor','')
         if datascalefactor and isData(self.sample): scalefactor = datascalefactor
         if mcscalefactor and not isData(self.sample): scalefactor = mcscalefactor
-        directory = kwargs.pop('directory','')
-        #if not hasProgress: logging.info('Flattening {0} {1} {2}'.format(self.sample,directory,histName))
         if not self.initialized: self.__initializeNtuple()
         tree = self.sampleTree
         if not tree: return
@@ -157,7 +157,7 @@ class NtupleWrapper(object):
         if not isData(self.sample): scalefactor = '{0}*{1}'.format(scalefactor,float(self.intLumi)/self.sampleLumi)
         name = histName
         self.j += 1
-        tempName = '{0}_{1}_{2}'.format(name,self.sample,self.j)
+        tempName = 'h_{0}_{1}_{2}'.format(name,self.sample,self.j)
         drawString = '{0}>>{1}({2})'.format(params['variable'],tempName,', '.join([str(x) for x in params['binning']]))
         if 'scale' in params: scalefactor += '*{0}'.format(params['scale'])
         if 'mcscale' in params and not isData(self.sample): scalefactor += '*{0}'.format(params['mcscale'])
@@ -183,7 +183,7 @@ class NtupleWrapper(object):
             hist.SetName(name)
             self.__write(hist,directory=directory)
 
-    def __flatten2D(self,selection,histName,params,**kwargs):
+    def __flatten2D(self,directory,histName,selection,params,**kwargs):
         '''Produce flat 2D histograms for a given selection.'''
         mccut = kwargs.pop('mccut','')
         datacut = kwargs.pop('datacut','')
@@ -194,7 +194,6 @@ class NtupleWrapper(object):
         datascalefactor = kwargs.pop('datascalefactor','')
         if datascalefactor and isData(self.sample): scalefactor = datascalefactor
         if mcscalefactor and not isData(self.sample): scalefactor = mcscalefactor
-        directory = kwargs.pop('directory','')
         #if not hasProgress: logging.info('Flattening {0} {1} {2}'.format(self.sample,directory,histName))
         if not self.initialized: self.__initializeNtuple()
         tree = self.sampleTree
@@ -242,7 +241,7 @@ class NtupleWrapper(object):
             logging.error('Unrecognized selection {0}'.format(selectionName))
         selection = self.selections[selectionName]['args'][0]
         kwargs = self.selections[selectionName]['kwargs']
-        self.__flatten(selection,histName,params,**kwargs)
+        self.__flatten(selectionName,histName,selection,params,**kwargs)
 
     def flatten2D(self,histName,selectionName):
         '''Flatten a 2D histogram'''
@@ -253,6 +252,6 @@ class NtupleWrapper(object):
             logging.error('Unrecognized selection {0}'.format(selectionName))
         selection = self.selections[selectionName]['args'][0]
         kwargs = self.selections[selectionName]['kwargs']
-        self.__flatten2D(selection,histName,params,**kwargs)
+        self.__flatten2D(selectionName,histName,selection,params,**kwargs)
 
 

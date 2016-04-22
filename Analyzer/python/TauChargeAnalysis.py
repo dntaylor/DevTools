@@ -68,6 +68,10 @@ class TauChargeAnalysis(AnalysisBase):
         self.tree.add(lambda rtrow,cands: self.mediumScale(rtrow,cands['z2']), 'z2_mediumScale', 'F')
         self.tree.add(lambda rtrow,cands: self.tightScale(rtrow,cands['z2']), 'z2_tightScale', 'F')
 
+        # w lepton
+        self.addLeptonMet('w1','z1',('pfmet',0))
+        self.addLeptonMet('w2','z2',('pfmet',0))
+
         # met
         self.addMet('met',('pfmet',0))
 
@@ -83,8 +87,6 @@ class TauChargeAnalysis(AnalysisBase):
         # get leptons
         colls = ['muons','taus']
         pts = {}
-        p4s = {}
-        charges = {}
         etas = {}
         phis = {}
         leps = []
@@ -95,21 +97,17 @@ class TauChargeAnalysis(AnalysisBase):
             pts[cand] = self.getObjectVariable(rtrow,cand,'pt')
             etas[cand] = self.getObjectVariable(rtrow,cand,'eta')
             phis[cand] = self.getObjectVariable(rtrow,cand,'phi')
-            p4s[cand] = self.getObjectVariable(rtrow,cand,'p4')
-            charges[cand] = self.getObjectVariable(rtrow,cand,'charge')
 
         # get invariant masses
         massDiffs = {}
         sts = {}
         for zpair in itertools.combinations(pts.keys(),2):
-            # require mt
+            # mt, tm
             candFlavors = [zpair[0][0],zpair[1][0]]
-            skip = True
-            if candFlavors.count('muons')==1 and candFlavors.count('taus')==1: skip = False
-            if skip: continue
+            if candFlavors.count('muons')!=1 and candFlavors.count('taus')!=1: continue
+            # require pt 20 for muon as well as tau
             pt0 = pts[zpair[0]]
             pt1 = pts[zpair[1]]
-            # require pt 20 for muon as well as tau
             if pt0<20 or pt1<20: continue
             # require deltaR 0.02
             eta0 = etas[zpair[0]]
@@ -117,9 +115,6 @@ class TauChargeAnalysis(AnalysisBase):
             phi0 = phis[zpair[0]]
             phi1 = phis[zpair[1]]
             if deltaR(eta0,phi0,eta1,phi1)<0.02: continue
-            zp4 = p4s[zpair[0]] + p4s[zpair[1]]
-            zmass = zp4.M()
-            massDiffs[zpair] = abs(zmass-ZMASS)
             sts[zpair] = pt0 + pt1
 
         if not sts: return candidate # need a z candidate
@@ -127,18 +122,12 @@ class TauChargeAnalysis(AnalysisBase):
         # sort by highest pt pair
         bestZ = sorted(sts.items(), key=operator.itemgetter(1))[-1][0]
 
-        # and sort pt of Z
-        zpts = {}
-        zpts[bestZ[0]] = pts.pop(bestZ[0])
-        zpts[bestZ[1]] = pts.pop(bestZ[1])
-
-        z = sorted(zpts.items(), key=operator.itemgetter(1))
-        z1 = z[1][0]
-        z2 = z[0][0]
+        # make it mt
+        z1 = bestZ[0] if bestZ[0][0]=='muons' else bestZ[1]
+        z2 = bestZ[1] if bestZ[0][0]=='muons' else bestZ[0]
 
         candidate['z1'] = z1
         candidate['z2'] = z2
-
 
         return candidate
 

@@ -70,18 +70,16 @@ class FlattenTree(object):
         else:
             pbar = None
         allJobs = []
-        for sel in self.selections:
+        for selName in self.selections:
             for histName in self.histParameters:
-                if sel in self.countOnly and 'count' not in histName: continue
-                allJobs += [[sel,histName]]
+                if selName in self.countOnly and 'count' not in histName: continue
+                allJobs += [[histName,selName]]
         if hasProgress:
             for args in pbar(allJobs):
-                sel,histName = args
-                self.ntuple.flatten(histName,sel)
+                self.ntuple.flatten(*args)
         else:
             for args in allJobs:
-                sel,histName = args
-                self.flatten(histName,sel)
+                self.flatten(*args)
 
     def flattenAll2D(self,**kwargs):
         '''Flatten all selections 2D'''
@@ -90,15 +88,13 @@ class FlattenTree(object):
         else:
             pbar = None
         allJobs = []
-        for sel in self.selections:
+        for selName in self.selections:
             for histName in self.histParameters2D:
-                if sel in self.countOnly and 'count' not in histName: continue
-                allJobs += [[sel,histName]]
+                if selName in self.countOnly and 'count' not in histName: continue
+                allJobs += [[histName,selName]]
         if hasProgress:
             for args in pbar(allJobs):
-                sel,histName = args
-                self.ntuple.flatten2D(histName,sel)
+                self.ntuple.flatten2D(*args)
         else:
             for args in allJobs:
-                sel,histName = args
-                self.flatten2D(histName,sel)
+                self.flatten2D(*args)

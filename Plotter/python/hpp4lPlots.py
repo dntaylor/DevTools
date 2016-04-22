@@ -57,6 +57,9 @@ sigMap = {
              'WWTo2L2Nu_13TeV-powheg',
              'WWToLNuQQ_13TeV-powheg',
             ],
+    'W'   : [
+             'WJetsToLNu_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
+            ],
     'Z'   : [
              'DYJetsToLL_M-50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
              'DYJetsToLL_M-10to50_TuneCUETP8M1_13TeV-amcatnloFXFX-pythia8',
@@ -209,7 +212,7 @@ for cat in cats:
         countVars += [['lowmass/{0}/count'.format(chan) for chan in subCatChannels[cat][subCat]]]
 countLabels = ['Total'] + subCatLabels
 savename = 'lowmass/individualSubCategories'
-hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,yscale=10,ymin=0.001)
+hpp4lPlotter.plotCounts(countVars,countLabels,savename,numcol=3,logy=1,legendpos=34,ymax=10e6,ymin=0.001)
 
 
 

@@ -18,6 +18,7 @@ colors = {
     'LightGreen' : {'color' : ROOT.TColor.GetColor('#66FF99'), 'accent' : ROOT.TColor.GetColor('#52CC7A')},
     'Lime'       : {'color' : ROOT.TColor.GetColor('#9ED54C'), 'accent' : ROOT.TColor.GetColor('#59A80F')},
     'Aqua'       : {'color' : ROOT.TColor.GetColor('#66FFFF'), 'accent' : ROOT.TColor.GetColor('#52CCCC')},
+    'GreyBlue'   : {'color' : ROOT.TColor.GetColor('#99CCFF'), 'accent' : ROOT.TColor.GetColor('#CCE6FF')},
     'Pink'       : {'color' : ROOT.TColor.GetColor('#FF99DD'), 'accent' : ROOT.TColor.GetColor('#FFCCEE')},
 }
 
@@ -30,7 +31,7 @@ colorMap = {
     'ZZ'        : 'Blue',
     'ZG'        : 'Red',
     'WZ'        : 'Purple',
-    'WW'        : 'Aqua',
+    'WW'        : 'GreyBlue',
     'VVV'       : 'Navy',
     'WWW'       : 'Navy',
     'WWZ'       : 'Navy',

@@ -103,7 +103,7 @@ def passHppMedium(self,rtrow,cand):
     elif cand[0]=='muons':
         return passWZMedium(self,rtrow,cand)
     elif cand[0]=='taus':
-        return True # only 1 ID for now
+        return passHppLoose(self,rtrow,cand)
     else:
         return False
 
@@ -115,6 +115,13 @@ def passHppTight(self,rtrow,cand):
     elif cand[0]=='muons':
         return passWZMedium(self,rtrow,cand)
     elif cand[0]=='taus':
-        return True # only 1 ID for now
+        decayModeFinding = self.getObjectVariable(rtrow,cand,'decayModeFinding')
+        againstMuonLoose3 = self.getObjectVariable(rtrow,cand,'againstMuonLoose3')
+        againstElectronVLooseMVA6 = self.getObjectVariable(rtrow,cand,'againstElectronVLooseMVA6')
+        byVTightIsolationMVArun2v1DBoldDMwLT = self.getObjectVariable(rtrow,cand,'byVTightIsolationMVArun2v1DBoldDMwLT')
+        return (decayModeFinding>0.5
+                and againstMuonLoose3>0.5
+                and againstElectronVLooseMVA6>0.5
+                and byVTightIsolationMVArun2v1DBoldDMwLT>0.5)
     else:
         return False
