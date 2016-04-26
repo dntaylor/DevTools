@@ -398,12 +398,19 @@ def status_condor(args):
     else:
         log.error("Shouldn't be possible to get here")
 
-    allowedStatuses = ['SUBMITTED','RUNNING','FINISHED','UNKNOWN']
+    allowedStatuses = ['SUBMITTED','RUNNING','ERROR','EVICTED','ABORTED','SUSPENDED','HELD','FINISHED','UNKNOWN']
 
     logstatuses = { # TODO: lookup possible states
-        'ULOG_SUBMIT'         : 'SUBMITTED',
-        'ULOG_EXECUTE'        : 'RUNNING',
-        'ULOG_JOB_TERMINATED' : 'FINISHED',
+        0 : 'SUBMITTED',
+        1 : 'RUNNING',
+        2 : 'ERROR',
+        4 : 'EVICTED',
+        5 : 'FINISHED',
+        9 : 'ABORTED',
+        10: 'SUSPENDED',
+        11: 'RUNNING', #'UNSUSPENDED',
+        12: 'HELD',
+        13: 'RUNNING', #'RELEASED',
     }
     results = {}
     for d in sorted(condor_dirs):
@@ -424,9 +431,10 @@ def status_condor(args):
                         laststatus = ''
                         with open(logfile,'r') as f:
                             for line in f.readlines():
-                               if 'TriggerEventTypeName' in line:
-                                   for stat in logstatuses:
-                                       if stat in line: laststatus = logstatuses[stat]
+                                if 'TriggerEventTypeNumber' in line:
+                                    code = int(line.split()[-1])
+                                    if code in logstatuses: 
+                                        laststatus = logstatuses[code]
                         results[d][j]['status'] = laststatus
                     else:
                         results[d][j]['status'] = 'UNKNOWN'
