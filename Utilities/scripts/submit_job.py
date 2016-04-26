@@ -386,6 +386,62 @@ def submit_condor(args):
     else:
         log.warning('Unrecognized submit configuration.')
 
+def status_condor(args):
+    '''Check jobs on condor'''
+    condor_dirs = []
+    if args.jobName:
+        workArea = get_condor_workArea(args)
+        condor_dirs += sorted(glob.glob('{0}/*'.format(workArea)))
+    elif args.condorDirectories:
+        for d in args.condorDirectories:
+            condor_dirs += glob.glob(d)
+    else:
+        log.error("Shouldn't be possible to get here")
+
+    allowedStatuses = ['SUBMITTED','RUNNING','FINISHED','UNKNOWN']
+
+    logstatuses = { # TODO: lookup possible states
+        'ULOG_SUBMIT'         : 'SUBMITTED',
+        'ULOG_EXECUTE'        : 'RUNNING',
+        'ULOG_JOB_TERMINATED' : 'FINISHED',
+    }
+    results = {}
+    for d in sorted(condor_dirs):
+        if os.path.isdir(d):
+            results[d] = {}
+            # get list of jobs
+            jobDirs = [j for j in glob.glob('{0}/*'.format(d)) if os.path.isdir(j)]
+            for j in jobDirs:
+                results[d][j] = {}
+                # completed jobs have a report.log in the submission directory
+                if os.path.exists('{0}/report.log'.format(j)):
+                    # parse report.log TODO lookup possible exit codes
+                    results[d][j]['status'] = 'FINISHED'
+                else:
+                    # load log file
+                    logfile = '{0}/{1}.log'.format(j,os.path.basename(j))
+                    if os.path.exists(logfile):
+                        laststatus = ''
+                        with open(logfile,'r') as f:
+                            for line in f.readlines():
+                               if 'TriggerEventTypeName' in line:
+                                   for stat in logstatuses:
+                                       if stat in line: laststatus = logstatuses[stat]
+                        results[d][j]['status'] = laststatus
+                    else:
+                        results[d][j]['status'] = 'UNKNOWN'
+
+    # print out the summary
+    total = {}
+    for s in allowedStatuses: total[s] = 0
+    for d in sorted(results):
+        if args.verbose: log.info(d)
+        for s in allowedStatuses:
+            jobs = [key for key,val in results[d].iteritems() if val['status']==s]
+            total[s] += len(jobs)
+            if len(jobs) and args.verbose: log.info('    {0:20}: {1}'.format(s,len(jobs)))
+    for s in allowedStatuses:
+        if total[s]: log.info('{0:20}: {1}'.format(s,total[s]))
 
 def parse_command_line(argv):
     parser = argparse.ArgumentParser(description='Submit jobs to grid')
@@ -502,6 +558,19 @@ def parse_command_line(argv):
     parser_condorSubmit.add_argument('--scriptExe', action='store_true', help='This is a script, not a cmsRun config')
 
     parser_condorSubmit.set_defaults(submit=submit_condor)
+
+    # condorStatus
+    parser_condorStatus = subparsers.add_parser('condorStatus', help='Check job status via condor')
+
+    parser_condorStatus_directories = parser_condorStatus.add_mutually_exclusive_group(required=True)
+    parser_condorStatus_directories.add_argument('--jobName', type=str, help='Job name from submission')
+    parser_condorStatus_directories.add_argument('--condorDirectories', type=str, nargs="*",
+        help='Space separated list of condor submission directories. Unix wild-cards allowed.',
+    )
+
+    parser_condorStatus.add_argument('--verbose', action='store_true', help='Verbose status summary')
+
+    parser_condorStatus.set_defaults(submit=status_condor)
 
     # condorMerge
     parser_condorMerge = subparsers.add_parser('condorMerge', help='Submit merge job via condor')
