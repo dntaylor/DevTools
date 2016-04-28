@@ -15,3 +15,20 @@ def python_mkdir(dir):
             pass
         else: raise
 
+def sumWithError(*args):
+    val = sum([x[0] for x in args])
+    err = (sum([x[1]**2 for x in args]))**0.5
+    return (val,err)
+
+def prod(iterable):
+    return reduce(operator.mul, iterable, 1)
+
+def prodWithError(*args):
+    val = prod([x[0] for x in args])
+    err = val * (sum([(x[1]/x[0])**2 for x in args if x[0]]))**0.5
+    return (val,err)
+
+def divWithError(num,denom):
+    val = num[0]/denom[0] if denom[0] else 0.
+    err = val * ((num[1]/num[0])**2 + (denom[1]/denom[0])**2)**0.5
+    return (val, err)

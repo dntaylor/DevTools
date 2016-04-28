@@ -26,9 +26,10 @@ def print_detailed_wz(rtrow):
 
 
 def parse_command_line(argv):
-    parser = argparse.ArgumentParser(description="Print events from ntuple (FSA or DBLH)")
+    parser = argparse.ArgumentParser(description="Print events from ntuple")
 
     parser.add_argument('files', nargs='+', help='File names w/ UNIX wildcards')
+    parser.add_argument('-t','--tree',type=str,default='MiniTree',help='Tree name')
     parser.add_argument('-c','--cut',nargs='?',type=str,default='',help='Cut to be applied to tree')
     parser.add_argument('-e','--events',nargs='*',type=str,default=[],help='Events to print (form: run:lumi:event, space delimited)')
     parser.add_argument('-d','--detailed',action='store_true',help='Print detailed event information')
@@ -50,8 +51,7 @@ def main(argv=None):
 
     files = [filename for string in args.files for filename in glob.glob(string)]
 
-    treeName = 'WZTree'
-    tchain = ROOT.TChain(treeName)
+    tchain = ROOT.TChain(args.tree)
     for f in files:
         tchain.Add(f)
 
