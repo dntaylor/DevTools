@@ -369,6 +369,7 @@ def submit_untracked_condor(args):
                 # output directory
                 outputDir = 'srm://cmssrm2.hep.wisc.edu:8443/srm/v2/server?SFN=/hdfs/store/user/{0}/{1}/{2}'.format(uname,args.jobName,sample)
                 command += ' --output-dir={0}'.format(outputDir)
+                if args.useHDFS: command += ' --use-hdfs'
                 if hasattr(args,'cfg'):
                     command += ' {0} {1} {2}'.format(args.jobName, args.cfg, ' '.join(args.cmsRunArgs))
                 else: # its a merge
@@ -562,6 +563,8 @@ def parse_command_line(argv):
     )
 
     parser_condorSubmit.add_argument('--dryrun', action='store_true', help='Do not submit jobs')
+
+    parser_condorSubmit.add_argument('--useHDFS', action='store_true', help='Use HDFS to read files')
 
     parser_condorSubmit.add_argument('--scriptExe', action='store_true', help='This is a script, not a cmsRun config')
 
