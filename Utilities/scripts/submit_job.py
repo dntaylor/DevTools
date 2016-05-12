@@ -604,6 +604,8 @@ def parse_command_line(argv):
 
     parser_condorMerge.add_argument('--dryrun', action='store_true', help='Do not submit jobs')
 
+    parser_condorMerge.add_argument('--useHDFS', action='store_true', help='Use HDFS to read files')
+
     parser_condorMerge.set_defaults(submit=submit_condor)
 
     return parser.parse_args(argv)
