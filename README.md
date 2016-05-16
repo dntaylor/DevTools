@@ -7,11 +7,11 @@ the [CMSSW framework](https://github.com/cms-sw/cmssw).
 Installation
 ------------
 
-Current CMSSW version ``CMSSW_8_0_5``.
+Current CMSSW version ``CMSSW_8_0_8``.
 
 ```bash
-cmsrel CMSSW_8_0_5
-cd CMSSW_8_0_5/src
+cmsrel CMSSW_8_0_8
+cd CMSSW_8_0_8/src
 cmsenv
 git cms-init
 git clone --recursive git@github.com:dntaylor/DevTools.git -b 80X
