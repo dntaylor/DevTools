@@ -96,10 +96,14 @@ def get_config(args):
     config.Data.outLFNDirBase       = '/store/user/{0}/{1}/'.format(uname,args.jobName)
     config.Data.publication         = args.publish
     config.Data.outputDatasetTag    = args.jobName
-    if args.applyLumiMask:
+    if args.applyLumiMask='Collisions15':
         config.Data.lumiMask        = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/'\
                                       'Collisions15/13TeV/'\
                                       'Cert_246908-260627_13TeV_PromptReco_Collisions15_25ns_JSON_v2.txt'
+    if args.applyLumiMask='Collisions16':
+        config.Data.lumiMask        = '/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/certification/'\
+                                      'Collisions16/13TeV/'\
+                                      'Cert_271036-273450_13TeV_PromptReco_Collisions16_JSON_NoL1T.txt'
         #config.Data.splitting       = 'LumiBased'
         #config.Data.unitsPerJob     = args.lumisPerJob
 
@@ -477,7 +481,8 @@ def parse_command_line(argv):
         help='Top level directory to submit. Each subdirectory will create one crab job.'
     )
 
-    parser_crabSubmit.add_argument('--applyLumiMask',action='store_true',
+    parser_crabSubmit.add_argument('--applyLumiMask',type=str, default=None,
+        choices=['Collisions15','Collisions16'],
         help='Apply the latest golden json run lumimask to data'
     )
 
@@ -544,7 +549,8 @@ def parse_command_line(argv):
         help='Top level directory to submit (unix wildcards allowed). Each subdirectory will create one condor job.'
     )
 
-    parser_condorSubmit.add_argument('--applyLumiMask',action='store_true',
+    parser_condorSubmit.add_argument('--applyLumiMask',type=str, default=None,
+        choices=['Collisions15','Collisions16'],
         help='Apply the latest golden json run lumimask to data'
     )
 
