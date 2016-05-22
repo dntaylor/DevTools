@@ -15,6 +15,12 @@ def python_mkdir(dir):
             pass
         else: raise
 
+def getCMSSWMajorVersion():
+    return os.environ['CMSSW_VERSION'].split('_')[1]
+
+def getCMSSWMinorVersion():
+    return os.environ['CMSSW_VERSION'].split('_')[2]
+
 def sumWithError(*args):
     val = sum([x[0] for x in args])
     err = (sum([x[1]**2 for x in args]))**0.5
