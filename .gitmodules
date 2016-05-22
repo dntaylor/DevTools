@@ -18,3 +18,7 @@
 	path = Limits
 	url = git@github.com:dntaylor/DevTools-Limits.git
 	branch = master
+[submodule "Utilities"]
+	path = Utilities
+	url = git@github.com:dntaylor/DevTools-Utilities.git
+	branch = master
