@@ -21,3 +21,4 @@ export PYTHONPATH=$CMSSW_BASE/src/venv/lib/python2.7/site-packages/:$PYTHONPATH
 pip install progressbar # nice progressbars
 pip install blessings   # simple terminal styling
 pip install jupyter     # ipython notebook
+pip install brilws      # for brilcalc
