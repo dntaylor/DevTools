@@ -28,7 +28,7 @@ popd
 
 # ntuplizer
 pushd $CMSSW_BASE/src/DevTools/Ntuplizer
-git checkout 80X
+git checkout 80X_PostICHEP
 git pull
 popd
 source $CMSSW_BASE/src/DevTools/Ntuplizer/recipe/recipe.sh

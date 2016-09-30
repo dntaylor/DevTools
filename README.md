@@ -14,6 +14,6 @@ cmsrel CMSSW_8_0_11
 cd CMSSW_8_0_11/src
 cmsenv
 git cms-init
-git clone --recursive git@github.com:dntaylor/DevTools.git -b 80X
+git clone --recursive git@github.com:dntaylor/DevTools.git -b 80X_PostICHEP
 ./DevTools/recipe/recipe.sh
 ``` 
