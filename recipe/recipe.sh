@@ -35,7 +35,7 @@ source $CMSSW_BASE/src/DevTools/Ntuplizer/recipe/recipe.sh
 
 # tag and probe
 pushd $CMSSW_BASE/src/DevTools/TagAndProbe
-git checkout 80X
+git checkout 80X_PostICHEP
 git pull
 popd
 source $CMSSW_BASE/src/DevTools/TagAndProbe/recipe/recipe.sh
