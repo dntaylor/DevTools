@@ -25,7 +25,7 @@ class Hpp4lTrainer(Trainer):
             for reco in genRecoMap[gen]:
                 if reco not in selectedRecoChannels: selectedRecoChannels += [reco]
 
-        allsamples = ['W','T','TT','TTVall','Z','WW','VHall','WZ','VVV','ZZall']
+        allsamples = ['TT','TTV','Z','WZ','VVV','ZZ']
         signals = ['HppHmm{0}GeV'.format(mass)]
 
         # get the trees
@@ -50,11 +50,11 @@ class Hpp4lTrainer(Trainer):
 
         # variables
         #self.factory.AddVariable('hppWindow := fabs(hpp_mass-{0})'.format(mass), '|m_{++}-m_{#Phi}|', 'GeV', 'F')   # h++ symmetric window
-        self.factory.AddVariable('hpp_mass','m_{++}','GeV','F')                                                     # h++
+        #self.factory.AddVariable('hpp_mass','m_{++}','GeV','F')                                                     # h++
         #self.factory.AddVariable('hpp_pt','p_{T}^{++}','GeV','F')                                                   # h++ pt
         #self.factory.AddVariable('hpp_deltaR', '#Delta R(++)', '', 'F')                                             # h++ dR
         #self.factory.AddVariable('hmmWindow := fabs(hmm_mass-{0})'.format(mass), '|m_{--}-m_{#Phi}|', 'GeV', 'F')   # h-- symmetric window
-        self.factory.AddVariable('hmm_mass','m_{--}','GeV','F')                                                     # h--
+        #self.factory.AddVariable('hmm_mass','m_{--}','GeV','F')                                                     # h--
         #self.factory.AddVariable('hmm_pt','p_{T}^{--}','GeV','F')                                                   # h-- pt
         #self.factory.AddVariable('hmm_deltaR', '#Delta R(--)', '', 'F')                                             # h-- dR
         self.factory.AddVariable('st := hpp1_pt+hpp2_pt+hmm1_pt+hmm2_pt', 's_{T}', 'GeV', 'F')                        # 4l st
@@ -104,19 +104,19 @@ class Hpp4lTrainer(Trainer):
             )
         )
 
-        #bdt = self.factory.BookMethod(
-        #    ROOT.TMVA.Types.kBDT,
-        #    "BDT",
-        #    ":".join(
-        #        [
-        #            "NTrees=850",
-        #            "MaxDepth=3",
-        #            "BoostType=AdaBoost",
-        #            "AdaBoostBeta=0.5",
-        #            "SeparationType=GiniIndex",
-        #            "nCuts=20",
-        #            "PruneMethod=NoPruning",
-        #        ]
-        #    )
-        #)
+        bdt = self.factory.BookMethod(
+            ROOT.TMVA.Types.kBDT,
+            "BDT",
+            ":".join(
+                [
+                    "NTrees=850",
+                    "MaxDepth=3",
+                    "BoostType=AdaBoost",
+                    "AdaBoostBeta=0.5",
+                    "SeparationType=GiniIndex",
+                    "nCuts=20",
+                    "PruneMethod=NoPruning",
+                ]
+            )
+        )
 

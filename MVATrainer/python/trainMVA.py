@@ -16,7 +16,7 @@ def train(mass,nTaus):
     trainer.train()
     
 
-train(500,2)
+train(500,0)
 
 #pool = Pool(16)
 #masses = [200,300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500]
