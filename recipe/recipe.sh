@@ -2,8 +2,15 @@
 
 # submodules
 source $CMSSW_BASE/src/DevTools/recipe/setupSubmodules.sh
-source $CMSSW_BASE/src/DevTools/Ntuplizer/recipe/recipe.sh
-source $CMSSW_BASE/src/DevTools/TagAndProbe/recipe/recipe.sh
+#source $CMSSW_BASE/src/DevTools/Ntuplizer/recipe/recipe.sh
+#source $CMSSW_BASE/src/DevTools/TagAndProbe/recipe/recipe.sh
+
+# install combine
+git clone https://github.com/cms-analysis/HiggsAnalysis-CombinedLimit.git HiggsAnalysis/CombinedLimit
+pushd HiggsAnalysis/CombinedLimit
+git fetch origin
+git checkout v7.0.1
+popd
 
 # python utilities
 git clone --branch 15.0.0 https://github.com/pypa/virtualenv.git $CMSSW_BASE/src/DevTools/recipe/virtualenv
