@@ -16,4 +16,5 @@ git cms-init
 scram b # need for EGamma recipes
 git clone --recursive git@github.com:dntaylor/DevTools.git -b 94X
 ./DevTools/recipe/recipe.sh
+scram b -j 16
 ``` 
