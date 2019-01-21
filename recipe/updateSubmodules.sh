@@ -20,6 +20,11 @@ pushd $CMSSW_BASE/src/DevTools/Analyzer
 git pull
 popd
 
+# nanoanalyzer
+pushd $CMSSW_BASE/src/DevTools/NanoAnalyzer
+git pull
+popd
+
 # ntuplizer
 pushd $CMSSW_BASE/src/DevTools/Ntuplizer
 git pull

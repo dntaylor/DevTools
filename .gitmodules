@@ -2,6 +2,10 @@
 	path = Analyzer
 	url = git@github.com:dntaylor/DevTools-Analysis.git
 	branch = master
+[submodule "NanoAnalyzer"]
+	path = NanoAnalyzer
+	url = git@github.com:dntaylor/DevTools-NanoAnalyzer.git
+	branch = master
 [submodule "Ntuplizer"]
 	path = Ntuplizer
 	url = git@github.com:dntaylor/DevTools-Ntuplizer.git

@@ -26,6 +26,12 @@ git checkout master
 git pull
 popd
 
+# nanoanalyzer
+pushd $CMSSW_BASE/src/DevTools/NanoAnalyzer
+git checkout master
+git pull
+popd
+
 # ntuplizer
 pushd $CMSSW_BASE/src/DevTools/Ntuplizer
 git checkout 94X
