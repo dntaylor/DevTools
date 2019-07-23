@@ -34,7 +34,7 @@ popd
 
 # ntuplizer
 pushd $CMSSW_BASE/src/DevTools/Ntuplizer
-git checkout 94X
+git checkout 106X
 git pull
 popd
 
