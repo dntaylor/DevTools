@@ -2,8 +2,8 @@
 
 # submodules
 source $CMSSW_BASE/src/DevTools/recipe/setupSubmodules.sh
-source $CMSSW_BASE/src/DevTools/Ntuplizer/recipe/recipe.sh
-source $CMSSW_BASE/src/DevTools/TagAndProbe/recipe/recipe.sh
+#source $CMSSW_BASE/src/DevTools/Ntuplizer/recipe/recipe.sh
+#source $CMSSW_BASE/src/DevTools/TagAndProbe/recipe/recipe.sh
 
 # python utilities
 git clone --branch 15.0.0 https://github.com/pypa/virtualenv.git $CMSSW_BASE/src/DevTools/recipe/virtualenv
