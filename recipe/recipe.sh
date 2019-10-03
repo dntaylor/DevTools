@@ -16,8 +16,9 @@ source $CMSSW_BASE/src/venv/bin/activate
 export PYTHONPATH=$CMSSW_BASE/src/venv/lib/python2.7/site-packages/:$PYTHONPATH
 
 pip install -U pip      # new version
-pip install -U ipython  # doesnt have the backspace problem in 80X
+#pip install -U ipython  # doesnt have the backspace problem in 80X
 pip install progressbar # nice progressbars
 pip install blessings   # simple terminal styling
 pip install jupyter     # ipython notebook
 pip install brilws      # for brilcalc
+pip install coffea --no-deps # column analysis, no deps because it is asking for matplotlib 3 in py2 (should ask for 2.2.x)
